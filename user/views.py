@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth.models import User
@@ -13,10 +13,26 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return UserCreateSerializer
         return UserSerializer
+    
+    def get_permissions(self):
+        """
+        Permitir registro público pero requerir autenticación para otras acciones
+        """
+        if self.action == 'create':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+    
+    def perform_create(self, serializer):
+        """
+        Asignar automáticamente el usuario autenticado al perfil
+        """
+        serializer.save(user=self.request.user)
     
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):

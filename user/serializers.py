@@ -24,8 +24,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(write_only=True, required=False)
     
     class Meta:
         model = UserProfile
-        fields = ['id', 'user', 'user_type', 'phone', 'is_verified', 'created_at', 'updated_at', 'favorites']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = ['id', 'user', 'user_id', 'user_type', 'phone', 'is_verified', 'created_at', 'updated_at', 'favorites']
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+    
+    def create(self, validated_data):
+        # Remover user_id si está presente, ya que se maneja en la vista
+        validated_data.pop('user_id', None)
+        return super().create(validated_data)

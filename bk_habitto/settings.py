@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django_filters',
     'habittoapp',
     'user',
-    'user_profile',
     'property',
     'amenity',
     'photo',

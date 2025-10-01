@@ -31,7 +31,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='api-root'),
     path('api/', include('user.urls')),
-    path('api/', include('user_profile.urls')),
     path('api/', include('property.urls')),
     path('api/', include('amenity.urls')),
     path('api/', include('photo.urls')),
