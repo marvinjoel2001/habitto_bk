@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Incentive
+from .serializers import IncentiveSerializer
 
-# Create your views here.
+class IncentiveViewSet(viewsets.ModelViewSet):
+    queryset = Incentive.objects.all()
+    serializer_class = IncentiveSerializer
