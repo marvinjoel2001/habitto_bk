@@ -1,0 +1,59 @@
+# --------------------
+# Python / Entorno Virtual
+# --------------------
+
+# Entornos virtuales (venv, env)
+venv/
+env/
+
+# Archivos compilados y bytecode
+__pycache__/
+*.pyc
+*.pyo
+.Python
+.ipynb_checkpoints/
+.pytest_cache/
+__pycache__
+
+# --------------------
+# Django / Seguridad
+# --------------------
+
+# Archivos de configuración local y credenciales
+# ¡NUNCA SUBAS LA CLAVE SECRETA NI CREDENCIALES DE BD!
+settings_local.py
+.env
+*.env
+
+# Base de datos local (SQLite, si se usa)
+db.sqlite3
+*.sqlite3
+
+# --------------------
+# Archivos Generados por el Usuario (Media y Estáticos)
+# --------------------
+
+# Directorio de archivos subidos por el usuario (MEDIA_ROOT)
+/media/
+
+# Directorio de archivos estáticos recolectados (STATIC_ROOT)
+/staticfiles/
+
+# --------------------
+# IDEs y Sistemas Operativos
+# --------------------
+
+# Visual Studio Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Historial y logs
+*.log
