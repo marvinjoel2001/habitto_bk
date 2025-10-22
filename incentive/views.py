@@ -3,5 +3,5 @@ from .models import Incentive
 from .serializers import IncentiveSerializer
 
 class IncentiveViewSet(viewsets.ModelViewSet):
-    queryset = Incentive.objects.all()
+    queryset = Incentive.objects.all().order_by('-created_at')
     serializer_class = IncentiveSerializer

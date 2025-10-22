@@ -6,7 +6,7 @@ from .models import UserProfile
 from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
     
     def get_serializer_class(self):
@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().order_by('-created_at')
     serializer_class = UserProfileSerializer
     
     def perform_create(self, serializer):

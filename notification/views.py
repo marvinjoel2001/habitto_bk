@@ -5,7 +5,7 @@ from .models import Notification
 from .serializers import NotificationSerializer
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().order_by('-created_at')
     serializer_class = NotificationSerializer
     
     @action(detail=True, methods=['post'])

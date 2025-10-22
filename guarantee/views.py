@@ -5,7 +5,7 @@ from .models import Guarantee
 from .serializers import GuaranteeSerializer
 
 class GuaranteeViewSet(viewsets.ModelViewSet):
-    queryset = Guarantee.objects.all()
+    queryset = Guarantee.objects.all().order_by('-created_at')
     serializer_class = GuaranteeSerializer
     
     @action(detail=True, methods=['post'])

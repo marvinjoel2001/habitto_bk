@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-3kqk+6%34%qg8==fc$!#^-z76^eic84q0$o_%-an0cfea%7$b8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',  # Siempre déjalo
+    'localhost',  # Siempre déjalo
+    '192.168.1.7', # <--- ¡AGREGA ESTA LÍNEA!
+    '10.0.2.2',    # <--- ¡OPCIONAL! Añádelo si usas el emulador de Android
+    '*',           # (Opcional, SOLO para desarrollo: permite CUALQUIER IP)
+]
 
 
 # Application definition
@@ -38,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_filters',
     'habittoapp',
     'user',
@@ -51,6 +58,7 @@ INSTALLED_APPS = [
     'message',
     'incentive',
     'guarantee',
+    'django_extensions',
 ]
 
 # Eliminar esta línea: AUTH_USER_MODEL = 'user.User'
@@ -92,9 +100,9 @@ DATABASES = {
    'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'habito_db',
-        'USER': 'postgres',
+        'USER': 'forceonetechnologies',
         'PASSWORD': 'sistemas123',
-        'HOST': 'localhost',  
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -136,18 +144,24 @@ USE_TZ = True
 
 # Django REST Framework configuration
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
+}
+
+# Simple JWT configuration
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 # Default primary key field type
