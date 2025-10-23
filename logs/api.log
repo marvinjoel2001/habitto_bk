@@ -1,0 +1,870 @@
+2025-10-23 13:59:28,355 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1",
+  "body": {
+    "username": "test",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 13:59:28,496 - WARNING - ⚠️ RESPONSE [POST /api/login/]: {
+  "status_code": 401,
+  "duration_ms": 142.0,
+  "content_type": "application/json",
+  "content": {
+    "detail": "No active account found with the given credentials"
+  }
+}
+2025-10-23 13:59:45,351 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1"
+}
+2025-10-23 13:59:45,353 - WARNING - ⚠️ RESPONSE [GET /api/]: {
+  "status_code": 401,
+  "duration_ms": 2.16,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Authentication credentials were not provided."
+  }
+}
+2025-10-23 14:01:54,448 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "JORGE",
+    "email": "jorge@gmail.com",
+    "first_name": "jorge",
+    "last_name": "pena",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:01:54,511 - WARNING - ⚠️ RESPONSE [POST /api/users/]: {
+  "status_code": 400,
+  "duration_ms": 64.79,
+  "content_type": "application/json",
+  "content": {
+    "username": [
+      "A user with that username already exists."
+    ]
+  }
+}
+2025-10-23 14:02:11,233 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "JORGE",
+    "email": "jorge@gmail.com",
+    "first_name": "jorge",
+    "last_name": "pena",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:02:11,273 - WARNING - ⚠️ RESPONSE [POST /api/users/]: {
+  "status_code": 400,
+  "duration_ms": 40.5,
+  "content_type": "application/json",
+  "content": {
+    "username": [
+      "A user with that username already exists."
+    ]
+  }
+}
+2025-10-23 14:02:12,193 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "JORGE",
+    "email": "jorge@gmail.com",
+    "first_name": "jorge",
+    "last_name": "pena",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:02:12,209 - WARNING - ⚠️ RESPONSE [POST /api/users/]: {
+  "status_code": 400,
+  "duration_ms": 16.25,
+  "content_type": "application/json",
+  "content": {
+    "username": [
+      "A user with that username already exists."
+    ]
+  }
+}
+2025-10-23 14:02:36,382 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "JORGE",
+    "email": "jorge@gmail.com",
+    "first_name": "jorge",
+    "last_name": "pena",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:02:36,407 - WARNING - ⚠️ RESPONSE [POST /api/users/]: {
+  "status_code": 400,
+  "duration_ms": 25.36,
+  "content_type": "application/json",
+  "content": {
+    "username": [
+      "A user with that username already exists."
+    ]
+  }
+}
+2025-10-23 14:06:36,643 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "manuel",
+    "email": "manuel@gmail.com",
+    "first_name": "manuel",
+    "last_name": "pena",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:06:36,893 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 250.29,
+  "content_type": "application/json",
+  "content": {
+    "username": "manuel",
+    "email": "manuel@gmail.com",
+    "first_name": "manuel",
+    "last_name": "pena"
+  }
+}
+2025-10-23 14:06:36,908 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/profiles/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "inquilino",
+    "phone": "71363267",
+    "favorites": []
+  }
+}
+2025-10-23 14:06:36,908 - WARNING - ⚠️ RESPONSE [POST /api/profiles/]: {
+  "status_code": 401,
+  "duration_ms": 0.52,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Authentication credentials were not provided."
+  }
+}
+2025-10-23 14:08:49,945 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/token/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "manuel",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:08:49,959 - WARNING - ⚠️ RESPONSE [POST /api/token/]: {
+  "status_code": 404,
+  "duration_ms": 15.24,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (32066 bytes)"
+}
+2025-10-23 14:09:23,616 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/token/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "marvin",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:09:23,641 - WARNING - ⚠️ RESPONSE [POST /api/token/]: {
+  "status_code": 404,
+  "duration_ms": 26.8,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (32066 bytes)"
+}
+2025-10-23 14:26:51,734 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "manuel",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:26:52,027 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 296.36,
+  "content_type": "application/json",
+  "content": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNDQxMiwiaWF0IjoxNzYxMjI5NjEyLCJqdGkiOiJkZTk4Y2QwOTk4N2Q0ZDA5OTZkYWJmYjk0NTdhZmFlMyIsInVzZXJfaWQiOiI0In0.cFaZaYvZ7-qWaI15c7rxsWCqUhKWj6m9jJPzIZ8VDiw",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMjMzMjEyLCJpYXQiOjE3NjEyMjk2MTIsImp0aSI6ImNiZDE2N2JkZTQxNDQ2MTVhZDdjMjdlM2I2YzAyOTZkIiwidXNlcl9pZCI6IjQifQ.RMp2fDMHVoWvGvrWMoSpYP29zJzMktqZFiIkGWcOoRs"
+  }
+}
+2025-10-23 14:26:58,720 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:26:58,736 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 404,
+  "duration_ms": 15.95,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Not found."
+  }
+}
+2025-10-23 14:26:58,743 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/auth/user/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:26:58,751 - WARNING - ⚠️ RESPONSE [GET /api/auth/user/]: {
+  "status_code": 404,
+  "duration_ms": 8.36,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (32077 bytes)"
+}
+2025-10-23 14:27:10,717 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:27:10,728 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 404,
+  "duration_ms": 10.36,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Not found."
+  }
+}
+2025-10-23 14:27:10,738 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/auth/user/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:27:10,742 - WARNING - ⚠️ RESPONSE [GET /api/auth/user/]: {
+  "status_code": 404,
+  "duration_ms": 3.73,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (32077 bytes)"
+}
+2025-10-23 14:35:00,175 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:35:00,504 - INFO - 📤 RESPONSE [GET /api/profiles/]: {
+  "status_code": 200,
+  "duration_ms": 332.3,
+  "content_type": "application/json",
+  "content": {
+    "count": 0,
+    "next": null,
+    "previous": null,
+    "results": []
+  }
+}
+2025-10-23 14:35:00,533 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/users/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:35:00,543 - WARNING - ⚠️ RESPONSE [GET /api/users/me/]: {
+  "status_code": 404,
+  "duration_ms": 9.27,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Not found."
+  }
+}
+2025-10-23 14:45:01,607 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1",
+  "body": {
+    "username": "testuser",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 14:45:01,726 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 119.34,
+  "content_type": "application/json",
+  "content": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNTUwMSwiaWF0IjoxNzYxMjMwNzAxLCJqdGkiOiIwNTlhZTBiY2IwNDc0MGZjYjI0ZjE3MDRkMWFmMDE5OSIsInVzZXJfaWQiOiI1In0.FR3zxtGMJKsrYzPcIiaBae4rwDqkUF8DQn6H2Tj8ks8",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMjM0MzAxLCJpYXQiOjE3NjEyMzA3MDEsImp0aSI6Ijg5NjhkOTVhMzg2OTQ4MDk5YTZkMGM5MTgyNDFlNjE5IiwidXNlcl9pZCI6IjUifQ.bJt-Xky2Oq6vkO6hcQtE8KirnfmSzzcCJAxQZoo7TGU"
+  }
+}
+2025-10-23 14:45:11,528 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/users/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1"
+}
+2025-10-23 14:45:11,545 - INFO - 📤 RESPONSE [GET /api/users/me/]: {
+  "status_code": 200,
+  "duration_ms": 17.18,
+  "content_type": "application/json",
+  "content": {
+    "id": 5,
+    "username": "testuser",
+    "email": "test@example.com",
+    "first_name": "",
+    "last_name": "",
+    "date_joined": "2025-10-23T14:44:32.737864Z"
+  }
+}
+2025-10-23 14:45:24,173 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1"
+}
+2025-10-23 14:45:24,187 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 404,
+  "duration_ms": 13.97,
+  "content_type": "application/json",
+  "content": {
+    "detail": "El usuario no tiene un perfil creado"
+  }
+}
+2025-10-23 14:45:33,180 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/profiles/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1",
+  "body": {
+    "user_type": "inquilino",
+    "phone": "+59112345678"
+  }
+}
+2025-10-23 14:45:33,206 - INFO - 📤 RESPONSE [POST /api/profiles/]: {
+  "status_code": 201,
+  "duration_ms": 25.62,
+  "content_type": "application/json",
+  "content": {
+    "id": 1,
+    "user": {
+      "id": 5,
+      "username": "testuser",
+      "email": "test@example.com",
+      "first_name": "",
+      "last_name": "",
+      "date_joined": "2025-10-23T14:44:32.737864Z"
+    },
+    "user_type": "inquilino",
+    "phone": "+59112345678",
+    "is_verified": false,
+    "created_at": "2025-10-23T14:45:33.193463Z",
+    "updated_at": "2025-10-23T14:45:33.193476Z",
+    "favorites": []
+  }
+}
+2025-10-23 14:45:44,488 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1"
+}
+2025-10-23 14:45:44,522 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 34.01,
+  "content_type": "application/json",
+  "content": {
+    "id": 1,
+    "user": {
+      "id": 5,
+      "username": "testuser",
+      "email": "test@example.com",
+      "first_name": "",
+      "last_name": "",
+      "date_joined": "2025-10-23T14:44:32.737864Z"
+    },
+    "user_type": "inquilino",
+    "phone": "+59112345678",
+    "is_verified": false,
+    "created_at": "2025-10-23T14:45:33.193463Z",
+    "updated_at": "2025-10-23T14:45:33.193476Z",
+    "favorites": []
+  }
+}
+2025-10-23 14:59:32,783 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 14:59:32,870 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 404,
+  "duration_ms": 92.65,
+  "content_type": "application/json",
+  "content": {
+    "detail": "El usuario no tiene un perfil creado"
+  }
+}
+2025-10-23 15:00:38,953 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/logout/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {}
+}
+2025-10-23 15:00:38,983 - WARNING - ⚠️ RESPONSE [POST /api/logout/]: {
+  "status_code": 404,
+  "duration_ms": 31.5,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (33565 bytes)"
+}
+2025-10-23 15:01:47,433 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "marcelo",
+    "email": "marcelo@gmail.com",
+    "first_name": "marcelo",
+    "last_name": "perez",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 15:01:47,626 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 194.04,
+  "content_type": "application/json",
+  "content": {
+    "username": "marcelo",
+    "email": "marcelo@gmail.com",
+    "first_name": "marcelo",
+    "last_name": "perez"
+  }
+}
+2025-10-23 15:01:47,662 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/profiles/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "agente",
+    "phone": "71363256",
+    "favorites": []
+  }
+}
+2025-10-23 15:01:47,663 - WARNING - ⚠️ RESPONSE [POST /api/profiles/]: {
+  "status_code": 401,
+  "duration_ms": 1.03,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Authentication credentials were not provided."
+  }
+}
+2025-10-23 15:04:45,580 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1",
+  "body": {
+    "username": "testuser2",
+    "email": "testuser2@example.com",
+    "password": "***HIDDEN***",
+    "first_name": "Test",
+    "last_name": "User2",
+    "user_type": "agente",
+    "phone": "71363256"
+  }
+}
+2025-10-23 15:04:45,717 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 136.66,
+  "content_type": "application/json",
+  "content": {
+    "username": "testuser2",
+    "email": "testuser2@example.com",
+    "first_name": "Test",
+    "last_name": "User2"
+  }
+}
+2025-10-23 15:04:54,501 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1",
+  "body": {
+    "username": "testuser2",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 15:04:54,621 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 120.48,
+  "content_type": "application/json",
+  "content": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNjY5NCwiaWF0IjoxNzYxMjMxODk0LCJqdGkiOiI0YmM0NDc0MjUyYTQ0YWNmOGRhNWU1ZTUyOTdlM2FjMCIsInVzZXJfaWQiOiI3In0.aRemzhP7loNA7CQdcocfNnmKAtwgrjkW_KyPhhWdekY",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMjM1NDk0LCJpYXQiOjE3NjEyMzE4OTQsImp0aSI6ImIwMmQ3NmM0NmQzNDQ1NDViZjNiMWZkNGQ3MTU4MGM5IiwidXNlcl9pZCI6IjcifQ.-R-8nTqhQbycEbGsJDEBU8lG9ujAQaH0NuNDlVA5uEI"
+  }
+}
+2025-10-23 15:05:08,548 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.7.1"
+}
+2025-10-23 15:05:08,570 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 22.38,
+  "content_type": "application/json",
+  "content": {
+    "id": 2,
+    "user": {
+      "id": 7,
+      "username": "testuser2",
+      "email": "testuser2@example.com",
+      "first_name": "Test",
+      "last_name": "User2",
+      "date_joined": "2025-10-23T15:04:45.608469Z"
+    },
+    "user_type": "agente",
+    "phone": "71363256",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:04:45.714922Z",
+    "updated_at": "2025-10-23T15:04:45.714925Z",
+    "favorites": []
+  }
+}
+2025-10-23 15:14:11,316 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "gustavo",
+    "email": "gustavo@gmail.com",
+    "first_name": "gustavo",
+    "last_name": "paz",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 15:14:11,519 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 205.82,
+  "content_type": "application/json",
+  "content": {
+    "username": "gustavo",
+    "email": "gustavo@gmail.com",
+    "first_name": "gustavo",
+    "last_name": "paz"
+  }
+}
+2025-10-23 15:14:11,546 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/profiles/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "inquilino",
+    "phone": "71363565",
+    "favorites": []
+  }
+}
+2025-10-23 15:14:11,547 - WARNING - ⚠️ RESPONSE [POST /api/profiles/]: {
+  "status_code": 401,
+  "duration_ms": 1.57,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Authentication credentials were not provided."
+  }
+}
+2025-10-23 15:23:40,211 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan@gmail.com",
+    "first_name": "juan",
+    "last_name": "perez",
+    "password": "***HIDDEN***",
+    "user_type": "inquilino",
+    "phone": "7217548"
+  }
+}
+2025-10-23 15:23:40,356 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 145.85,
+  "content_type": "application/json",
+  "content": {
+    "username": "juan",
+    "email": "juan@gmail.com",
+    "first_name": "juan",
+    "last_name": "perez"
+  }
+}
+2025-10-23 15:23:40,375 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-10-23 15:23:40,487 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 112.41,
+  "content_type": "application/json",
+  "content": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNzgyMCwiaWF0IjoxNzYxMjMzMDIwLCJqdGkiOiIzNGExOTRkM2Q3MTY0ODllOWViMGFmN2YyYjgxMGU0OCIsInVzZXJfaWQiOiI5In0.oPbYiPEFLXgDvKnbMztyCi2ghHUnxINtp0GwXrqFmvI",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMjM2NjIwLCJpYXQiOjE3NjEyMzMwMjAsImp0aSI6Ijg1ZGEwMTE0NTcyNTQxMTU4YjBlNzg2ZTAxYWI5OTlkIiwidXNlcl9pZCI6IjkifQ.EBU8Qm8TSr7BO7KE9xjRwZl1x3m3SOZI698TNTj4v7M"
+  }
+}
+2025-10-23 15:23:50,369 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 15:23:50,401 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 33.5,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-23T15:23:40.352536Z",
+    "favorites": []
+  }
+}
+2025-10-23 15:35:48,838 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 15:35:48,897 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 63.07,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-23T15:23:40.352536Z",
+    "favorites": []
+  }
+}
+2025-10-23 17:07:17,093 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 17:07:17,106 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 13.66,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+      {
+        "token_class": "AccessToken",
+        "token_type": "access",
+        "message": "Token is expired"
+      }
+    ]
+  }
+}
+2025-10-23 17:23:16,872 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "192.168.1.7",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 17:23:16,888 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 18.77,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+      {
+        "token_class": "AccessToken",
+        "token_type": "access",
+        "message": "Token is expired"
+      }
+    ]
+  }
+}
+2025-10-23 17:23:16,942 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/auth/user/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "192.168.1.7",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 17:23:16,963 - WARNING - ⚠️ RESPONSE [GET /api/auth/user/]: {
+  "status_code": 404,
+  "duration_ms": 21.02,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (33576 bytes)"
+}
+2025-10-23 17:23:40,246 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "192.168.1.7",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 17:23:40,250 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 4.55,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+      {
+        "token_class": "AccessToken",
+        "token_type": "access",
+        "message": "Token is expired"
+      }
+    ]
+  }
+}
+2025-10-23 17:23:40,257 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/auth/user/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "192.168.1.7",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-23 17:23:40,270 - WARNING - ⚠️ RESPONSE [GET /api/auth/user/]: {
+  "status_code": 404,
+  "duration_ms": 12.3,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (33576 bytes)"
+}

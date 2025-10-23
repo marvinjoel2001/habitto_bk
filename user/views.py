@@ -23,6 +23,14 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
+    
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        """
+        Obtener información del usuario actual autenticado
+        """
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all().order_by('-created_at')
@@ -33,6 +41,21 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         Asignar automáticamente el usuario autenticado al perfil
         """
         serializer.save(user=self.request.user)
+    
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        """
+        Obtener perfil del usuario actual autenticado
+        """
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            serializer = self.get_serializer(profile)
+            return Response(serializer.data)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {'detail': 'El usuario no tiene un perfil creado'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
     
     @action(detail=True, methods=['post'])
     def verify(self, request, pk=None):
