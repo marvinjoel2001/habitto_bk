@@ -70,7 +70,8 @@ Gestiona los usuarios del sistema usando el modelo User de Django.
 ### `POST /api/users/`
 - **Descripción**: Registra un nuevo usuario y crea automáticamente su perfil básico.
 - **Autenticación**: No requerida (registro público).
-- **Request Body**:
+- **Content-Type**: `application/json` o `multipart/form-data` (si incluye imagen)
+- **Request Body JSON**:
   ```json
   {
     "username": "nuevo_usuario",
@@ -82,9 +83,26 @@ Gestiona los usuarios del sistema usando el modelo User de Django.
     "phone": "+59112345678"
   }
   ```
+- **Request Body Multipart (con imagen)**:
+  ```
+  Content-Type: multipart/form-data
+
+  username: nuevo_usuario
+  email: usuario@example.com
+  password: tu_password_segura
+  first_name: Nombre
+  last_name: Apellido
+  user_type: inquilino
+  phone: +59112345678
+  profile_picture: [archivo de imagen]
+  ```
 - **Campos opcionales**:
   - `user_type`: Tipo de usuario (`inquilino`, `propietario`, `agente`). Por defecto: `inquilino`
   - `phone`: Número de teléfono. Por defecto: cadena vacía
+  - `profile_picture`: Imagen de perfil del usuario (archivo de imagen)
+- **Nota sobre Content-Type**:
+  - Usa `application/json` para registro sin imagen
+  - Usa `multipart/form-data` cuando incluyas `profile_picture`
 - **Response (201 Created)**:
   ```json
   {
@@ -171,6 +189,8 @@ Gestiona los usuarios del sistema usando el modelo User de Django.
 
 Gestiona los perfiles asociados a los usuarios con información adicional.
 
+**Importante**: Todos los endpoints de perfiles soportan tanto `application/json` como `multipart/form-data`. Usa JSON para datos simples y multipart cuando incluyas archivos de imagen.
+
 ### `GET /api/profiles/`
 - **Descripción**: Obtiene una lista paginada de perfiles de usuario.
 - **Autenticación**: Requerida.
@@ -193,6 +213,7 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
         },
         "user_type": "inquilino",
         "phone": "+59112345678",
+        "profile_picture": "http://localhost:8000/media/profile_pictures/imagen.jpg",
         "is_verified": false,
         "created_at": "2025-10-22T10:00:00Z",
         "updated_at": "2025-10-22T10:00:00Z",
@@ -205,13 +226,23 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
 ### `POST /api/profiles/`
 - **Descripción**: Crea un perfil para el usuario autenticado.
 - **Autenticación**: Requerida.
-- **Request Body**:
+- **Content-Type**: `application/json` o `multipart/form-data`
+- **Request Body (JSON)**:
   ```json
   {
     "user_type": "inquilino",
     "phone": "+59112345678",
     "favorites": [1, 2]
   }
+  ```
+- **Request Body (Multipart con imagen)**:
+  ```
+  Content-Type: multipart/form-data
+
+  user_type: inquilino
+  phone: +59112345678
+  profile_picture: [archivo de imagen]
+  favorites: [1, 2]
   ```
 - **Response (201 Created)**:
   ```json
@@ -227,6 +258,7 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
     },
     "user_type": "inquilino",
     "phone": "+59112345678",
+    "profile_picture": "http://localhost:8000/media/profile_pictures/imagen.jpg",
     "is_verified": false,
     "created_at": "2025-10-22T10:00:00Z",
     "updated_at": "2025-10-22T10:00:00Z",
@@ -256,6 +288,7 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
     },
     "user_type": "inquilino",
     "phone": "+59112345678",
+    "profile_picture": "http://localhost:8000/media/profile_pictures/imagen.jpg",
     "is_verified": false,
     "created_at": "2025-10-22T10:00:00Z",
     "updated_at": "2025-10-22T10:00:00Z",
@@ -270,16 +303,87 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
   ```
 
 ### `PUT/PATCH /api/profiles/{id}/`
-- **Descripción**: Actualiza un perfil existente.
+- **Descripción**: Actualiza un perfil existente por ID.
 - **Autenticación**: Requerida (solo el propio usuario).
-- **Request Body (PATCH)**:
+- **Content-Type**: `application/json` o `multipart/form-data`
+- **Request Body JSON (PATCH)**:
   ```json
   {
     "phone": "+59187654321",
+    "user_type": "propietario",
     "favorites": [1, 2, 3, 4]
   }
   ```
+- **Request Body Multipart (PATCH)**:
+  ```
+  Content-Type: multipart/form-data
+
+  phone: +59187654321
+  profile_picture: [nueva imagen]
+  user_type: propietario
+  ```
 - **Response (200 OK)**: Devuelve el perfil actualizado.
+
+### `PUT/PATCH /api/profiles/update_me/`
+- **Descripción**: Actualiza el perfil del usuario actual autenticado (recomendado).
+- **Autenticación**: Requerida (JWT Token).
+- **Content-Type**: `application/json` o `multipart/form-data`
+- **Request Body JSON (PATCH)**:
+  ```json
+  {
+    "phone": "+59187654321",
+    "user_type": "propietario"
+  }
+  ```
+- **Request Body Multipart (PATCH)**:
+  ```
+  Content-Type: multipart/form-data
+
+  phone: +59187654321
+  profile_picture: [nueva imagen]
+  user_type: propietario
+  ```
+- **Response (200 OK)**: Devuelve el perfil actualizado.
+- **Response (404 Not Found)**: Si el usuario no tiene perfil.
+  ```json
+  {
+    "detail": "El usuario no tiene un perfil creado"
+  }
+  ```
+
+### `POST /api/profiles/upload_profile_picture/`
+- **Descripción**: Sube o actualiza la foto de perfil del usuario actual.
+- **Autenticación**: Requerida (JWT Token).
+- **Content-Type**: `multipart/form-data`
+- **Request Body**:
+  - `profile_picture`: Archivo de imagen (JPG, PNG, etc.)
+- **Response (200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "user": {
+      "id": 1,
+      "username": "usuario1",
+      "email": "usuario1@example.com",
+      "first_name": "Juan",
+      "last_name": "Pérez",
+      "date_joined": "2025-10-22T10:00:00Z"
+    },
+    "user_type": "inquilino",
+    "phone": "+59112345678",
+    "profile_picture": "http://localhost:8000/media/profile_pictures/nueva_imagen.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-22T10:00:00Z",
+    "updated_at": "2025-10-22T10:00:00Z",
+    "favorites": [1, 2]
+  }
+  ```
+- **Response (400 Bad Request)**: Si no se proporciona imagen.
+  ```json
+  {
+    "detail": "No se proporcionó ninguna imagen"
+  }
+  ```
 
 ### `POST /api/profiles/{id}/verify/`
 - **Descripción**: Acción personalizada que marca un perfil como verificado.
@@ -300,6 +404,98 @@ Gestiona los perfiles asociados a los usuarios con información adicional.
 - `inquilino`: Usuario que busca propiedades para alquilar
 - `propietario`: Usuario que publica propiedades
 - `agente`: Usuario que gestiona propiedades de terceros
+
+## Ejemplos Prácticos - Gestión de Fotos de Perfil
+
+### Registro con foto de perfil
+```bash
+# Registro con imagen usando curl
+curl -X POST http://localhost:8000/api/users/ \
+  -H "Content-Type: multipart/form-data" \
+  -F "username=juan_perez" \
+  -F "email=juan@example.com" \
+  -F "password=mi_password_seguro" \
+  -F "first_name=Juan" \
+  -F "last_name=Pérez" \
+  -F "user_type=propietario" \
+  -F "phone=+59170123456" \
+  -F "profile_picture=@/ruta/a/mi_foto.jpg"
+```
+
+### Actualizar solo la foto de perfil
+```bash
+# Subir nueva foto de perfil
+curl -X POST http://localhost:8000/api/profiles/upload_profile_picture/ \
+  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Content-Type: multipart/form-data" \
+  -F "profile_picture=@/ruta/a/nueva_foto.jpg"
+```
+
+### Actualizar perfil completo con foto
+```bash
+# Actualizar datos del perfil incluyendo foto
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Content-Type: multipart/form-data" \
+  -F "phone=+59170987654" \
+  -F "user_type=agente" \
+  -F "profile_picture=@/ruta/a/foto_actualizada.jpg"
+```
+
+### Actualizar solo datos (sin foto)
+```bash
+# Actualizar solo datos usando JSON
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+59170555444",
+    "user_type": "inquilino"
+  }'
+```
+
+### Ver historial de fotos de perfil
+```bash
+# Obtener historial de fotos del usuario actual
+curl -X GET http://localhost:8000/api/profiles/picture_history/ \
+  -H "Authorization: Bearer tu_jwt_token"
+```
+
+**Respuesta del historial:**
+```json
+[
+  {
+    "id": 3,
+    "image": "http://localhost:8000/media/profile_pictures/user_1_20241201_143022_a1b2c3d4.jpg",
+    "original_filename": "nueva_foto.jpg",
+    "uploaded_at": "2024-12-01T14:30:22.123456Z",
+    "is_current": true
+  },
+  {
+    "id": 2,
+    "image": "http://localhost:8000/media/profile_pictures/user_1_20241130_091545_e5f6g7h8.jpg",
+    "original_filename": "foto_anterior.jpg",
+    "uploaded_at": "2024-11-30T09:15:45.987654Z",
+    "is_current": false
+  },
+  {
+    "id": 1,
+    "image": "http://localhost:8000/media/profile_pictures/user_1_20241129_160312_i9j0k1l2.jpg",
+    "original_filename": "primera_foto.jpg",
+    "uploaded_at": "2024-11-29T16:03:12.456789Z",
+    "is_current": false
+  }
+]
+```
+
+**Notas importantes:**
+- Las imágenes se almacenan en `media/profile_pictures/` con nombres únicos
+- Formato de nombres: `user_{id}_{timestamp}_{uuid}.{extension}`
+- Se mantiene un historial completo de todas las fotos subidas
+- Solo una foto puede estar marcada como `is_current: true`
+- Formatos soportados: JPG, PNG, GIF, WEBP
+- Tamaño máximo recomendado: 5MB
+- Las URLs de las imágenes incluyen el dominio completo en las respuestas
 
 ## 3. Endpoints de Propiedades (`/api/properties/`)
 

@@ -581,31 +581,30 @@ sequenceDiagram
     participant I as Inquilino
     participant S as Sistema
 
-    P->>+API: POST /api/users/ (registro)
-    API->>+DB: Crear User
-    P->>+API: POST /api/profiles/ (perfil propietario)
-    API->>+DB: Crear UserProfile
-    
+    P->>+API: POST /api/users/ (registro con foto)
+    API->>+DB: Crear User + UserProfile automático
+    Note over API,DB: Perfil creado automáticamente con foto si se proporciona
+
     P->>+API: POST /api/properties/ (publicar)
     API->>+DB: Crear Property
     P->>+API: POST /api/photos/ (subir fotos)
     API->>+DB: Guardar Photos
-    
+
     I->>+API: GET /api/properties/ (buscar)
     API->>-I: Lista paginada de propiedades
     I->>+API: POST /api/messages/ (contactar)
     API->>+DB: Guardar Message
     API->>+S: Crear Notification para P
-    
+
     P->>+API: POST /api/messages/ (responder)
     API->>+DB: Guardar Message
     API->>+S: Crear Notification para I
-    
+
     P->>+API: POST /api/guarantees/ (registrar garantía)
     API->>+DB: Crear Guarantee
     I->>+API: POST /api/payments/ (primer pago)
     API->>+DB: Crear Payment
-    
+
     I->>+API: PATCH /api/payments/1/ (marcar pagado)
     API->>+DB: Actualizar Payment
     API->>+S: Crear Notification para P
@@ -622,13 +621,13 @@ sequenceDiagram
     Note over S: Cron job diario
     S->>+API: GET /api/payments/?status=pendiente
     API->>-S: Lista de pagos pendientes
-    
+
     loop Para cada pago próximo a vencer
         S->>+API: POST /api/notifications/
         Note right of API: "Tu pago vence en 3 días"
         API->>+DB: Crear Notification
     end
-    
+
     loop Para cada pago vencido
         S->>+API: PATCH /api/payments/{id}/
         Note right of API: status = "retrasado"
@@ -637,7 +636,7 @@ sequenceDiagram
         Note right of API: "Tu pago está vencido"
         API->>+DB: Crear Notification
     end
-    
+
     U->>+API: GET /api/notifications/?is_read=false
     API->>-U: Lista de notificaciones no leídas
     U->>+API: POST /api/notifications/{id}/mark_as_read/
@@ -657,15 +656,15 @@ sequenceDiagram
     P->>+API: POST /api/guarantees/{id}/release/
     API->>+DB: Liberar Guarantee
     API->>+S: Crear Notification para I
-    
+
     I->>+API: POST /api/reviews/
     Note right of API: rating: 5, comment: "Excelente"
     API->>+DB: Crear Review
     API->>+S: Crear Notification para P
-    
+
     P->>+API: GET /api/reviews/?property=1
     API->>-P: Lista de reseñas de su propiedad
-    
+
     Note over API: Calcular promedio de ratings
     API->>+DB: Actualizar estadísticas de Property
 ```

@@ -868,3 +868,562 @@
   "content_type": "text/html; charset=utf-8",
   "content": "Non-JSON response (33576 bytes)"
 }
+2025-10-24 14:13:46,213 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 14:13:46,239 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 26.39,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+      {
+        "token_class": "AccessToken",
+        "token_type": "access",
+        "message": "Token is expired"
+      }
+    ]
+  }
+}
+2025-10-24 14:13:46,301 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNzgyMCwiaWF0IjoxNzYxMjMzMDIwLCJqdGkiOiIzNGExOTRkM2Q3MTY0ODllOWViMGFmN2YyYjgxMGU0OCIsInVzZXJfaWQiOiI5In0.oPbYiPEFLXgDvKnbMztyCi2ghHUnxINtp0GwXrqFmvI"
+  }
+}
+2025-10-24 14:13:46,385 - INFO - 📤 RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 84.45,
+  "content_type": "application/json",
+  "content": {
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMzE4ODI2LCJpYXQiOjE3NjEzMTUyMjYsImp0aSI6ImYxNWRmNGI1ZGRmOTQ1NDVhOTkxOWI2MGU0MjY4NDI1IiwidXNlcl9pZCI6IjkifQ.Ye1KrpSIzebX9Ujolzh3zrMRg97mtvBJ3KDRyXbkcO0",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTkyMDAyNiwiaWF0IjoxNzYxMzE1MjI2LCJqdGkiOiI2ZjMzNTU5MzUxZjQ0NjE5YTg1NTg5NTFhYzY3YTM4YiIsInVzZXJfaWQiOiI5In0.uu2yw9tAn-gGknJpoh7sdMvCjq54JWlHHIQbXsRQNOA"
+  }
+}
+2025-10-24 14:13:46,450 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 14:13:46,480 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 30.08,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-23T15:23:40.352536Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:15:18,399 - INFO - 📥 REQUEST: {
+  "method": "PUT",
+  "path": "/api/profiles/4/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "phone": "7217548"
+  }
+}
+2025-10-24 14:15:18,461 - INFO - 📤 RESPONSE [PUT /api/profiles/4/]: {
+  "status_code": 200,
+  "duration_ms": 62.69,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.433211Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:15:18,521 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/4/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [],
+    "files": []
+  }
+}
+2025-10-24 14:15:18,548 - INFO - 📤 RESPONSE [PATCH /api/profiles/4/]: {
+  "status_code": 200,
+  "duration_ms": 27.52,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.545465Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:15:18,593 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 14:15:18,616 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 23.25,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.545465Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:15:26,706 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 14:15:26,740 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 34.53,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.545465Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:45:54,182 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 14:45:54,286 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 105.75,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": null,
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.545465Z",
+    "favorites": []
+  }
+}
+2025-10-24 14:46:14,358 - INFO - 📥 REQUEST: {
+  "method": "PUT",
+  "path": "/api/profiles/4/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "phone": "7217548"
+  }
+}
+2025-10-24 14:46:14,391 - WARNING - ⚠️ RESPONSE [PUT /api/profiles/4/]: {
+  "status_code": 415,
+  "duration_ms": 33.86,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Unsupported media type \"application/json\" in request."
+  }
+}
+2025-10-24 14:46:23,454 - INFO - 📥 REQUEST: {
+  "method": "PUT",
+  "path": "/api/profiles/4/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "phone": "7217548"
+  }
+}
+2025-10-24 14:46:23,474 - WARNING - ⚠️ RESPONSE [PUT /api/profiles/4/]: {
+  "status_code": 415,
+  "duration_ms": 20.16,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Unsupported media type \"application/json\" in request."
+  }
+}
+2025-10-24 14:46:37,816 - INFO - 📥 REQUEST: {
+  "method": "PUT",
+  "path": "/api/profiles/4/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "phone": "7217548"
+  }
+}
+2025-10-24 14:46:37,842 - WARNING - ⚠️ RESPONSE [PUT /api/profiles/4/]: {
+  "status_code": 415,
+  "duration_ms": 27.34,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Unsupported media type \"application/json\" in request."
+  }
+}
+2025-10-24 15:16:58,704 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:16:59,074 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 379.24,
+  "content_type": "application/json",
+  "content": {
+    "detail": "Given token not valid for any token type",
+    "code": "token_not_valid",
+    "messages": [
+      {
+        "token_class": "AccessToken",
+        "token_type": "access",
+        "message": "Token is expired"
+      }
+    ]
+  }
+}
+2025-10-24 15:16:59,141 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTgzNzgyMCwiaWF0IjoxNzYxMjMzMDIwLCJqdGkiOiIzNGExOTRkM2Q3MTY0ODllOWViMGFmN2YyYjgxMGU0OCIsInVzZXJfaWQiOiI5In0.oPbYiPEFLXgDvKnbMztyCi2ghHUnxINtp0GwXrqFmvI"
+  }
+}
+2025-10-24 15:16:59,817 - INFO - 📤 RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 677.26,
+  "content_type": "application/json",
+  "content": {
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYxMzIyNjE5LCJpYXQiOjE3NjEzMTkwMTksImp0aSI6Ijg5YjUyOGE4MzU1NDQxN2Q5YThlZjc4MmU5MThmNzc4IiwidXNlcl9pZCI6IjkifQ.u6OTG2W9oK9zmL_lbDtGBdKSfsD6589nC2CPbIxIqPo",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MTkyMzgxOSwiaWF0IjoxNzYxMzE5MDE5LCJqdGkiOiIyZTZmNTcxMmZkYjk0YWJjOWU1NzdkM2IxOWIwODFjZiIsInVzZXJfaWQiOiI5In0.6Mpg7MQSAA7PXNQZ0HNdtZrPybuAUa710yOK4KhEwvs"
+  }
+}
+2025-10-24 15:16:59,933 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:17:00,236 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 303.16,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": null,
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T14:15:18.545465Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:17:13,257 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [],
+    "files": []
+  }
+}
+2025-10-24 15:17:13,460 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 203.75,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:17:13.446962Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:17:13,470 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:17:13,484 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 14.08,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:17:13.446962Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:17:45,407 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:17:45,476 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 71.47,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:17:13.446962Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:18:25,707 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [],
+    "files": []
+  }
+}
+2025-10-24 15:18:25,748 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 41.5,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18_rvXxmSd.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:18:25.738163Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:18:25,755 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:18:25,766 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 11.26,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18_rvXxmSd.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:18:25.738163Z",
+    "favorites": []
+  }
+}
+2025-10-24 15:27:58,292 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:27:58,365 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 73.56,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18_rvXxmSd.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:18:25.738163Z",
+    "favorites": [],
+    "picture_history": []
+  }
+}
