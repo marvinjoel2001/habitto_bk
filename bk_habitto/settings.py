@@ -43,12 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',  # Soporte GIS para PostGIS
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
     'habittoapp',
     'user',
     'property',
+    'zone',  # Nueva app para zonas
     'amenity',
     'photo',
     'review',
@@ -99,10 +101,10 @@ WSGI_APPLICATION = 'bk_habitto.wsgi.application'
 
 DATABASES = {
    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # PostgreSQL con PostGIS
         'NAME': 'habito_db',
-        'USER': 'forceonetechnologies',
-        'PASSWORD': 'sistemas123',
+        'USER': 'postgres',
+        'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -215,4 +217,24 @@ LOGGING = {
             'level': 'INFO',
         },
     },
+}
+
+# Configuración de Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/La_Paz'
+CELERY_ENABLE_UTC = True
+
+# Configuración de Redis para caché (opcional)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
 }

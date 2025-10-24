@@ -932,12 +932,424 @@ Gestiona los incentivos económicos para usuarios.
   ```
 - **Response (200 OK)**: Devuelve el incentivo actualizado.
 
-### `DELETE /api/incentives/{id}/`
-- **Descripción**: Elimina un incentivo.
+### `GET /api/incentives/active/`
+- **Descripción**: Obtiene los incentivos activos del usuario autenticado.
 - **Autenticación**: Requerida.
-- **Response (204 No Content)**: Sin contenido en la respuesta.
+- **Response (200 OK)**:
+  ```json
+  [
+    {
+      "id": 1,
+      "user": 1,
+      "zone": {
+        "id": 1,
+        "name": "Centro"
+      },
+      "amount": "500.00",
+      "description": "Incentivo por alta demanda en Centro",
+      "incentive_type": "high_demand",
+      "is_active": true,
+      "valid_until": "2025-11-22T10:00:00Z",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  ]
+  ```
 
-## 8. Endpoints de Pagos (`/api/payments/`)
+### `GET /api/incentives/by_zone/?zone_id={zone_id}`
+- **Descripción**: Obtiene los incentivos del usuario filtrados por zona específica.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `zone_id` (requerido): ID de la zona
+- **Response (200 OK)**: Lista de incentivos para la zona especificada.
+
+### `POST /api/incentives/{id}/use/`
+- **Descripción**: Marca un incentivo como usado (lo desactiva).
+- **Autenticación**: Requerida (solo el propietario del incentivo).
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Incentive used successfully",
+    "incentive": {
+      "id": 1,
+      "user": 1,
+      "amount": "500.00",
+      "description": "Incentivo por alta demanda",
+      "is_active": false,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+
+## 8. Endpoints de Reglas de Incentivos (`/api/incentive-rules/`)
+
+Gestiona las reglas para la generación automática de incentivos (solo administradores).
+
+### `GET /api/incentive-rules/`
+- **Descripción**: Lista todas las reglas de incentivos.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 1,
+        "name": "Alta Demanda",
+        "description": "Incentivo cuando la demanda supera significativamente la oferta",
+        "incentive_type": "high_demand",
+        "min_demand_count": 10,
+        "max_offer_demand_ratio": 0.5,
+        "base_amount": "300.00",
+        "percentage_bonus": 0.1,
+        "duration_days": 30,
+        "cooldown_days": 7,
+        "is_active": true,
+        "created_at": "2025-10-22T10:00:00Z"
+      }
+    ]
+  }
+  ```
+
+### `POST /api/incentive-rules/generate_incentives/`
+- **Descripción**: Genera incentivos automáticos manualmente (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Request Body (opcional)**:
+  ```json
+  {
+    "zone_id": 1
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Generated 5 incentives for Centro",
+    "incentives_count": 5,
+    "timestamp": "2025-10-22T10:00:00Z"
+  }
+  ```
+
+### `GET /api/incentive-rules/market_analysis/?zone_id={zone_id}`
+- **Descripción**: Obtiene análisis de mercado para zonas específicas o todas las zonas.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `zone_id` (opcional): ID de zona específica. Si no se proporciona, analiza todas las zonas.
+- **Response para zona específica (200 OK)**:
+  ```json
+  {
+    "zone": {
+      "id": 1,
+      "name": "Centro",
+      "offer_count": 15,
+      "demand_count": 25
+    },
+    "conditions": {
+      "offer_demand_ratio": 0.6,
+      "activity_score": 8.5,
+      "high_demand": true,
+      "low_supply": false,
+      "low_activity": false,
+      "needs_incentives": true
+    },
+    "timestamp": "2025-10-22T10:00:00Z"
+  }
+  ```
+- **Response para todas las zonas (200 OK)**:
+  ```json
+  {
+    "zones_analysis": [
+      {
+        "zone": {
+          "id": 1,
+          "name": "Centro",
+          "offer_count": 15,
+          "demand_count": 25
+        },
+        "conditions": {
+          "offer_demand_ratio": 0.6,
+          "activity_score": 8.5,
+          "high_demand": true,
+          "low_supply": false,
+          "low_activity": false,
+          "needs_incentives": true
+        }
+      }
+    ],
+    "timestamp": "2025-10-22T10:00:00Z"
+  }
+  ```
+
+### `POST /api/incentive-rules/{id}/toggle_active/`
+- **Descripción**: Activa o desactiva una regla de incentivo (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Rule activated successfully",
+    "rule": {
+      "id": 1,
+      "name": "Alta Demanda",
+      "is_active": true,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+
+## 9. Endpoints de Zonas (`/api/zones/`)
+
+Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de mercado.
+
+### `GET /api/zones/`
+- **Descripción**: Lista todas las zonas con información básica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `name`: Filtra por nombre de zona
+- **Response (200 OK)**:
+  ```json
+  {
+    "count": 10,
+    "next": null,
+    "previous": null,
+    "results": [
+      {
+        "id": 1,
+        "name": "Centro",
+        "description": "Zona céntrica de la ciudad",
+        "offer_count": 15,
+        "demand_count": 25,
+        "avg_price": "1200.00",
+        "created_at": "2025-10-22T10:00:00Z",
+        "updated_at": "2025-10-22T12:00:00Z"
+      }
+    ]
+  }
+  ```
+
+### `POST /api/zones/`
+- **Descripción**: Crea una nueva zona (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Request Body**:
+  ```json
+  {
+    "name": "Zona Norte",
+    "description": "Zona residencial al norte de la ciudad",
+    "bounds": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-63.1821, -17.7834],
+        [-63.1800, -17.7834],
+        [-63.1800, -17.7800],
+        [-63.1821, -17.7800],
+        [-63.1821, -17.7834]
+      ]]
+    }
+  }
+  ```
+
+### `GET /api/zones/{id}/`
+- **Descripción**: Obtiene detalles de una zona específica.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "id": 1,
+    "name": "Centro",
+    "description": "Zona céntrica de la ciudad",
+    "bounds": {
+      "type": "Polygon",
+      "coordinates": [...]
+    },
+    "offer_count": 15,
+    "demand_count": 25,
+    "avg_price": "1200.00",
+    "created_at": "2025-10-22T10:00:00Z",
+    "updated_at": "2025-10-22T12:00:00Z"
+  }
+  ```
+
+### `GET /api/zones/stats/`
+- **Descripción**: Obtiene estadísticas agregadas de todas las zonas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "total_zones": 10,
+    "total_properties": 150,
+    "total_demand": 300,
+    "avg_price_all_zones": "1150.00",
+    "zones_with_high_demand": 3,
+    "zones_with_low_supply": 2,
+    "last_updated": "2025-10-22T12:00:00Z"
+  }
+  ```
+
+### `GET /api/zones/{id}/stats/`
+- **Descripción**: Obtiene estadísticas detalladas de una zona específica.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "zone": {
+      "id": 1,
+      "name": "Centro"
+    },
+    "property_count": 15,
+    "offer_count": 15,
+    "demand_count": 25,
+    "supply_demand_ratio": 0.6,
+    "avg_price": "1200.00",
+    "price_range": {
+      "min": "800.00",
+      "max": "2000.00"
+    },
+    "recent_activity": {
+      "searches_last_30_days": 45,
+      "new_properties_last_30_days": 3,
+      "favorites_count": 12
+    },
+    "market_conditions": {
+      "high_demand": true,
+      "low_supply": false,
+      "activity_score": 8.5
+    },
+    "last_updated": "2025-10-22T12:00:00Z"
+  }
+  ```
+
+### `GET /api/zones/heatmap/`
+- **Descripción**: Obtiene datos para generar un mapa de calor de actividad por zonas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "heatmap_data": [
+      {
+        "zone_id": 1,
+        "name": "Centro",
+        "center_lat": -17.7834,
+        "center_lng": -63.1821,
+        "activity_score": 8.5,
+        "demand_intensity": 0.85,
+        "supply_intensity": 0.45,
+        "price_level": "high"
+      }
+    ],
+    "legend": {
+      "activity_score": "Puntuación de actividad (0-10)",
+      "demand_intensity": "Intensidad de demanda (0-1)",
+      "supply_intensity": "Intensidad de oferta (0-1)",
+      "price_level": "Nivel de precios (low/medium/high)"
+    }
+  }
+  ```
+
+### `GET /api/zones/geojson/`
+- **Descripción**: Obtiene todas las zonas en formato GeoJSON para mapas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [-63.1821, -17.7834],
+            [-63.1800, -17.7834],
+            [-63.1800, -17.7800],
+            [-63.1821, -17.7800],
+            [-63.1821, -17.7834]
+          ]]
+        },
+        "properties": {
+          "id": 1,
+          "name": "Centro",
+          "offer_count": 15,
+          "demand_count": 25,
+          "avg_price": "1200.00",
+          "activity_score": 8.5
+        }
+      }
+    ]
+  }
+  ```
+
+### `POST /api/zones/search_log/`
+- **Descripción**: Registra una búsqueda realizada en una zona específica.
+- **Autenticación**: No requerida.
+- **Request Body**:
+  ```json
+  {
+    "zone": 1,
+    "search_query": "departamento 2 dormitorios",
+    "user_ip": "192.168.1.1"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "id": 1,
+    "zone": 1,
+    "search_query": "departamento 2 dormitorios",
+    "user_ip": "192.168.1.1",
+    "created_at": "2025-10-22T10:00:00Z"
+  }
+  ```
+
+### `GET /api/zones/{id}/nearby_zones/?distance_km={distance}`
+- **Descripción**: Obtiene zonas cercanas a una zona específica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `distance_km` (opcional): Distancia en kilómetros (por defecto: 5)
+- **Response (200 OK)**:
+  ```json
+  {
+    "zone": {
+      "id": 1,
+      "name": "Centro"
+    },
+    "nearby_zones": [
+      {
+        "id": 2,
+        "name": "Zona Norte",
+        "distance_km": 2.5,
+        "offer_count": 8,
+        "demand_count": 12,
+        "avg_price": "950.00"
+      }
+    ],
+    "search_radius_km": 5
+  }
+  ```
+
+### `GET /api/zones/find_by_location/?lat={latitude}&lng={longitude}`
+- **Descripción**: Encuentra la zona que contiene una ubicación específica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `lat` (requerido): Latitud
+  - `lng` (requerido): Longitud
+- **Response (200 OK)**:
+  ```json
+  {
+    "zone": {
+      "id": 1,
+      "name": "Centro",
+      "description": "Zona céntrica de la ciudad",
+      "offer_count": 15,
+      "demand_count": 25,
+      "avg_price": "1200.00"
+    },
+    "coordinates": {
+      "lat": -17.7834,
+      "lng": -63.1821
+    }
+  }
+  ```
+
+## 10. Endpoints de Pagos (`/api/payments/`)
 
 Gestiona los pagos de alquileres y rentas.
 

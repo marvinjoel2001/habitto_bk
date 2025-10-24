@@ -1427,3 +1427,91 @@
     "picture_history": []
   }
 }
+2025-10-24 15:36:14,568 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-10-24 15:36:14,650 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 86.02,
+  "content_type": "application/json",
+  "content": {
+    "id": 4,
+    "user": {
+      "id": 9,
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "perez",
+      "date_joined": "2025-10-23T15:23:40.232827Z"
+    },
+    "user_type": "inquilino",
+    "phone": "7217548",
+    "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/scaled_18_rvXxmSd.jpg",
+    "is_verified": false,
+    "created_at": "2025-10-23T15:23:40.352527Z",
+    "updated_at": "2025-10-24T15:18:25.738163Z",
+    "favorites": [],
+    "picture_history": []
+  }
+}
+2025-10-24 20:05:44,069 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/properties/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "",
+  "body": {
+    "type": "departamento",
+    "address": "Avenida Nueva 456",
+    "latitude": -17.7834,
+    "longitude": -63.1821,
+    "price": "2000.00",
+    "description": "Departamento moderno",
+    "bedrooms": 2,
+    "bathrooms": 1
+  }
+}
+2025-10-24 20:05:44,070 - WARNING - ⚠️ RESPONSE [POST /api/properties/]: {
+  "status_code": 400,
+  "duration_ms": 1.13,
+  "content_type": "application/json",
+  "content": {
+    "owner": [
+      "This field is required."
+    ]
+  }
+}
+2025-10-24 20:14:30,157 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/properties/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "",
+  "body": {
+    "type": "departamento",
+    "address": "Avenida Nueva 456",
+    "latitude": -17.7834,
+    "longitude": -63.1821,
+    "price": "2000.00",
+    "description": "Departamento moderno",
+    "bedrooms": 2,
+    "bathrooms": 1
+  }
+}
+2025-10-24 20:14:30,158 - WARNING - ⚠️ RESPONSE [POST /api/properties/]: {
+  "status_code": 400,
+  "duration_ms": 1.12,
+  "content_type": "application/json",
+  "content": {
+    "non_field_errors": [
+      "Debe proporcionar coordenadas (latitude/longitude) o zone_id."
+    ]
+  }
+}
