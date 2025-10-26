@@ -9,11 +9,26 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+# --- CONFIGURACIÓN GDAL PARA WINDOWS (SOLUCIONA EL ERROR ImproperlyConfigured) ---
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+if os.name == 'nt': 
+    # El nombre exacto de tu DLL, confirmado por 'ls gdal*.dll':
+    GDAL_DLL_NAME = 'gdal.dll'
+    
+    # Construye la ruta completa dentro del entorno virtual.
+    # BASE_DIR es '.../habitto_backend'
+    VENV_PATH = BASE_DIR / 'venv'
+    GDAL_LIBRARY_PATH = VENV_PATH / 'Lib' / 'site-packages' / 'osgeo' / GDAL_DLL_NAME
+    
+    # Establece la variable de entorno para que Django la use.
+    os.environ['GDAL_LIBRARY_PATH'] = str(GDAL_LIBRARY_PATH)
+    
+    print(f"DEBUG GDAL PATH: {GDAL_LIBRARY_PATH}")
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +40,13 @@ SECRET_KEY = 'django-insecure-3kqk+6%34%qg8==fc$!#^-z76^eic84q0$o_%-an0cfea%7$b8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',  # Siempre déjalo
+    'localhost',  # Siempre déjalo
+    '192.168.1.7', # <--- ¡AGREGA ESTA LÍNEA!
+    '10.0.2.2',    # <--- ¡OPCIONAL! Añádelo si usas el emulador de Android
+    '*',           # (Opcional, SOLO para desarrollo: permite CUALQUIER IP)
+]
 
 
 # Application definition
@@ -37,11 +58,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',  # Soporte GIS para PostGIS
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_filters',
     'habittoapp',
     'user',
     'property',
+    'zone',  # Nueva app para zonas
     'amenity',
     'photo',
     'review',
@@ -51,6 +75,7 @@ INSTALLED_APPS = [
     'message',
     'incentive',
     'guarantee',
+    'django_extensions',
 ]
 
 # Eliminar esta línea: AUTH_USER_MODEL = 'user.User'
@@ -63,6 +88,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'bk_habitto.middleware.APILoggingMiddleware',  # Middleware personalizado para logging de API
 ]
 
 ROOT_URLCONF = 'bk_habitto.urls'
@@ -89,13 +115,9 @@ WSGI_APPLICATION = 'bk_habitto.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habito_db',
-        'USER': 'postgres',
-        'PASSWORD': 'sistemas123',
-        'HOST': 'localhost',  
-        'PORT': '5432',
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',  # SQLite con SpatiaLite
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -136,18 +158,24 @@ USE_TZ = True
 
 # Django REST Framework configuration
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-    ],
+}
+
+# Simple JWT configuration
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 # Default primary key field type
@@ -159,3 +187,65 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Configuración de Logging para API
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'api': {
+            'format': '{asctime} - {levelname} - {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'api',
+        },
+        'api_file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'api.log',
+            'formatter': 'api',
+        },
+    },
+    'loggers': {
+        'api_logger': {
+            'handlers': ['console', 'api_file'] if DEBUG else [],
+            'level': 'INFO' if DEBUG else 'ERROR',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
+
+# Configuración de Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/La_Paz'
+CELERY_ENABLE_UTC = True
+
+# Configuración de Redis para caché (opcional)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
