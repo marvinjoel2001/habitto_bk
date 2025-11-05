@@ -11,9 +11,11 @@ from .serializers import (
     ZoneSerializer, ZoneGeoSerializer, ZoneStatsSerializer, 
     ZoneHeatmapSerializer, ZoneSearchLogSerializer, ZoneCreateSerializer
 )
+from bk_habitto.mixins import MessageConfigMixin
+from matching.models import Match, RoommateRequest
 
 
-class ZoneViewSet(viewsets.ModelViewSet):
+class ZoneViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """
     ViewSet para gestión de zonas con funcionalidades GIS y estadísticas.
     
@@ -33,6 +35,21 @@ class ZoneViewSet(viewsets.ModelViewSet):
     serializer_class = ZoneSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['name']
+    success_messages = {
+        'list': 'Zonas obtenidas exitosamente',
+        'retrieve': 'Zona obtenida exitosamente',
+        'create': 'Zona creada exitosamente',
+        'update': 'Zona actualizada exitosamente',
+        'partial_update': 'Zona actualizada exitosamente',
+        'destroy': 'Zona eliminada exitosamente',
+        'stats': 'Estadísticas de zonas obtenidas exitosamente',
+        'zone_stats': 'Estadísticas de zona obtenidas exitosamente',
+        'heatmap': 'Datos de mapa de calor obtenidos exitosamente',
+        'geojson': 'Datos GeoJSON obtenidos exitosamente',
+        'search_log': 'Búsqueda registrada exitosamente',
+        'nearby_zones': 'Zonas cercanas obtenidas exitosamente',
+        'find_by_location': 'Zona encontrada exitosamente',
+    }
     
     def get_permissions(self):
         """
@@ -88,23 +105,29 @@ class ZoneViewSet(viewsets.ModelViewSet):
                     offer_count__lt=5
                 ).values('id', 'name', 'demand_count', 'offer_count')[:5]
             }
-            return Response(stats_data)
+            resp = Response(stats_data)
+            self.set_response_message(resp, 'Estadísticas de zonas obtenidas exitosamente')
+            return resp
         
         elif user_type == 'agente':
             # Agentes ven leads y estadísticas detalladas
             serializer = self.get_serializer(zones, many=True)
-            return Response({
+            resp = Response({
                 'zones': serializer.data,
                 'total_leads': ZoneSearchLog.objects.count(),
                 'recent_searches': ZoneSearchLog.objects.select_related('zone')
                     .order_by('-created_at')[:10]
                     .values('zone__name', 'search_params', 'created_at')
             })
+            self.set_response_message(resp, 'Estadísticas de zonas obtenidas exitosamente')
+            return resp
         
         else:
             # Inquilinos y usuarios generales ven estadísticas básicas
             serializer = self.get_serializer(zones, many=True)
-            return Response(serializer.data)
+            resp = Response(serializer.data)
+            self.set_response_message(resp, 'Estadísticas de zonas obtenidas exitosamente')
+            return resp
 
     @action(detail=True, methods=['get'])
     def zone_stats(self, request, pk=None):
@@ -119,6 +142,22 @@ class ZoneViewSet(viewsets.ModelViewSet):
         # Información adicional según tipo de usuario
         user_type = request.query_params.get('user_type')
         response_data = serializer.data
+
+        # Métricas de matching
+        try:
+            # Matches sobre propiedades de la zona
+            from property.models import Property
+            prop_ids = list(Property.objects.filter(zone=zone).values_list('id', flat=True))
+            total_matches = Match.objects.filter(match_type='property', subject_id__in=prop_ids).count()
+            accepted_matches = Match.objects.filter(match_type='property', subject_id__in=prop_ids, status='accepted').count()
+            match_ratio = (accepted_matches / total_matches) if total_matches > 0 else 0
+            # Roomie demand: solicitudes cuyo creador prefiere esta zona
+            roomie_demand = RoommateRequest.objects.filter(creator__preferred_zones=zone, is_active=True).count()
+        except Exception:
+            match_ratio = 0
+            roomie_demand = 0
+        response_data['match_ratio'] = round(float(match_ratio), 3)
+        response_data['roomie_demand'] = roomie_demand
         
         if user_type == 'propietario':
             # Información específica para propietarios
@@ -132,7 +171,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
                 .values('search_params', 'created_at', 'user__username')
             response_data['recent_searches'] = list(recent_searches)
             
-        return Response(response_data)
+        resp = Response(response_data)
+        self.set_response_message(resp, 'Estadísticas de zona obtenidas exitosamente')
+        return resp
 
     @action(detail=False, methods=['get'])
     def heatmap(self, request):
@@ -188,7 +229,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
             "features": features
         }
         
-        return Response(geojson_data)
+        resp = Response(geojson_data)
+        self.set_response_message(resp, 'Datos de mapa de calor obtenidos exitosamente')
+        return resp
 
     @action(detail=False, methods=['get'])
     def geojson(self, request):
@@ -200,7 +243,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
         """
         zones = self.get_queryset()
         serializer = self.get_serializer(zones, many=True)
-        return Response(serializer.data)
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Datos GeoJSON obtenidos exitosamente')
+        return resp
 
     @action(detail=False, methods=['post'])
     def search_log(self, request):
@@ -227,7 +272,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
             else:
                 serializer.save()
             
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            resp = Response(serializer.data, status=status.HTTP_201_CREATED)
+            self.set_response_message(resp, 'Búsqueda registrada exitosamente')
+            return resp
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['get'])
@@ -240,7 +287,9 @@ class ZoneViewSet(viewsets.ModelViewSet):
         zone = self.get_object()
         nearby = zone.get_nearby_zones()
         serializer = ZoneSerializer(nearby, many=True)
-        return Response(serializer.data)
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Zonas cercanas obtenidas exitosamente')
+        return resp
 
     @action(detail=False, methods=['get'])
     def find_by_location(self, request):

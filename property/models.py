@@ -43,6 +43,15 @@ class Property(models.Model):
 
     accepted_payment_methods = models.ManyToManyField('paymentmethod.PaymentMethod', blank=True)
 
+    # Campos de matching
+    allows_roommates = models.BooleanField(default=False)
+    max_occupancy = models.IntegerField(null=True, blank=True)
+    min_price_per_person = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    is_furnished = models.BooleanField(default=False)
+    tenant_requirements = models.JSONField(default=dict, blank=True)
+    tags = models.JSONField(default=list, blank=True)
+    semantic_embedding = models.TextField(null=True, blank=True)
+
     def __str__(self):
         return f'{self.type} en {self.address} - {self.price} BOB'
 

@@ -13,8 +13,11 @@ from .serializers import (
     PropertyMapSerializer, PropertySearchSerializer
 )
 from zone.models import Zone
+from bk_habitto.mixins import MessageConfigMixin
+from matching.models import SearchProfile
+from utils.matching import calculate_property_match_score, create_property_matches_for_profile
 
-class PropertyViewSet(viewsets.ModelViewSet):
+class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """
     ViewSet para gestionar propiedades con funcionalidades GIS y filtros por zona.
     Personaliza la respuesta según el tipo de usuario (inquilino, propietario, agente).
@@ -25,6 +28,14 @@ class PropertyViewSet(viewsets.ModelViewSet):
     search_fields = ['address', 'description', 'zone__name']
     ordering_fields = ['price', 'created_at', 'size']
     permission_classes = [IsAuthenticatedOrReadOnly]
+    success_messages = {
+        'list': 'Propiedades obtenidas exitosamente',
+        'retrieve': 'Propiedad obtenida exitosamente',
+        'create': 'Propiedad creada exitosamente',
+        'update': 'Propiedad actualizada exitosamente',
+        'partial_update': 'Propiedad actualizada exitosamente',
+        'destroy': 'Propiedad eliminada exitosamente',
+    }
 
     def get_serializer_class(self):
         """Selecciona el serializer apropiado según la acción."""
@@ -70,7 +81,60 @@ class PropertyViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Asigna el propietario automáticamente al crear una propiedad."""
-        serializer.save(owner=self.request.user)
+        prop = serializer.save(owner=self.request.user)
+        # Trigger de matches automáticos con perfiles cercanos
+        try:
+            # Buscar perfiles con ubicación definida cerca de la propiedad
+            profiles = SearchProfile.objects.all()
+            for profile in profiles[:500]:
+                score, meta = calculate_property_match_score(profile, prop)
+                from matching.models import Match
+                if score >= 70:
+                    Match.objects.update_or_create(
+                        match_type='property',
+                        subject_id=prop.id,
+                        target_user=profile.user,
+                        defaults={'score': score, 'metadata': meta}
+                    )
+        except Exception:
+            pass
+
+    def list(self, request, *args, **kwargs):
+        """Extiende listado para filtrar por match_score usando el SearchProfile del usuario."""
+        min_score = request.query_params.get('match_score')
+        if min_score and request.user.is_authenticated:
+            try:
+                min_score = float(min_score)
+            except ValueError:
+                min_score = None
+        else:
+            min_score = None
+
+        response = super().list(request, *args, **kwargs)
+        if min_score is not None:
+            profile = SearchProfile.objects.filter(user=request.user).first()
+            if not profile:
+                return response
+            results = response.data.get('results') if isinstance(response.data, dict) else response.data
+            filtered = []
+            # results puede ser lista de dicts de propiedades serializadas
+            from property.models import Property as PropertyModel
+            id_key = 'id'
+            for item in results:
+                try:
+                    prop_id = item.get(id_key)
+                    prop_obj = PropertyModel.objects.get(id=prop_id)
+                    score, _ = calculate_property_match_score(profile, prop_obj)
+                    if score >= min_score:
+                        filtered.append(item)
+                except Exception:
+                    filtered.append(item)
+            if isinstance(response.data, dict):
+                response.data['results'] = filtered
+                response.data['count'] = len(filtered)
+            else:
+                response.data = filtered
+        return response
 
     @action(detail=False, methods=['get'], url_path='map')
     def map(self, request):

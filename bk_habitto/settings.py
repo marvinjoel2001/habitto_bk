@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'message',
     'incentive',
     'guarantee',
+    'matching',
     'django_extensions',
 ]
 
@@ -116,8 +117,12 @@ WSGI_APPLICATION = 'bk_habitto.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',  # SQLite con SpatiaLite
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # PostgreSQL con PostGIS
+        'NAME': 'habito_db',
+        'USER': 'postgres',
+        'PASSWORD': 'sistemas123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -166,6 +171,10 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'DEFAULT_RENDERER_CLASSES': (
+        'bk_habitto.renderers.WrappedJSONRenderer',
+    ),
+    'EXCEPTION_HANDLER': 'bk_habitto.exceptions.wrapped_exception_handler',
 }
 
 # Simple JWT configuration

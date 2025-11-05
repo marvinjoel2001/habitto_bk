@@ -37,7 +37,12 @@ def api_root(request):
             'notifications': '/api/notifications/',
             'messages': '/api/messages/',
             'incentives': '/api/incentives/',
-            'guarantees': '/api/guarantees/',
+        'guarantees': '/api/guarantees/',
+        'search_profiles': '/api/search_profiles/',
+        'roommate_requests': '/api/roommate_requests/',
+        'matches': '/api/matches/',
+        'match_feedback': '/api/match_feedback/',
+        'recommendations': '/api/recommendations/',
         }
     })
 
@@ -58,6 +63,7 @@ urlpatterns = [
     path('api/', include('message.urls')),
     path('api/', include('incentive.urls')),
     path('api/', include('guarantee.urls')),
+    path('api/', include('matching.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

@@ -41,6 +41,7 @@ class Zone(models.Model):
         validators=[MinValueValidator(0)],
         help_text="Número de búsquedas/favoritos en la zona"
     )
+    match_activity_score = models.FloatField(default=0.0, help_text="Actividad de matches en la zona")
     
     # Metadatos
     created_at = models.DateTimeField(auto_now_add=True)

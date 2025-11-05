@@ -80,7 +80,10 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             'owner', 'agent', 'type', 'address', 'latitude', 'longitude',
             'zone_id', 'price', 'guarantee', 'description', 'size',
             'bedrooms', 'bathrooms', 'amenities', 'availability_date',
-            'is_active', 'accepted_payment_methods'
+            'is_active', 'accepted_payment_methods',
+            # Nuevos campos de matching
+            'allows_roommates', 'max_occupancy', 'min_price_per_person',
+            'is_furnished', 'tenant_requirements', 'tags', 'semantic_embedding'
         ]
         read_only_fields = ['owner']
 

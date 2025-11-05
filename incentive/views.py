@@ -9,14 +9,26 @@ from .serializers import IncentiveSerializer, IncentiveRuleSerializer
 from .services import IncentiveService
 from zone.models import Zone
 import logging
+from bk_habitto.mixins import MessageConfigMixin
 
 logger = logging.getLogger(__name__)
 
 
-class IncentiveViewSet(viewsets.ModelViewSet):
+class IncentiveViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """ViewSet para gestionar incentivos de usuarios"""
     serializer_class = IncentiveSerializer
     permission_classes = [IsAuthenticated]
+    success_messages = {
+        'list': 'Incentivos obtenidos exitosamente',
+        'retrieve': 'Incentivo obtenido exitosamente',
+        'create': 'Incentivo creado exitosamente',
+        'update': 'Incentivo actualizado exitosamente',
+        'partial_update': 'Incentivo actualizado exitosamente',
+        'destroy': 'Incentivo eliminado exitosamente',
+        'active': 'Incentivos activos obtenidos exitosamente',
+        'by_zone': 'Incentivos por zona obtenidos exitosamente',
+        'use': 'Incentivo usado exitosamente',
+    }
     
     def get_queryset(self):
         """Filtrar incentivos por usuario autenticado"""
@@ -31,7 +43,9 @@ class IncentiveViewSet(viewsets.ModelViewSet):
         """Obtener incentivos activos del usuario"""
         active_incentives = IncentiveService.get_user_active_incentives(request.user)
         serializer = self.get_serializer(active_incentives, many=True)
-        return Response(serializer.data)
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Incentivos activos obtenidos exitosamente')
+        return resp
     
     @action(detail=False, methods=['get'])
     def by_zone(self, request):
@@ -47,7 +61,9 @@ class IncentiveViewSet(viewsets.ModelViewSet):
             zone = Zone.objects.get(id=zone_id)
             incentives = self.get_queryset().filter(zone=zone)
             serializer = self.get_serializer(incentives, many=True)
-            return Response(serializer.data)
+            resp = Response(serializer.data)
+            self.set_response_message(resp, 'Incentivos por zona obtenidos exitosamente')
+            return resp
         except Zone.DoesNotExist:
             return Response(
                 {'error': 'Zone not found'}, 
@@ -77,17 +93,30 @@ class IncentiveViewSet(viewsets.ModelViewSet):
         
         logger.info(f"Incentive {incentive.id} used by user {request.user.username}")
         
-        return Response({
+        resp = Response({
             'message': 'Incentive used successfully',
             'incentive': self.get_serializer(incentive).data
         })
+        self.set_response_message(resp, 'Incentivo usado exitosamente')
+        return resp
 
 
-class IncentiveRuleViewSet(viewsets.ModelViewSet):
+class IncentiveRuleViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """ViewSet para gestionar reglas de incentivos (solo admin)"""
     queryset = IncentiveRule.objects.all().order_by('name')
     serializer_class = IncentiveRuleSerializer
     permission_classes = [IsAuthenticated]
+    success_messages = {
+        'list': 'Reglas de incentivos obtenidas exitosamente',
+        'retrieve': 'Regla de incentivo obtenida exitosamente',
+        'create': 'Regla de incentivo creada exitosamente',
+        'update': 'Regla de incentivo actualizada exitosamente',
+        'partial_update': 'Regla de incentivo actualizada exitosamente',
+        'destroy': 'Regla de incentivo eliminada exitosamente',
+        'generate_incentives': 'Incentivos generados exitosamente',
+        'market_analysis': 'Análisis de mercado obtenido exitosamente',
+        'toggle_active': 'Regla activada exitosamente',
+    }
     
     def get_permissions(self):
         """Solo administradores pueden crear, actualizar o eliminar reglas"""
@@ -153,11 +182,17 @@ class IncentiveRuleViewSet(viewsets.ModelViewSet):
             
             logger.info(f"Manual incentive generation by {request.user.username}: {message}")
             
-            return Response({
+            resp = Response({
                 'message': message,
                 'incentives_count': len(incentives),
                 'timestamp': timezone.now()
             })
+            # Ajustar mensaje según si es por zona o todas
+            if zone_id:
+                self.set_response_message(resp, 'Incentivos generados exitosamente')
+            else:
+                self.set_response_message(resp, 'Incentivos generados exitosamente')
+            return resp
             
         except Exception as e:
             logger.error(f"Error generating incentives: {e}")
@@ -176,7 +211,7 @@ class IncentiveRuleViewSet(viewsets.ModelViewSet):
             try:
                 zone = Zone.objects.get(id=zone_id)
                 conditions = IncentiveService.analyze_zone_market_conditions(zone)
-                return Response({
+                resp = Response({
                     'zone': {
                         'id': zone.id,
                         'name': zone.name,
@@ -186,6 +221,8 @@ class IncentiveRuleViewSet(viewsets.ModelViewSet):
                     'conditions': conditions,
                     'timestamp': timezone.now()
                 })
+                self.set_response_message(resp, 'Análisis de mercado obtenido exitosamente')
+                return resp
             except Zone.DoesNotExist:
                 return Response(
                     {'error': 'Zone not found'}, 
@@ -206,10 +243,12 @@ class IncentiveRuleViewSet(viewsets.ModelViewSet):
                     'conditions': conditions
                 })
             
-            return Response({
+            resp = Response({
                 'zones_analysis': zones_analysis,
                 'timestamp': timezone.now()
             })
+            self.set_response_message(resp, 'Análisis de mercado para todas las zonas obtenido exitosamente')
+            return resp
     
     @action(detail=True, methods=['post'])
     def toggle_active(self, request, pk=None):
@@ -227,7 +266,11 @@ class IncentiveRuleViewSet(viewsets.ModelViewSet):
         status_text = 'activated' if rule.is_active else 'deactivated'
         logger.info(f"Incentive rule {rule.name} {status_text} by {request.user.username}")
         
-        return Response({
+        resp = Response({
             'message': f'Rule {status_text} successfully',
             'rule': self.get_serializer(rule).data
         })
+        # Mensaje condicional según estado
+        toggle_message = 'Regla activada exitosamente' if rule.is_active else 'Regla desactivada exitosamente'
+        self.set_response_message(resp, toggle_message)
+        return resp

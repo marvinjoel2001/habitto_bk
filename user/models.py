@@ -34,6 +34,11 @@ class UserProfile(models.Model):
 
     favorites = models.ManyToManyField('property.Property', related_name='favorited_by', blank=True)
 
+    # Campos para agentes/roomies
+    is_agent = models.BooleanField(default=False)
+    agent_commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=2.0)
+    roommate_vibes = models.JSONField(default=dict, blank=True)
+
     def __str__(self):
         return f"{self.user.username} - {self.user_type}"
 
