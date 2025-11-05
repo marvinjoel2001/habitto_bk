@@ -264,6 +264,154 @@ Base: `/api/`
 
 ---
 
+## Lógica y Flujo de la App (Explicación detallada)
+
+### Visión General
+- La app se basa en tres pilares: catálogo de propiedades, perfiles de búsqueda y un motor de matching/recomendaciones que prioriza resultados por similitud y probabilidad de interés.
+- Todo el ciclo (crear perfil → listar/buscar → recomendar/matchear → aceptar → mensajear/pagar) está estandarizado con respuestas `{ success, message, data }`.
+
+### Listado de Propiedades: “por cosas parecidas o por probabilidad”
+- Entrada del listado:
+  - Con perfil: si el usuario tiene `SearchProfile`, el listado se reordena y/o filtra usando `match_score` (compatibilidad).
+  - Sin perfil: se usan heurísticas por defecto (recientes/activas, precio medio de zona, popularidad) y filtros básicos (`type`, `price`, `is_active`, etc.).
+- Generación de candidatos:
+  - Se parte de propiedades `is_active=true` y que cumplan los filtros explícitos (tipo, precio, dormitorios/baños, zona si aplica).
+  - En vistas geoespaciales (`map`, `nearby`) se usan coordenadas WGS84 (SRID 4326) y radio en km.
+- Cálculo de similitud (con perfil):
+  - Distancia geográfica entre `SearchProfile.location` y `Property.location` (más cerca, mayor score).
+  - Presupuesto: penalización si `price` queda fuera de `[budget_min, budget_max]`.
+  - Tipo deseado: bonus si `property.type` ∈ `desired_types`.
+  - Comodidades: intersección con `amenities` del perfil y/o preferidas.
+  - Capacidad: `bedrooms/bathrooms` comparado con `bedrooms_min/max` del perfil.
+- Probabilidad de interés (concepto):
+  - El `match_score` puede mapearse a una probabilidad usando una función logística (calibración básica) y señales de interacción (feedback `like/dislike`, aceptación de matches previos).
+  - Resultado: ranking final por una combinación de similitud (contenido) + probabilidad (comportamiento), con paginación.
+
+### Lógica de Matching
+- Disparadores de match:
+  - Al crear una propiedad (`perform_create`), se computan matches para perfiles cercanos y compatibles en presupuesto/tipo.
+  - Tarea asíncrona `compute_matches_for_profile(profile_id)` puede recalcular matches masivos (propiedad, roomie, agente).
+- Criterios principales (propiedades):
+  - Distancia, presupuesto, tipo, estado (`is_active`), atributos básicos (`bedrooms`, `bathrooms`).
+- Criterios principales (roommates):
+  - Compatibilidad de presupuestos y ubicación.
+  - Preferencia de roomie (`roommate_preference`), `vibes` y `roommate_vibes` del perfil.
+  - Señales de convivencia (`lifestyle`, `schedule`, `pets_count`, `smoker`).
+- Criterios principales (agentes):
+  - Si `is_agent=true`, se pondera visibilidad para casos donde el usuario busca apoyo de agente (criterios de negocio/roadmap).
+- Estados y acciones:
+  - `Match.status`: `pending` → `accepted` o `rejected`.
+  - `POST /api/matches/{id}/accept/`: cambia a `accepted`, crea notificaciones a ambas partes y un `Message` de interés.
+  - `POST /api/matches/{id}/reject/`: cambia a `rejected` (puede registrar notificación). 
+
+### Recomendaciones
+- `GET /api/recommendations/?type=mixed|property|roommate`:
+  - `mixed`: mezcla propiedades y roomies con mejor score para el perfil.
+  - `property`: sólo propiedades compatibles y cercanas.
+  - `roommate`: sólo personas/perfiles compatibles.
+- Cada item incluye `type` y un objeto `match` cuando existe una correlación explícita.
+
+### Notificaciones y Mensajes
+- Aceptar un match genera:
+  - Notificación al inquilino confirmando aceptación.
+  - Notificación al propietario indicando interés.
+  - Mensaje inicial entre ambas partes para iniciar conversación.
+- `mark_as_read` permite a los usuarios gestionar su bandeja.
+
+### Estadísticas y Señales
+- Zonas: `stats/zone_stats` agregan métricas de propiedades activas, precio medio, favoritos y demanda de match/roomie.
+- Señales (`zone/signals.py`) actualizan estas métricas cuando cambian propiedades o favoritos.
+- Propiedades: `stats` personales por tipo de usuario (propietario/inquilino) para ayudar decisiones.
+
+### Flujo de punta a punta (ejemplo)
+- Inquilino crea `SearchProfile` con ubicación y presupuesto.
+- En la vista de listado:
+  - Se filtran candidatos activos según criterios explícitos.
+  - Se calcula `match_score` y/o probabilidad para cada candidato.
+  - Se ordena por score y se pagina.
+- Inquilino revisa recomendaciones (`/recommendations/`) y/o acepta un match (`/matches/{id}/accept/`).
+- El sistema crea notificaciones y un mensaje al propietario.
+- Avanza a pagos/garantías según acuerdo; al finalizar contrato, se puede dejar `Review`.
+
+### Nota sobre ordenación y experiencia
+- Donde sea pertinente, el listado se puede ordenar por `match_score`, `price`, o `-created_at`.
+- El mapa (`/properties/map/`) devuelve payload optimizado para rendimiento en cliente.
+- La búsqueda avanzada (`/properties/search/`) es el lugar para consultas complejas; el listado básico prioriza velocidad y relevancia.
+
+---
+
+## Perfil vs Usuario: Relación y uso en la app
+
+### ¿Qué es `User`?
+- Es el modelo de autenticación estándar de Django. Contiene credenciales e identidad básica: `username`, `email`, `first_name`, `last_name`, `date_joined` y la contraseña (almacenada de forma segura).
+- Endpoints relevantes: `POST /api/users/` (registro), `GET /api/users/me/` (usuario autenticado), `GET/PUT/PATCH/DELETE /api/users/{id}/`.
+
+### ¿Qué es `UserProfile`?
+- Es una extensión del usuario para la lógica de negocio de Habitto. Modela el “perfil” con información y preferencias adicionales:
+  - `user_type` (`inquilino`|`propietario`|`agente`), `phone`, `profile_picture`, `is_verified`.
+  - `favorites` (relación ManyToMany con `property.Property`) para guardar propiedades favoritas.
+  - Campos específicos: `is_agent`, `agent_commission_rate`, `roommate_vibes` (usados para escenarios de agentes/roomies).
+- La relación con `User` es OneToOne: en código se accede como `user.profile` (por `related_name='profile'`).
+
+### ¿Cómo se crea y se vincula?
+- Durante el registro (`POST /api/users/`), el `UserCreateSerializer` crea automáticamente el `User` y luego su `UserProfile`, tomando `user_type`, `phone` y `profile_picture` del payload.
+- Si se sube una `profile_picture`, se registra también en `ProfilePictureHistory` y se marca como `is_current=true`.
+- Si por algún motivo se crea el perfil manualmente, la vista `UserProfileViewSet.perform_create` asegura que se vincule al `request.user` autenticado.
+
+### ¿Qué endpoints usan el perfil?
+- `GET /api/profiles/me/`: obtiene el `UserProfile` del usuario autenticado.
+- `PUT/PATCH /api/profiles/update_me/`: actualiza campos del perfil (no las credenciales de `User`).
+- `POST /api/profiles/upload_profile_picture/`: actualiza la foto y crea una nueva entrada en `ProfilePictureHistory` marcando anteriores como no actuales.
+- `GET /api/profiles/picture_history/`: lista el historial de fotos del perfil.
+- `POST /api/profiles/{id}/verify/`: marca el perfil como verificado (`is_verified=true`).
+
+### ¿Cómo se usa en matching y listados?
+- `UserProfile` guarda la identidad y preferencias generales del usuario (p.ej. tipo de usuario, foto, favoritos). 
+- El matching usa principalmente `SearchProfile` (del módulo `matching`), que es distinto a `UserProfile`:
+  - `SearchProfile` contiene la ubicación (`location`), presupuestos (`budget_min/max`) y preferencias de búsqueda (`desired_types`, `bedrooms_min/max`, `amenities`, etc.).
+  - El motor de recomendaciones y el `match_score` se basan en `SearchProfile` + datos de propiedades.
+- En listados:
+  - Si existe `SearchProfile`, se priorizan candidatos según compatibilidad; los favoritos (`UserProfile.favorites`) complementan la experiencia (p.ej. destacar ítems guardados).
+
+### Acceso típico en código
+- Obtener perfil del usuario autenticado: `profile = UserProfile.objects.get(user=request.user)`.
+- Leer tipo de usuario: `request.user.profile.user_type`.
+- Añadir/Quitar favoritos vía `profile.favorites.add(property_obj)` / `profile.favorites.remove(property_obj)`.
+
+### Ejemplos de respuestas
+- Usuario (`GET /api/users/me/`):
+```
+{
+  "id": 7,
+  "username": "juan",
+  "email": "juan@example.com",
+  "first_name": "Juan",
+  "last_name": "Pérez",
+  "date_joined": "2025-11-05T15:00:00Z"
+}
+```
+
+- Perfil (`GET /api/profiles/me/`):
+```
+{
+  "id": 12,
+  "user": { /* usuario serializado como arriba */ },
+  "user_type": "inquilino",
+  "phone": "77777777",
+  "profile_picture": "https://.../media/profile_pictures/user_7_20251105_abc123.jpg",
+  "is_verified": false,
+  "favorites": [23, 41],
+  "picture_history": [
+    { "id": 3, "image": "...", "original_filename": "perfil.png", "uploaded_at": "2025-11-05T15:10:00Z", "is_current": true }
+  ],
+  "created_at": "2025-11-05T15:00:00Z",
+  "updated_at": "2025-11-05T15:10:00Z"
+}
+```
+
+
+---
+
 ## Expectativas del Producto
 - Respuestas consistentes: todas las APIs deben usar el envoltorio `{ success, message, data }`.
 - Paginación estándar: endpoints de listado deben retornar `count`, `next`, `previous`, `results` cuando aplique. Parámetro `?page=` disponible.
