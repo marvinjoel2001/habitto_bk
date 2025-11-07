@@ -92,7 +92,7 @@ Gestiona las propiedades inmobiliarias del sistema.
 
 ### `GET /api/properties/`
 - **Descripción**: Obtiene una lista paginada de propiedades con opciones de filtrado, búsqueda y ordenamiento.
-- **Autenticación**: Requerida.
+- **Autenticación**: Opcional (lectura pública). Si el usuario está autenticado, se habilitan filtros basados en su `SearchProfile` como `match_score`.
 - **Parámetros de consulta**:
   - `type`: Filtra por tipo de propiedad (`casa`, `departamento`, `habitacion`, `anticretico`)
   - `is_active`: Filtra por estado de la propiedad (`true`/`false`)
@@ -236,8 +236,8 @@ Gestiona las propiedades inmobiliarias del sistema.
 - **Formato de coordenadas**:
   - **Latitud**: Debe estar entre -90 y 90 grados
   - **Longitud**: Debe estar entre -180 y 180 grados
-  - **Precisión**: Hasta 15 dígitos totales con 10 decimales (ej: `-16.5000000000`)
-  - **Ejemplo para La Paz, Bolivia**: `latitude: "-16.5000000000", longitude: "-68.1500000000"`
+  - **Precisión**: Hasta 9 dígitos totales con 6 decimales (ej: `-16.500000`), acorde al `PropertyCreateSerializer`
+  - **Ejemplo para La Paz, Bolivia**: `latitude: "-16.500000", longitude: "-68.150000"`
 - **Response (201 Created)**:
   ```json
   {
@@ -280,8 +280,8 @@ Gestiona las propiedades inmobiliarias del sistema.
       "success": false,
       "message": "Datos inválidos",
       "data": {
-        "latitude": ["Ensure that there are no more than 15 digits in total."],
-        "longitude": ["Ensure that there are no more than 15 digits in total."]
+        "latitude": ["Ensure that there are no more than 9 digits in total."],
+        "longitude": ["Ensure that there are no more than 9 digits in total."]
       }
     }
     ```
@@ -330,9 +330,9 @@ Gestiona las propiedades inmobiliarias del sistema.
     }
     ```
 
-### `GET /api/properties/{id}/`
+-### `GET /api/properties/{id}/`
 - **Descripción**: Obtiene los detalles de una propiedad específica.
-- **Autenticación**: Requerida.
+- **Autenticación**: Opcional (lectura pública).
 - **Response (200 OK)**:
   ```json
   {
@@ -340,15 +340,15 @@ Gestiona las propiedades inmobiliarias del sistema.
     "message": "Propiedad obtenida exitosamente",
     "data": {
       "id": 1,
-      "title": "Casa en Zona Sur",
+      "type": "casa",
+      "address": "Calle Falsa 123, La Paz",
       "description": "Casa amplia en zona residencial con jardín y piscina",
       "price": "1500.00",
-      "property_type": "casa",
       "bedrooms": 3,
       "bathrooms": 2,
-      "area": 150.5,
-      "latitude": "16.5000000000",
-      "longitude": "68.1500000000",
+      "size": 150.5,
+      "latitude": "-16.500000",
+      "longitude": "-68.150000",
       "owner": 1,
       "created_at": "2025-10-22T10:00:00Z",
       "updated_at": "2025-10-22T10:00:00Z",

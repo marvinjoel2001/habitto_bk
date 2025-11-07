@@ -1515,3 +1515,1927 @@
     ]
   }
 }
+2025-11-07 13:33:45,892 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/users/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan@gmail.com",
+    "first_name": "juan",
+    "last_name": "pena",
+    "password": "***HIDDEN***",
+    "user_type": "inquilino",
+    "phone": "71363267"
+  }
+}
+2025-11-07 13:33:46,128 - INFO - 📤 RESPONSE [POST /api/users/]: {
+  "status_code": 201,
+  "duration_ms": 240.39,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "username": "juan",
+      "email": "juan@gmail.com",
+      "first_name": "juan",
+      "last_name": "pena"
+    }
+  }
+}
+2025-11-07 13:34:21,038 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:21,356 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 318.52,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzI2MSwiaWF0IjoxNzYyNTIyNDYxLCJqdGkiOiIzZGYwZWJmMTdjMjg0MjFmOTFiODI2N2E4OGM5MDQ5MiIsInVzZXJfaWQiOiIyIn0.IiA4l0vGgLGcqbk4WFg_ChS14anbxftM6HUWStU64S4",
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTI2MDYxLCJpYXQiOjE3NjI1MjI0NjEsImp0aSI6IjMyYTBmMWNhOTJiMzQ5ZDM4MmUwODAzYWYyMGVkZTA3IiwidXNlcl9pZCI6IjIifQ.u82xYKcaBkffKbuMuhJzJF8eD8E8mVvZeGrnzft-aXs"
+    }
+  }
+}
+2025-11-07 13:34:21,365 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/token/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:21,384 - WARNING - ⚠️ RESPONSE [POST /api/token/]: {
+  "status_code": 404,
+  "duration_ms": 19.66,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (64380 bytes)"
+}
+2025-11-07 13:34:21,410 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/auth/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:21,418 - WARNING - ⚠️ RESPONSE [POST /api/auth/login/]: {
+  "status_code": 404,
+  "duration_ms": 8.16,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (64395 bytes)"
+}
+2025-11-07 13:34:29,605 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:29,792 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 188.33,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzI2OSwiaWF0IjoxNzYyNTIyNDY5LCJqdGkiOiIwOThmZmM3ZWU0ZTA0NWY3ODlhZDc4ZjYwZTA2NTExMyIsInVzZXJfaWQiOiIyIn0.0aLD8urQk2CV8EEghXQqFEwuYp8PsJJRIaCiKBT4CiA",
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTI2MDY5LCJpYXQiOjE3NjI1MjI0NjksImp0aSI6IjU3ZjEzNjMwN2RiZjRhMmE5MjRkZWQ5ZWQyNDFkNTBjIiwidXNlcl9pZCI6IjIifQ.j53sVlHJT0frzM9iI8K-bkNjhMPfsju9i9SXujSv2Ng"
+    }
+  }
+}
+2025-11-07 13:34:29,815 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/token/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:29,823 - WARNING - ⚠️ RESPONSE [POST /api/token/]: {
+  "status_code": 404,
+  "duration_ms": 8.58,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (64380 bytes)"
+}
+2025-11-07 13:34:29,841 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/auth/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "email": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:34:29,849 - WARNING - ⚠️ RESPONSE [POST /api/auth/login/]: {
+  "status_code": 404,
+  "duration_ms": 8.53,
+  "content_type": "text/html; charset=utf-8",
+  "content": "Non-JSON response (64395 bytes)"
+}
+2025-11-07 13:41:54,216 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/login/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "username": "juan",
+    "password": "***HIDDEN***"
+  }
+}
+2025-11-07 13:41:54,786 - INFO - 📤 RESPONSE [POST /api/login/]: {
+  "status_code": 200,
+  "duration_ms": 573.21,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzcxNCwiaWF0IjoxNzYyNTIyOTE0LCJqdGkiOiI2NmE1OGRkZDIyYTU0MTUxYTYzYTdjZTMxMDNhMmJiMyIsInVzZXJfaWQiOiIyIn0.NyYyf7uXSF30qNtJMTzHcb4g4Dk59mpseSjpFW2s3qY",
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTI2NTE0LCJpYXQiOjE3NjI1MjI5MTQsImp0aSI6IjAxODRjNjFkMDU0YzRkODRiM2RjNTg5Njk0MTYxNGI0IiwidXNlcl9pZCI6IjIifQ.u1ci3h0AVimshZM3hxo7eMd2cQKt9h_oesJ-1b6XGTE"
+    }
+  }
+}
+2025-11-07 15:45:49,219 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/messages/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:49,286 - WARNING - ⚠️ RESPONSE [GET /api/messages/]: {
+  "status_code": 401,
+  "duration_ms": 70.04,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Given token not valid for any token type",
+      "code": "token_not_valid",
+      "messages": [
+        {
+          "token_class": "AccessToken",
+          "token_type": "access",
+          "message": "Token is expired"
+        }
+      ]
+    }
+  }
+}
+2025-11-07 15:45:49,419 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzcxNCwiaWF0IjoxNzYyNTIyOTE0LCJqdGkiOiI2NmE1OGRkZDIyYTU0MTUxYTYzYTdjZTMxMDNhMmJiMyIsInVzZXJfaWQiOiIyIn0.NyYyf7uXSF30qNtJMTzHcb4g4Dk59mpseSjpFW2s3qY",
+    "refresh_token": "***HIDDEN***"
+  }
+}
+2025-11-07 15:45:50,270 - INFO - 📤 RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 850.83,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTMzOTQ5LCJpYXQiOjE3NjI1MzAzNTAsImp0aSI6ImEzZWI2NjRmMjQ3ZDRmMWQ5ZTQxYTgyOTM3ODk2NTk4IiwidXNlcl9pZCI6IjIifQ.Dw-i0xFnmfHfPhQk-MBx93i-a_qiD65Ksc1SECfC_AA",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEzNTE0OSwiaWF0IjoxNzYyNTMwMzQ5LCJqdGkiOiI5OTljOTAzYTRiMjI0ZDc0YmZlZDU3ZmIyNjkzMGQ5YiIsInVzZXJfaWQiOiIyIn0.4JqtZIPCRfU0n7ac3MXuTPRW5lhLH_yexoipSZ90tJ4"
+    }
+  }
+}
+2025-11-07 15:45:50,367 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/messages/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:50,515 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:50,518 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:50,588 - INFO - 📤 RESPONSE [GET /api/messages/]: {
+  "status_code": 200,
+  "duration_ms": 221.13,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Mensajes obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 15:45:50,615 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 98.26,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 15:45:50,913 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 397.29,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "inquilino",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T13:33:46.115116Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 15:45:54,708 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:54,720 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 15:45:54,739 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 19.85,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 15:45:54,787 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 79.74,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "inquilino",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T13:33:46.115116Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:41:12,573 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:41:12,578 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:41:12,626 - WARNING - ⚠️ RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 77.3,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Given token not valid for any token type",
+      "code": "token_not_valid",
+      "messages": [
+        {
+          "token_class": "AccessToken",
+          "token_type": "access",
+          "message": "Token is expired"
+        }
+      ]
+    }
+  }
+}
+2025-11-07 18:41:12,626 - WARNING - ⚠️ RESPONSE [GET /api/properties/]: {
+  "status_code": 401,
+  "duration_ms": 65.47,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Given token not valid for any token type",
+      "code": "token_not_valid",
+      "messages": [
+        {
+          "token_class": "AccessToken",
+          "token_type": "access",
+          "message": "Token is expired"
+        }
+      ]
+    }
+  }
+}
+2025-11-07 18:41:12,880 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzcxNCwiaWF0IjoxNzYyNTIyOTE0LCJqdGkiOiI2NmE1OGRkZDIyYTU0MTUxYTYzYTdjZTMxMDNhMmJiMyIsInVzZXJfaWQiOiIyIn0.NyYyf7uXSF30qNtJMTzHcb4g4Dk59mpseSjpFW2s3qY",
+    "refresh_token": "***HIDDEN***"
+  }
+}
+2025-11-07 18:41:12,891 - INFO - 📥 REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzEyNzcxNCwiaWF0IjoxNzYyNTIyOTE0LCJqdGkiOiI2NmE1OGRkZDIyYTU0MTUxYTYzYTdjZTMxMDNhMmJiMyIsInVzZXJfaWQiOiIyIn0.NyYyf7uXSF30qNtJMTzHcb4g4Dk59mpseSjpFW2s3qY",
+    "refresh_token": "***HIDDEN***"
+  }
+}
+2025-11-07 18:41:14,790 - INFO - 📤 RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 1909.86,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTQ0NDcyLCJpYXQiOjE3NjI1NDA4NzQsImp0aSI6IjEzZmU3MjZmZTgzNjRiNWFhM2JjMjRlODA0MDkzYTY3IiwidXNlcl9pZCI6IjIifQ.kt5JcekN47VXU4qOnSLGgos4Gobe97mDjF4z9ltftdc",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzE0NTY3MiwiaWF0IjoxNzYyNTQwODcyLCJqdGkiOiI0NmVkOWVhN2FiOWM0NTk4OWM3ODFhMGNhNjhjMDg2ZCIsInVzZXJfaWQiOiIyIn0.bS27osQbqsNV5Dv1hnJZQW4tm31vDCHIkaHZUSqKo2I"
+    }
+  }
+}
+2025-11-07 18:41:14,791 - INFO - 📤 RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 1901.14,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNTQ0NDcyLCJpYXQiOjE3NjI1NDA4NzQsImp0aSI6IjlhNmExMjExZTAxMzQwMGI5OTI5ZTY1YWQ0ODc1M2YwIiwidXNlcl9pZCI6IjIifQ.1qM-fuVs4e9E4R2aChaTAv7YItlTGAkX4g9b0nH5jIw",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzE0NTY3MiwiaWF0IjoxNzYyNTQwODcyLCJqdGkiOiIyMGFmYTdmZjk1OWU0ZTRjYTU4ZWFmZmZlOTgzYWZhYyIsInVzZXJfaWQiOiIyIn0.9tvl4AY_8X0Xl8PMa5Ph8i6VIPo4J6a2CP6psoKF8BE"
+    }
+  }
+}
+2025-11-07 18:41:15,060 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:41:15,064 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:41:15,106 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 46.3,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:41:15,247 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 183.49,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "inquilino",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T13:33:46.115116Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:44:44,875 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:44:44,876 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:44:45,173 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 313.75,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:44:45,299 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 435.0,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "inquilino",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T13:33:46.115116Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:44:52,378 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "propietario"
+  }
+}
+2025-11-07 18:44:52,568 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 191.09,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:44:52.488506Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:45:24,190 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "propietario"
+  }
+}
+2025-11-07 18:45:24,854 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 664.67,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:45:24.821692Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:45:57,485 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "propietario"
+  }
+}
+2025-11-07 18:45:57,589 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 104.66,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:45:57.540545Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:48:54,993 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:48:55,016 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:48:55,047 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 30.91,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:48:55,118 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 126.88,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:45:57.540545Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:49:28,814 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "agente"
+  }
+}
+2025-11-07 18:49:29,045 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 237.7,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "agente",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:49:28.925965Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:49:29,054 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:49:29,078 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 23.41,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:57:48,786 - INFO - 📥 REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "user_type": "propietario"
+  }
+}
+2025-11-07 18:57:49,296 - INFO - 📤 RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 538.49,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 18:57:49,333 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:57:49,398 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 64.37,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:57:51,441 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:57:51,508 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 68.48,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:57:51,544 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:57:51,573 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 29.43,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 18:57:51,595 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 18:57:51,628 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 32.68,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:02:34,497 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:02:34,506 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:02:34,625 - INFO - 📤 RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 118.72,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:02:34,711 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 214.32,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:06:33,551 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:06:33,984 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 434.24,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:10:11,684 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:11,736 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 52.93,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:10:11,824 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:11,853 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 28.8,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:10:11,864 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:12,127 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 262.98,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:10:22,471 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:22,494 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 25.08,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:10:22,511 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:22,532 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 21.72,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:10:22,558 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:10:22,739 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 180.21,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:12:52,763 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:12:53,036 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 273.94,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:13:04,830 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:13:04,874 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 43.93,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:13:04,926 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:13:04,951 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 25.62,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:13:05,004 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:13:05,079 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 75.67,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:17:55,528 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:17:56,275 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 749.82,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:18:00,333 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:18:00,404 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 71.92,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:18:00,421 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:18:00,461 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 40.18,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:18:00,482 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:18:00,666 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 184.2,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:21:10,052 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:21:10,432 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 386.33,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:21:14,273 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:21:14,302 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 29.51,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:21:14,385 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:21:14,399 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 13.2,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:21:14,433 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:21:14,473 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 40.12,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:22:47,481 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:22:47,552 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 71.25,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:22:55,772 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:22:55,797 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 25.58,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:22:55,813 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:22:55,831 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 17.59,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:22:55,883 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:22:55,938 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 54.78,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:24:09,206 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:24:09,496 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 290.15,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-07 19:24:11,573 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:24:11,704 - INFO - 📤 RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 131.54,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:24:11,748 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:24:11,759 - INFO - 📤 RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 10.79,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-07 19:24:11,782 - INFO - 📥 REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-07 19:24:11,814 - INFO - 📤 RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 31.72,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-07T18:57:49.191956Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
