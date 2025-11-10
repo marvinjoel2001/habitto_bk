@@ -57,8 +57,8 @@ class APILoggingMiddleware(MiddlewareMixin):
             except (json.JSONDecodeError, UnicodeDecodeError):
                 request_data['body'] = 'Invalid or binary content'
         
-        # Log del request
-        logger.info(f"📥 REQUEST: {json.dumps(request_data, indent=2, ensure_ascii=False)}")
+        # Log del request (evitar emojis para compatibilidad en Windows/CP1252)
+        logger.info(f"REQUEST: {json.dumps(request_data, indent=2, ensure_ascii=False)}")
         
         return None
     
@@ -103,16 +103,14 @@ class APILoggingMiddleware(MiddlewareMixin):
         # Determinar el nivel de log basado en el status code
         if response.status_code >= 500:
             log_level = 'error'
-            emoji = '❌'
         elif response.status_code >= 400:
             log_level = 'warning'
-            emoji = '⚠️'
         else:
             log_level = 'info'
-            emoji = '📤'
         
         # Log de la response
-        log_message = f"{emoji} RESPONSE [{request.method} {request.path}]: {json.dumps(response_data, indent=2, ensure_ascii=False)}"
+        # Log de la response (sin emojis para evitar UnicodeEncodeError en consolas CP1252)
+        log_message = f"RESPONSE [{request.method} {request.path}]: {json.dumps(response_data, indent=2, ensure_ascii=False)}"
         
         getattr(logger, log_level)(log_message)
         

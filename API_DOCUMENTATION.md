@@ -182,6 +182,7 @@ Gestiona las propiedades inmobiliarias del sistema.
 - **Descripción**: Crea una nueva propiedad usando coordenadas geográficas (PointField).
 - **Autenticación**: Requerida.
 - **Nota importante**: El sistema utiliza un `PointField` para almacenar la ubicación. Debes proporcionar `latitude` y `longitude` como campos separados, que se convertirán automáticamente en un punto geográfico.
+ - **Nota de salida**: `latitude` y `longitude` son write-only durante la creación y no aparecen en la respuesta. La respuesta incluye el `id` de la nueva propiedad para usarlo en pasos posteriores (por ejemplo, subir fotos).
 - **Request Body**:
   ```json
   {
@@ -245,10 +246,10 @@ Gestiona las propiedades inmobiliarias del sistema.
     "message": "Propiedad creada exitosamente",
     "data": {
       "id": 1,
+      "owner": 1,
+      "agent": null,
       "type": "casa",
       "address": "Calle Falsa 123, La Paz",
-      "latitude": "-16.5000000000",
-      "longitude": "-68.1500000000",
       "price": "1500.00",
       "guarantee": "1500.00",
       "description": "Casa amplia en zona residencial con jardín",
@@ -258,11 +259,8 @@ Gestiona las propiedades inmobiliarias del sistema.
       "amenities": [1, 2, 3],
       "availability_date": "2025-11-01",
       "is_active": true,
-      "created_at": "2025-10-22T10:00:00Z",
-      "updated_at": "2025-10-22T10:00:00Z",
       "accepted_payment_methods": [1, 2],
       "zone_id": 1,
-      "zone_name": "Zona Sur",
       "allows_roommates": false,
       "max_occupancy": 3,
       "min_price_per_person": "500.00",
@@ -273,6 +271,23 @@ Gestiona las propiedades inmobiliarias del sistema.
     }
   }
   ```
+ - **Ejemplo (curl)**:
+   ```bash
+   curl -X POST http://localhost:8000/api/properties/ \
+     -H "Authorization: Bearer TU_TOKEN_JWT" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "type": "casa",
+       "address": "Calle Falsa 123, La Paz",
+       "latitude": "-16.500000",
+       "longitude": "-68.150000",
+       "price": "1500.00",
+       "amenities": [1,2],
+       "accepted_payment_methods": [1],
+       "zone_id": 1,
+       "allows_roommates": false
+     }'
+   ```
 - **Errores comunes**:
   - **400 Bad Request** - Coordenadas con demasiados dígitos:
     ```json
@@ -329,6 +344,17 @@ Gestiona las propiedades inmobiliarias del sistema.
       "data": null
     }
     ```
+ 
+ - **Siguiente paso recomendado**:
+   - Usa el `id` retornado para subir fotos de la propiedad:
+     ```bash
+     curl -X POST http://localhost:8000/api/photos/ \
+       -H "Authorization: Bearer TU_TOKEN_JWT" \
+       -H "Content-Type: multipart/form-data" \
+       -F "property=<ID_DEVUELTO_EN_CREACION>" \
+       -F "image=@/ruta/a/foto.jpg" \
+       -F "caption=Fachada principal"
+     ```
 
 -### `GET /api/properties/{id}/`
 - **Descripción**: Obtiene los detalles de una propiedad específica.
@@ -515,6 +541,18 @@ Gestiona las fotos de las propiedades.
   - `property` (obligatorio): ID de la propiedad
   - `image` (obligatorio): Archivo de imagen (JPG, PNG, etc.)
   - `caption` (opcional): Descripción de la foto
+ - **Ejemplo (curl)**:
+   ```bash
+   curl -X POST http://localhost:8000/api/photos/ \
+     -H "Authorization: Bearer TU_TOKEN_JWT" \
+     -H "Content-Type: multipart/form-data" \
+     -F "property=1" \
+     -F "image=@/ruta/a/foto.jpg" \
+     -F "caption=Fachada principal"
+   ```
+   - `property` debe ser el ID real de una propiedad existente (no usar `0`).
+   - Usa `-F` para enviar `multipart/form-data`; enviar JSON con `image` no funcionará.
+   - Asegúrate de tener permisos sobre la propiedad (propietario o agente asignado).
 - **Response (201 Created)**:
   ```json
   {
@@ -538,6 +576,34 @@ Gestiona las fotos de las propiedades.
       "data": {
         "property": ["Este campo es requerido."],
         "image": ["No se ha enviado ningún archivo."]
+      }
+    }
+    ```
+  - **400 Bad Request** - Propiedad inválida o inexistente:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "property": ["Invalid pk \"0\" - object does not exist."]
+      }
+    }
+    ```
+  - **401 Unauthorized**:
+    ```json
+    {
+      "success": false,
+      "message": "Token de autenticación requerido",
+      "data": null
+    }
+    ```
+  - **415 Unsupported Media Type** (si no se usa `multipart/form-data`):
+    ```json
+    {
+      "success": false,
+      "message": "Error de solicitud",
+      "data": {
+        "detail": "Unsupported media type \"application/json\" in request."
       }
     }
     ```

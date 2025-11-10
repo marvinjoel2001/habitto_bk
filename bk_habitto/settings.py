@@ -16,19 +16,65 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-if os.name == 'nt': 
-    # El nombre exacto de tu DLL, confirmado por 'ls gdal*.dll':
-    GDAL_DLL_NAME = 'gdal.dll'
-    
-    # Construye la ruta completa dentro del entorno virtual.
-    # BASE_DIR es '.../habitto_backend'
+if os.name == 'nt':
+    # Detección robusta de librerías GIS en Windows
     VENV_PATH = BASE_DIR / 'venv'
-    GDAL_LIBRARY_PATH = VENV_PATH / 'Lib' / 'site-packages' / 'osgeo' / GDAL_DLL_NAME
-    
-    # Establece la variable de entorno para que Django la use.
-    os.environ['GDAL_LIBRARY_PATH'] = str(GDAL_LIBRARY_PATH)
-    
-    print(f"DEBUG GDAL PATH: {GDAL_LIBRARY_PATH}")
+    OSV_OSGEO_DIR = VENV_PATH / 'Lib' / 'site-packages' / 'osgeo'
+
+    def _first_existing(paths):
+        for p in paths:
+            if p and os.path.exists(str(p)):
+                return str(p)
+        return None
+
+    # Candidatos de directorios que contienen DLLs
+    dll_dirs = [
+        OSV_OSGEO_DIR,
+        Path('C:/OSGeo4W/bin'),
+        Path('C:/Program Files/OSGeo4W/bin'),
+        Path('C:/Program Files/GDAL'),
+        Path('C:/OSGeo4W'),
+    ]
+    dll_dir = _first_existing(dll_dirs)
+
+    # Añadir directorio a la búsqueda de DLLs (Windows 10+)
+    try:
+        if dll_dir:
+            os.add_dll_directory(dll_dir)
+    except Exception:
+        pass
+
+    # Candidatos de nombres de DLL GDAL/GEOS
+    gdal_candidates = [
+        OSV_OSGEO_DIR / 'gdal.dll',
+        OSV_OSGEO_DIR / 'gdal304.dll',
+        OSV_OSGEO_DIR / 'gdal302.dll',
+        Path(dll_dir) / 'gdal.dll' if dll_dir else None,
+        Path(dll_dir) / 'gdal304.dll' if dll_dir else None,
+    ]
+    geos_candidates = [
+        OSV_OSGEO_DIR / 'geos_c.dll',
+        Path(dll_dir) / 'geos_c.dll' if dll_dir else None,
+    ]
+    proj_candidates = [
+        Path('C:/OSGeo4W/share/proj'),
+        Path('C:/OSGeo4W/apps/proj/share'),
+        OSV_OSGEO_DIR / 'data',
+    ]
+
+    gdal_path = _first_existing(gdal_candidates)
+    geos_path = _first_existing(geos_candidates)
+    proj_path = _first_existing(proj_candidates)
+
+    # Definir ajustes de Django para GDAL/GEOS
+    if gdal_path:
+        GDAL_LIBRARY_PATH = gdal_path
+        os.environ['GDAL_LIBRARY_PATH'] = gdal_path  # por si alguna lib lo consulta desde env
+    if geos_path:
+        GEOS_LIBRARY_PATH = geos_path
+        os.environ['GEOS_LIBRARY_PATH'] = geos_path
+    if proj_path:
+        os.environ['PROJ_LIB'] = proj_path
 
 
 # Quick-start development settings - unsuitable for production

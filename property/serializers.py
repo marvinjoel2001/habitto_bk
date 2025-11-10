@@ -77,6 +77,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = [
+            'id',
             'owner', 'agent', 'type', 'address', 'latitude', 'longitude',
             'zone_id', 'price', 'guarantee', 'description', 'size',
             'bedrooms', 'bathrooms', 'amenities', 'availability_date',
@@ -85,7 +86,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             'allows_roommates', 'max_occupancy', 'min_price_per_person',
             'is_furnished', 'tenant_requirements', 'tags', 'semantic_embedding'
         ]
-        read_only_fields = ['owner']
+        read_only_fields = ['id', 'owner']
 
     def validate(self, data):
         """

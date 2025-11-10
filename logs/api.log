@@ -3439,3 +3439,787 @@
     }
   }
 }
+2025-11-09 20:22:19,791 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "0"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "curl/8.14.1"
+}
+2025-11-09 20:22:19,795 - WARNING - RESPONSE [GET /api/photos/]: {
+  "status_code": 401,
+  "duration_ms": 4.57,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Authentication credentials were not provided."
+    }
+  }
+}
+2025-11-09 20:23:54,110 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:23:54,165 - INFO - RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 54.33,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:23:54,241 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:23:54,277 - INFO - RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 36.68,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:23:54,532 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:23:54,667 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 134.89,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 1,
+        "username": "marvin",
+        "email": "marvinjoelpena@gmail.com",
+        "first_name": "marvin",
+        "last_name": "pena",
+        "date_joined": "2025-11-09T23:44:52.683120Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363268",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-09T23:44:53.083501Z",
+      "updated_at": "2025-11-09T23:44:53.083512Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-09 20:27:25,872 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/properties/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "type": "casa",
+    "address": "calle ayacucho",
+    "latitude": "-16.500000",
+    "longitude": "-68.150000",
+    "price": "1500",
+    "guarantee": "14000",
+    "description": "nada",
+    "size": 130.0,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "amenities": [],
+    "availability_date": "2025-11-11"
+  }
+}
+2025-11-09 20:27:25,953 - INFO - RESPONSE [POST /api/properties/]: {
+  "status_code": 201,
+  "duration_ms": 81.89,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedad creada exitosamente",
+    "data": {
+      "owner": 1,
+      "agent": null,
+      "type": "casa",
+      "address": "calle ayacucho",
+      "zone_id": null,
+      "price": "1500.00",
+      "guarantee": "14000.00",
+      "description": "nada",
+      "size": 130.0,
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "amenities": [],
+      "availability_date": "2025-11-11",
+      "is_active": true,
+      "accepted_payment_methods": [],
+      "allows_roommates": false,
+      "max_occupancy": null,
+      "min_price_per_person": null,
+      "is_furnished": false,
+      "tenant_requirements": {},
+      "tags": [],
+      "semantic_embedding": null
+    }
+  }
+}
+2025-11-09 20:27:37,502 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "0"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:27:37,543 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 40.95,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:36:08,217 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:36:08,382 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 165.16,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 1,
+        "username": "marvin",
+        "email": "marvinjoelpena@gmail.com",
+        "first_name": "marvin",
+        "last_name": "pena",
+        "date_joined": "2025-11-09T23:44:52.683120Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363268",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-09T23:44:53.083501Z",
+      "updated_at": "2025-11-09T23:44:53.083512Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-09 20:36:10,669 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/amenities/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:36:10,709 - INFO - RESPONSE [GET /api/amenities/]: {
+  "status_code": 200,
+  "duration_ms": 39.98,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:36:10,738 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/payment-methods/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:36:10,776 - INFO - RESPONSE [GET /api/payment-methods/]: {
+  "status_code": 200,
+  "duration_ms": 38.36,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:36:10,807 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:36:10,967 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 160.71,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 1,
+        "username": "marvin",
+        "email": "marvinjoelpena@gmail.com",
+        "first_name": "marvin",
+        "last_name": "pena",
+        "date_joined": "2025-11-09T23:44:52.683120Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363268",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-09T23:44:53.083501Z",
+      "updated_at": "2025-11-09T23:44:53.083512Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-09 20:36:46,568 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/properties/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "type": "casa",
+    "address": "Villa fatima",
+    "latitude": "-16.500000",
+    "longitude": "-68.150000",
+    "price": "1600",
+    "guarantee": "1600",
+    "description": "EN EL CENTRO",
+    "size": 160.0,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "amenities": [],
+    "availability_date": "2025-11-11"
+  }
+}
+2025-11-09 20:36:46,757 - INFO - RESPONSE [POST /api/properties/]: {
+  "status_code": 201,
+  "duration_ms": 191.02,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedad creada exitosamente",
+    "data": {
+      "id": 7,
+      "owner": 1,
+      "agent": null,
+      "type": "casa",
+      "address": "Villa fatima",
+      "zone_id": null,
+      "price": "1600.00",
+      "guarantee": "1600.00",
+      "description": "EN EL CENTRO",
+      "size": 160.0,
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "amenities": [],
+      "availability_date": "2025-11-11",
+      "is_active": true,
+      "accepted_payment_methods": [],
+      "allows_roommates": false,
+      "max_occupancy": null,
+      "min_price_per_person": null,
+      "is_furnished": false,
+      "tenant_requirements": {},
+      "tags": [],
+      "semantic_embedding": null
+    }
+  }
+}
+2025-11-09 20:36:48,963 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "7"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:36:49,002 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 38.59,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 0,
+      "next": null,
+      "previous": null,
+      "results": []
+    }
+  }
+}
+2025-11-09 20:37:01,458 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/photos/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [
+      "property",
+      "caption"
+    ],
+    "files": [
+      "image"
+    ]
+  }
+}
+2025-11-09 20:37:01,606 - INFO - RESPONSE [POST /api/photos/]: {
+  "status_code": 201,
+  "duration_ms": 193.82,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Foto subida exitosamente",
+    "data": {
+      "id": 1,
+      "image": "http://10.0.2.2:8000/media/properties/scaled_34.jpg",
+      "caption": "Foto de Villa fatima",
+      "created_at": "2025-11-10T00:37:01.603450Z",
+      "property": 7
+    }
+  }
+}
+2025-11-09 20:37:01,659 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/photos/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [
+      "property",
+      "caption"
+    ],
+    "files": [
+      "image"
+    ]
+  }
+}
+2025-11-09 20:37:01,711 - INFO - RESPONSE [POST /api/photos/]: {
+  "status_code": 201,
+  "duration_ms": 80.63,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Foto subida exitosamente",
+    "data": {
+      "id": 2,
+      "image": "http://10.0.2.2:8000/media/properties/scaled_33.jpg",
+      "caption": "Foto de Villa fatima",
+      "created_at": "2025-11-10T00:37:01.709939Z",
+      "property": 7
+    }
+  }
+}
+2025-11-09 20:37:01,736 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "7"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:37:01,775 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 39.09,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 2,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_33.jpg",
+          "caption": "Foto de Villa fatima",
+          "created_at": "2025-11-10T00:37:01.709939Z",
+          "property": 7
+        },
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_34.jpg",
+          "caption": "Foto de Villa fatima",
+          "created_at": "2025-11-10T00:37:01.603450Z",
+          "property": 7
+        }
+      ]
+    }
+  }
+}
+2025-11-09 20:37:18,258 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:37:18,259 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "1"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-09 20:37:18,315 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 56.7,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 1,
+        "username": "marvin",
+        "email": "marvinjoelpena@gmail.com",
+        "first_name": "marvin",
+        "last_name": "pena",
+        "date_joined": "2025-11-09T23:44:52.683120Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363268",
+      "profile_picture": null,
+      "is_verified": false,
+      "created_at": "2025-11-09T23:44:53.083501Z",
+      "updated_at": "2025-11-09T23:44:53.083512Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-09 20:37:18,441 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 181.34,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 7,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 7,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "casa",
+          "address": "Villa fatima",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1600.00",
+          "guarantee": "1600.00",
+          "description": "EN EL CENTRO",
+          "size": 160.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T00:36:46.735405Z",
+          "updated_at": "2025-11-10T00:36:46.735417Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 6,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "casa",
+          "address": "calle ayacucho",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1500.00",
+          "guarantee": "14000.00",
+          "description": "nada",
+          "size": 130.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T00:27:25.932665Z",
+          "updated_at": "2025-11-10T00:27:25.932678Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 5,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "casa",
+          "address": "SANTA CRUZ Y JUNIN",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1300.00",
+          "description": "NADA",
+          "size": 140.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T00:16:31.639353Z",
+          "updated_at": "2025-11-10T00:16:31.639370Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 4,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "departamento",
+          "address": "Santa cruz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "150.00",
+          "guarantee": "150.00",
+          "description": "150",
+          "size": 120.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T00:07:32.471303Z",
+          "updated_at": "2025-11-10T00:07:32.471314Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 3,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "casa",
+          "address": "Santa cruz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "nada",
+          "size": 150.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T00:05:47.941431Z",
+          "updated_at": "2025-11-10T00:05:47.941455Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "departamento",
+          "address": "calle junin",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1000.00",
+          "guarantee": "1000.00",
+          "description": "es un depa en El Centro",
+          "size": 125.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-10",
+          "is_active": true,
+          "created_at": "2025-11-09T23:52:11.294345Z",
+          "updated_at": "2025-11-09T23:52:11.294355Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 6,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "type": "casa",
+          "address": "calle Santa cruz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1500.00",
+          "guarantee": "2500.00",
+          "description": "nada",
+          "size": 120.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-10",
+          "is_active": true,
+          "created_at": "2025-11-09T23:49:34.527282Z",
+          "updated_at": "2025-11-09T23:49:34.527292Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 1,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}

@@ -107,7 +107,6 @@ Authorization: Bearer <admin_token>
 POST /api/properties/
 Authorization: Bearer <propietario_token>
 {
-  "owner": 1,
   "agent": null,
   "type": "casa",
   "address": "Calle Principal 123, Zona Sur, La Paz",
@@ -131,8 +130,6 @@ Authorization: Bearer <propietario_token>
   "agent": null,
   "type": "casa",
   "address": "Calle Principal 123, Zona Sur, La Paz",
-  "latitude": "-16.500000",
-  "longitude": "-68.150000",
   "price": "1200.00",
   "guarantee": "1200.00",
   "description": "Casa amplia de 3 dormitorios en zona residencial tranquila",
@@ -142,10 +139,10 @@ Authorization: Bearer <propietario_token>
   "amenities": [1, 2, 3],
   "availability_date": "2025-11-01",
   "is_active": true,
-  "created_at": "2025-10-22T10:00:00Z",
-  "updated_at": "2025-10-22T10:00:00Z",
   "accepted_payment_methods": [1, 2]
 }
+
+Nota: `latitude` y `longitude` son write-only al crear y no aparecen en la respuesta. Usa el `id` retornado para pasos siguientes.
 ```
 
 ```http
@@ -479,6 +476,160 @@ Authorization: Bearer <system_token>
   "message": "Tu perfil ha sido verificado exitosamente"
 }
 ```
+
+### 5. Matching, Recomendaciones y Chat
+
+#### 5.1 Perfil de Búsqueda del Inquilino (SearchProfile)
+```http
+# Crear perfil de búsqueda del inquilino (preferencias y ubicación)
+POST /api/search_profiles/
+Authorization: Bearer <inquilino_token>
+{
+  "latitude": -17.7834,
+  "longitude": -63.1821,
+  "budget_min": "400.00",
+  "budget_max": "800.00",
+  "desired_types": ["departamento"],
+  "amenities": [1, 2, 3],           # opcional
+  "roommate_preference": "no"      # opciones: "no" | "si" | "flexible"
+}
+
+# Respuesta: perfil creado o actualizado
+{
+  "id": 10,
+  "user": { "id": 2, "username": "tenant" },
+  "budget_min": "400.00",
+  "budget_max": "800.00",
+  "roommate_preference": "no",
+  "created_at": "2025-11-05T12:00:00Z"
+}
+```
+
+#### 5.2 Listado Personalizado para Inquilino (Matches de propiedades)
+```http
+# Obtener matches de propiedades para el perfil del inquilino
+GET /api/search_profiles/{search_profile_id}/matches/?type=property
+Authorization: Bearer <inquilino_token>
+
+# Respuesta (paginada si aplica)
+{
+  "count": 3,
+  "results": [
+    {
+      "id": 101,
+      "match_type": "property",
+      "subject_id": 55,                # ID de la Property
+      "target_user": 2,
+      "score": 85.0,
+      "status": "pending",
+      "metadata": { "details": { "price_score": 100, "location_score": 90, ... } }
+    }
+  ]
+}
+```
+
+Notas:
+- El sistema calcula el puntaje de match considerando ubicación, precio, amenidades, reputación y frescura del anuncio.
+- Si no hay matches recientes, la API genera/actualiza matches on-demand al consultar este endpoint.
+
+#### 5.3 Publicación de Propiedad y Generación Automática de Matches
+```http
+# Propietario publica una nueva propiedad (ver sección 2.1)
+POST /api/properties/
+Authorization: Bearer <propietario_token>
+{ ... }
+
+# Efecto: se crean/actualizan matches para perfiles de búsqueda cercanos y compatibles
+# Ejemplo de verificación (desde el inquilino):
+GET /api/search_profiles/{search_profile_id}/matches/?type=property
+```
+
+#### 5.4 Aceptar/Rechazar Match y Apertura de Chat
+```http
+# Aceptar un match
+POST /api/matches/{match_id}/accept/
+Authorization: Bearer <inquilino_token>
+
+# Respuesta
+{
+  "success": true,
+  "message": "Match aceptado exitosamente",
+  "data": {
+    "status": "accepted",
+    "match": { "id": 101, "match_type": "property", "score": 85.0, ... }
+  }
+}
+
+# Efectos del aceptar:
+# - Se crea una Notification para el inquilino ("¡Match aceptado!")
+# - Si el match es de propiedad: se crea automáticamente un Message del inquilino al propietario
+# - Se notifica al propietario del interés del inquilino
+
+# Rechazar un match (con feedback opcional)
+POST /api/matches/{match_id}/reject/
+Authorization: Bearer <inquilino_token>
+{
+  "reason": "No cumple con mis amenidades preferidas"
+}
+
+# Respuesta
+{
+  "success": true,
+  "message": "Match rechazado exitosamente",
+  "data": { "status": "rejected", "match": { "id": 101, ... } }
+}
+```
+
+#### 5.5 Chat posterior al Match
+```http
+# Envío de mensajes en la conversación abierta por el match aceptado
+POST /api/messages/
+Authorization: Bearer <inquilino_token>
+{
+  "sender": 2,
+  "receiver": 1,  # propietario
+  "content": "Hola, me gustaría coordinar una visita esta semana"
+}
+
+# Listado de mensajes (historial)
+GET /api/messages/?receiver=1
+Authorization: Bearer <inquilino_token>
+```
+
+#### 5.6 Recomendaciones Mixtas (Propiedades, Roommates y Agentes)
+```http
+# Obtener recomendaciones mixtas en base al SearchProfile
+GET /api/recommendations/?type=mixed
+Authorization: Bearer <inquilino_token>
+
+# Respuesta
+{
+  "success": true,
+  "message": "Recomendaciones obtenidas exitosamente",
+  "data": {
+    "results": [
+      { "type": "property", "match": { "id": 101, "score": 85.0, ... } },
+      { "type": "roommate", "match": { "id": 202, "score": 78.0, ... } },
+      { "type": "agent", "match": { "id": 303, "score": 72.0, ... } }
+    ]
+  }
+}
+
+# También se puede filtrar por tipo específico
+GET /api/recommendations/?type=property
+GET /api/recommendations/?type=roommate
+GET /api/recommendations/?type=agent
+```
+
+#### 5.7 Matching de Roommates (opcional)
+- El sistema genera matches entre perfiles compatibles para compartir vivienda.
+- Endpoint de consulta: `GET /api/search_profiles/{id}/matches/?type=roommate`.
+- Al aceptar un match de roommate, se puede iniciar chat directo entre usuarios.
+
+#### 5.8 Matching con Agentes (opcional)
+- Se calculan matches con agentes considerando comisión y zonas preferidas.
+- Endpoint de consulta: `GET /api/search_profiles/{id}/matches/?type=agent`.
+- Tras aceptar, se habilita comunicación directa con el agente asignado.
 
 ## Reglas de Negocio
 
