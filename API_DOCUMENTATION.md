@@ -497,6 +497,8 @@ Gestiona las propiedades inmobiliarias del sistema.
 
 Gestiona las fotos de las propiedades.
 
+Además, las respuestas de propiedades incluyen el campo `main_photo` con la URL de la primera foto asociada (si existe), para facilitar su uso en tarjetas y listados.
+
 ### `GET /api/photos/`
 - **Descripción**: Obtiene una lista paginada de todas las fotos de propiedades.
 - **Autenticación**: Requerida.
@@ -706,6 +708,39 @@ Gestiona las fotos de las propiedades.
     ```
 
 **Nota**: Las imágenes se almacenan en el directorio `media/properties/` del servidor.
+
+## 4.1. Campo `main_photo` en Propiedades
+
+- **Descripción**: Campo adicional en las respuestas de propiedades que contiene la URL absoluta de la primera foto asociada a la propiedad, o `null` si no tiene fotos.
+- **Dónde aparece**: En las respuestas de:
+  - `GET /api/properties/` (lista)
+  - `GET /api/properties/{id}/` (detalle)
+  - `GET /api/properties/map/` (propiedades para mapa)
+- **Ejemplo (lista de propiedades)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "results": [
+        {
+          "id": 1,
+          "type": "casa",
+          "address": "Calle Test 123",
+          "price": 1500.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "zone_name": "Zona Centro",
+          "is_active": true,
+          "main_photo": "http://localhost:8000/media/properties/foto1.jpg"
+        }
+      ]
+    }
+  }
+  ```
+  - Si la propiedad no tiene fotos, `main_photo` será `null`.
+
 
 ## 5. Endpoints de Amenidades (`/api/amenities/`)
 

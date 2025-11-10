@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 from bk_habitto.mixins import MessageConfigMixin
 from .models import Photo
 from .serializers import PhotoSerializer
@@ -6,6 +7,8 @@ from .serializers import PhotoSerializer
 class PhotoViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     queryset = Photo.objects.all().order_by('-created_at')
     serializer_class = PhotoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['property']
     success_messages = {
         'list': 'Fotos obtenidas exitosamente',
         'retrieve': 'Foto obtenida exitosamente',

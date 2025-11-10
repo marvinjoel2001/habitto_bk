@@ -13,6 +13,7 @@ class PropertySerializer(serializers.ModelSerializer):
     nearby_properties_count = serializers.SerializerMethodField()
     latitude = serializers.ReadOnlyField()
     longitude = serializers.ReadOnlyField()
+    main_photo = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
@@ -44,6 +45,20 @@ class PropertySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("La longitud debe estar entre -180 y 180.")
         
         return data
+
+    def get_main_photo(self, obj):
+        """
+        Retorna la URL absoluta de la primera foto de la propiedad si existe.
+        """
+        photo = obj.photos.order_by('created_at').first()
+        if not photo or not photo.image:
+            return None
+        try:
+            url = photo.image.url
+            request = self.context.get('request') if hasattr(self, 'context') else None
+            return request.build_absolute_uri(url) if request else url
+        except Exception:
+            return None
 
 
 class PropertyGeoSerializer(GeoFeatureModelSerializer):
@@ -139,13 +154,25 @@ class PropertyMapSerializer(serializers.ModelSerializer):
     zone_name = serializers.CharField(source='zone.name', read_only=True)
     latitude = serializers.ReadOnlyField()
     longitude = serializers.ReadOnlyField()
+    main_photo = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
         fields = [
             'id', 'type', 'address', 'latitude', 'longitude', 'price',
-            'bedrooms', 'bathrooms', 'zone_name', 'is_active'
+            'bedrooms', 'bathrooms', 'zone_name', 'is_active', 'main_photo'
         ]
+
+    def get_main_photo(self, obj):
+        photo = obj.photos.order_by('created_at').first()
+        if not photo or not photo.image:
+            return None
+        try:
+            url = photo.image.url
+            request = self.context.get('request') if hasattr(self, 'context') else None
+            return request.build_absolute_uri(url) if request else url
+        except Exception:
+            return None
 
 
 class PropertySearchSerializer(serializers.Serializer):
