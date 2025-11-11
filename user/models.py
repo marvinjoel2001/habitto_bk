@@ -12,10 +12,15 @@ def user_profile_picture_path(instance, filename):
     - UUID para garantizar unicidad
     - Extensión original
     """
-    ext = filename.split('.')[-1].lower()
+    ext = filename.split('.')[-1].lower() if '.' in filename else 'jpg'
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     unique_id = str(uuid.uuid4())[:8]
-    new_filename = f"user_{instance.user.id}_{timestamp}_{unique_id}.{ext}"
+    # Soporta tanto UserProfile como ProfilePictureHistory (que tienen user_profile)
+    user_obj = getattr(instance, 'user', None)
+    if user_obj is None and hasattr(instance, 'user_profile'):
+        user_obj = instance.user_profile.user
+    user_id = user_obj.id if user_obj else 'unknown'
+    new_filename = f"user_{user_id}_{timestamp}_{unique_id}.{ext}"
     return os.path.join('profile_pictures', new_filename)
 
 class UserProfile(models.Model):

@@ -6854,3 +6854,5896 @@
     }
   }
 }
+2025-11-11 17:21:32,085 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:32,086 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:32,185 - WARNING - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 401,
+  "duration_ms": 115.18,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Given token not valid for any token type",
+      "code": "token_not_valid",
+      "messages": [
+        {
+          "token_class": "AccessToken",
+          "token_type": "access",
+          "message": "Token is expired"
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:32,186 - WARNING - RESPONSE [GET /api/properties/]: {
+  "status_code": 401,
+  "duration_ms": 113.28,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": false,
+    "message": "Token de autenticación requerido",
+    "data": {
+      "detail": "Given token not valid for any token type",
+      "code": "token_not_valid",
+      "messages": [
+        {
+          "token_class": "AccessToken",
+          "token_type": "access",
+          "message": "Token is expired"
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:32,331 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzQwNzEyMSwiaWF0IjoxNzYyODAyMzIxLCJqdGkiOiJhZTNjYzBjODRkNGQ0NjNlOTgyNzQ2YTAyMTFlM2M4YSIsInVzZXJfaWQiOiIyIn0.ovCcTbP8ydQfzR69vG1c8eEUP99M7oChsH9HbjEpDSo",
+    "refresh_token": "***HIDDEN***"
+  }
+}
+2025-11-11 17:21:32,333 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/refresh/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzQwNzEyMSwiaWF0IjoxNzYyODAyMzIxLCJqdGkiOiJhZTNjYzBjODRkNGQ0NjNlOTgyNzQ2YTAyMTFlM2M4YSIsInVzZXJfaWQiOiIyIn0.ovCcTbP8ydQfzR69vG1c8eEUP99M7oChsH9HbjEpDSo",
+    "refresh_token": "***HIDDEN***"
+  }
+}
+2025-11-11 17:21:34,468 - INFO - RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 2134.46,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyODg1MjkyLCJpYXQiOjE3NjI4ODE2OTQsImp0aSI6Ijk2N2NmY2E2M2M5OTRiYTZhZTU2OGVlYTlkZjk1YjIxIiwidXNlcl9pZCI6IjIifQ.yjAEiVwnIpY7CRfKYQQmj39hxThYUTyXZ-1-Ut2QlLU",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzQ4NjQ5MiwiaWF0IjoxNzYyODgxNjkyLCJqdGkiOiI5MWU3YTljN2ZjYTE0YTgzOGZlMmJmYTVlNDJiODY4NyIsInVzZXJfaWQiOiIyIn0.XWS7K-MRQpTPjHolu-1CGuNX9Uo5OdpldJNqW3gj7XM"
+    }
+  }
+}
+2025-11-11 17:21:34,468 - INFO - RESPONSE [POST /api/refresh/]: {
+  "status_code": 200,
+  "duration_ms": 2136.88,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyODg1MjkyLCJpYXQiOjE3NjI4ODE2OTQsImp0aSI6IjM1Yjg2ZmM0ZGQ3MzRhNjM4OGVlMzdmNTYyOGNmZDI2IiwidXNlcl9pZCI6IjIifQ.uxIXFDH53ZMepLbevRZ0ALmLmonk5eBxZfL84da0ygk",
+      "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MzQ4NjQ5MiwiaWF0IjoxNzYyODgxNjkyLCJqdGkiOiIzYTk2NGRkZmM4YTM0NjYyYmJhMDdlMGVjNmVmMzkwZCIsInVzZXJfaWQiOiIyIn0.0KbIl74S7VcujRozuT3ipcOljXbGPz3f9zU5z-Yu0Tg"
+    }
+  }
+}
+2025-11-11 17:21:34,665 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:34,676 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:35,261 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 585.71,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:21:35,490 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 825.15,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:35,601 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:35,678 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 76.77,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:36,436 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:36,460 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 23.72,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:36,556 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:36,589 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 33.07,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:38,728 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:38,746 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:38,914 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 186.68,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:21:38,991 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 244.88,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:39,222 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:39,224 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:39,253 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:39,266 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 42.03,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:39,266 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 44.36,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:39,295 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 41.75,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:50,364 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:50,661 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 298.25,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:50,708 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:50,763 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 54.22,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:50,771 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:50,802 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 31.54,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:21:50,815 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:21:50,841 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 26.14,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:30:39,122 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:30:39,122 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:30:40,034 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 917.35,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:30:40,973 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 1855.78,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:30:41,165 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:30:41,232 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 67.23,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:30:41,356 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:30:41,410 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 54.58,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:30:41,444 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:30:41,473 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 29.0,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:33,481 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:33,482 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:33,482 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:34,158 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 675.79,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:34:34,159 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 677.93,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:34:34,243 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 760.67,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:34,650 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:34,706 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 55.87,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:34,848 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:34,909 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 61.42,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:34,956 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:35,035 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 79.23,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:36,572 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:36,577 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "owner": [
+      "2"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "20"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:36,631 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 59.03,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_160000_362230bf.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T16:00:00.856628Z",
+      "favorites": [],
+      "picture_history": []
+    }
+  }
+}
+2025-11-11 17:34:36,709 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 132.22,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:36,969 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:36,975 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:36,978 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:37,005 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 27.56,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:37,006 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 37.07,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:37,006 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 30.55,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:44,162 - INFO - REQUEST: {
+  "method": "POST",
+  "path": "/api/profiles/upload_profile_picture/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "form_fields": [],
+    "files": [
+      "profile_picture"
+    ]
+  }
+}
+2025-11-11 17:34:44,244 - INFO - RESPONSE [POST /api/profiles/upload_profile_picture/]: {
+  "status_code": 200,
+  "duration_ms": 88.74,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Creado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.192794Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:44,250 - INFO - REQUEST: {
+  "method": "PATCH",
+  "path": "/api/profiles/update_me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)",
+  "body": {
+    "phone": "71363267",
+    "user_type": "propietario"
+  }
+}
+2025-11-11 17:34:44,280 - INFO - RESPONSE [PATCH /api/profiles/update_me/]: {
+  "status_code": 200,
+  "duration_ms": 30.37,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:44,368 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:44,467 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 98.93,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:48,068 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:48,069 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:48,151 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 81.49,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:48,185 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 117.43,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:48,215 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:48,281 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 66.31,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:48,286 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:48,309 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 22.94,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:34:48,316 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:34:48,332 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 16.46,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:09,681 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:09,682 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:09,679 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:10,204 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 533.95,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:10,205 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 523.83,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:10,334 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 657.52,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:10,439 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:10,610 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 171.83,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:10,713 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:10,749 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 36.8,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:41:10,775 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:41:10,812 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 37.29,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:26,952 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:26,953 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:26,953 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:27,387 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 433.74,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:27,387 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 437.17,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:27,616 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 663.0,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:27,881 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:27,934 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 52.81,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:28,005 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:28,058 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 53.8,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 17:46:28,078 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 17:46:28,108 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 30.85,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:26,118 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:26,146 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:26,147 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:27,687 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 1582.25,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:27,688 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 1541.78,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:27,931 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 1784.69,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:28,371 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:28,459 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 88.47,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:28,469 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:28,494 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 25.02,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:01:28,504 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:01:28,561 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 57.35,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:38,194 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:38,197 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:38,198 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:38,638 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 451.41,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:38,638 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 441.42,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:38,762 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 564.14,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:38,920 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:38,978 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 58.07,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:39,000 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:39,062 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 62.02,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:06:39,071 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:06:39,098 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 27.28,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:04,078 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:04,088 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:04,089 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:04,611 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 535.96,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:04,612 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 523.05,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:04,714 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 625.44,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:04,854 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:04,918 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 63.62,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:05,018 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:05,083 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 64.67,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:10:05,132 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:10:05,168 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 36.58,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:32,686 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:32,700 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:32,714 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:34,195 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 1512.28,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:34,196 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 1496.52,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:34,507 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 1793.0,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:34,926 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:35,050 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 124.77,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:35,139 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:35,260 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 120.86,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:12:35,293 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:12:35,344 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 51.1,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:24,991 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:25,010 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:25,010 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:25,398 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 387.67,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:25,400 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 410.2,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:25,613 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 603.54,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:26,425 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:26,497 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 76.13,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:26,773 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:26,881 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 107.64,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:26,898 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:27,001 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 102.88,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:54,049 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:54,075 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:54,078 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:54,418 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 369.89,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:54,419 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 340.38,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:54,669 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 593.71,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:55,718 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:55,805 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 87.83,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:55,899 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:55,955 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 55.43,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:13:56,013 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:13:56,070 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 56.86,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:21,348 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:21,368 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:21,370 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:21,546 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 174.84,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:21,553 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 205.44,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:21,738 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 369.94,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:22,698 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:22,798 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 100.28,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:23,111 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:23,287 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 175.9,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:23,314 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:23,563 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 249.02,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:35,449 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:35,457 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:35,457 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:35,773 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 324.14,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:35,777 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 319.57,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:35,963 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 505.79,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:36,071 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:36,141 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 70.08,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:36,406 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:36,495 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 88.48,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:36,563 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:36,597 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 34.23,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:52,112 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:52,134 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/properties/",
+  "query_params": {
+    "is_active": [
+      "true"
+    ],
+    "ordering": [
+      "-created_at"
+    ],
+    "page": [
+      "1"
+    ],
+    "page_size": [
+      "50"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:52,135 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/profiles/me/",
+  "query_params": {},
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:52,451 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 316.57,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:52,453 - INFO - RESPONSE [GET /api/profiles/me/]: {
+  "status_code": 200,
+  "duration_ms": 341.49,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Operación exitosa",
+    "data": {
+      "id": 1,
+      "user": {
+        "id": 2,
+        "username": "juan",
+        "email": "juan@gmail.com",
+        "first_name": "juan",
+        "last_name": "pena",
+        "date_joined": "2025-11-07T13:33:45.984572Z"
+      },
+      "user_type": "propietario",
+      "phone": "71363267",
+      "profile_picture": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_9bdbc51d.jpg",
+      "is_verified": false,
+      "created_at": "2025-11-07T13:33:46.115104Z",
+      "updated_at": "2025-11-11T17:34:44.259276Z",
+      "favorites": [],
+      "picture_history": [
+        {
+          "id": 1,
+          "image": "http://10.0.2.2:8000/media/profile_pictures/user_2_20251111_173444_b18b0807.jpg",
+          "original_filename": "scaled_22.jpg",
+          "uploaded_at": "2025-11-11T17:34:44.203220Z",
+          "is_current": true
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:52,928 - INFO - RESPONSE [GET /api/properties/]: {
+  "status_code": 200,
+  "duration_ms": 794.88,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "type": "casa",
+          "address": "Calle 3pasos al frente",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1750.00",
+          "guarantee": "1900.00",
+          "description": "Cas en El Centro de la ciudad",
+          "size": 135.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-12",
+          "is_active": true,
+          "created_at": "2025-11-10T19:22:59.041042Z",
+          "updated_at": "2025-11-10T19:22:59.041057Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 2,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "type": "departamento",
+          "address": "plaza 24 de septiembre",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "1200.00",
+          "guarantee": "1200.00",
+          "description": "deaprtamento en la esquina",
+          "size": 134.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "availability_date": "2025-11-11",
+          "is_active": true,
+          "created_at": "2025-11-10T18:36:08.981726Z",
+          "updated_at": "2025-11-10T18:36:08.981746Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        },
+        {
+          "id": 1,
+          "nearby_properties_count": 2,
+          "latitude": -16.5,
+          "longitude": -68.15,
+          "main_photo": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "type": "departamento",
+          "address": "calle la paz",
+          "location": "SRID=4326;POINT (-68.15 -16.5)",
+          "price": "2500.00",
+          "guarantee": "500.00",
+          "description": "Es una casit bonita",
+          "size": 189.0,
+          "bedrooms": 5,
+          "bathrooms": 2,
+          "availability_date": "2025-11-09",
+          "is_active": true,
+          "created_at": "2025-11-08T13:10:32.245251Z",
+          "updated_at": "2025-11-08T13:10:32.245274Z",
+          "allows_roommates": false,
+          "max_occupancy": null,
+          "min_price_per_person": null,
+          "is_furnished": false,
+          "tenant_requirements": {},
+          "tags": [],
+          "semantic_embedding": null,
+          "owner": 2,
+          "agent": null,
+          "zone": null,
+          "amenities": [],
+          "accepted_payment_methods": []
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:53,371 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "3"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:53,408 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 37.11,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 3,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_18.jpg",
+          "caption": "Foto de Calle 3pasos al frente",
+          "created_at": "2025-11-10T19:23:10.826579Z",
+          "property": 3
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:53,455 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "2"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:53,497 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 42.14,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 2,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_20_XO7WaiC.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.577293Z",
+          "property": 2
+        },
+        {
+          "id": 4,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_19.jpg",
+          "caption": "Foto de plaza 24 de septiembre",
+          "created_at": "2025-11-10T19:42:25.466017Z",
+          "property": 2
+        }
+      ]
+    }
+  }
+}
+2025-11-11 18:14:53,512 - INFO - REQUEST: {
+  "method": "GET",
+  "path": "/api/photos/",
+  "query_params": {
+    "property": [
+      "1"
+    ]
+  },
+  "user": "Anonymous",
+  "ip": "127.0.0.1",
+  "user_agent": "Dart/3.9 (dart:io)"
+}
+2025-11-11 18:14:53,546 - INFO - RESPONSE [GET /api/photos/]: {
+  "status_code": 200,
+  "duration_ms": 34.0,
+  "content_type": "application/json; charset=utf-8",
+  "content": {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 6,
+          "image": "http://10.0.2.2:8000/media/properties/scaled_21_qh2ntRY.jpg",
+          "caption": "Foto de calle la paz",
+          "created_at": "2025-11-10T19:42:38.428480Z",
+          "property": 1
+        }
+      ]
+    }
+  }
+}

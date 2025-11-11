@@ -11,25 +11,51 @@ curl -X POST http://localhost:8000/api/users/ \
   -F "profile_picture=@/ruta/a/mi_foto.jpg"
 ```
 
-### Actualizar solo la foto de perfil
+### Subir/actualizar la foto de perfil
+- **Endpoint**: `POST /api/profiles/upload_profile_picture/`
+- **Autenticación**: Requerida (JWT en `Authorization: Bearer <token>`)
+- **Content-Type**: `multipart/form-data`
+- **Campos**:
+  - `profile_picture` (archivo, obligatorio): Imagen nueva
+- **Ejemplo**:
 ```bash
-# Subir nueva foto de perfil
 curl -X POST http://localhost:8000/api/profiles/upload_profile_picture/ \
-  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
   -H "Content-Type: multipart/form-data" \
   -F "profile_picture=@/ruta/a/nueva_foto.jpg"
 ```
+- **Respuesta (200 OK)**: Devuelve el perfil actualizado, incluyendo `profile_picture` (URL)
+- **Errores comunes**:
+  - `401 Unauthorized`: Falta token o token inválido
+  - `400 Bad Request`: No se envió `profile_picture` o formato no soportado
+  - `404 Not Found`: El usuario no tiene perfil creado
 
-### Actualizar perfil completo con foto
+### Actualizar perfil completo (con o sin foto)
+- **Endpoint**: `PUT/PATCH /api/profiles/update_me/`
+- **Autenticación**: Requerida
+- **Opciones**:
+  - `multipart/form-data` si incluye `profile_picture`
+  - `application/json` si actualiza solo datos
+- **Ejemplos**:
 ```bash
-# Actualizar datos del perfil incluyendo foto
+# Con imagen
 curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
-  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
   -H "Content-Type: multipart/form-data" \
   -F "phone=+59170987654" \
   -F "user_type=agente" \
   -F "profile_picture=@/ruta/a/foto_actualizada.jpg"
+
+# Solo datos (sin imagen)
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+59170555444",
+    "user_type": "inquilino"
+  }'
 ```
+- **Respuesta (200 OK)**: Perfil actualizado
 
 ### Actualizar solo datos (sin foto)
 ```bash
@@ -44,10 +70,12 @@ curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
 ```
 
 ### Ver historial de fotos de perfil
+- **Endpoint**: `GET /api/profiles/picture_history/`
+- **Autenticación**: Requerida
+- **Ejemplo**:
 ```bash
-# Obtener historial de fotos del usuario actual
 curl -X GET http://localhost:8000/api/profiles/picture_history/ \
-  -H "Authorization: Bearer tu_jwt_token"
+  -H "Authorization: Bearer TU_TOKEN_JWT"
 ```
 
 **Respuesta del historial:**
@@ -85,6 +113,7 @@ curl -X GET http://localhost:8000/api/profiles/picture_history/ \
 - Formatos soportados: JPG, PNG, GIF, WEBP
 - Tamaño máximo recomendado: 5MB
 - Las URLs de las imágenes incluyen el dominio completo en las respuestas
+- Si no envías el token JWT, la API responde `401 Unauthorized`. Asegúrate de incluir `Authorization: Bearer <token>`.
 
 ## 3. Endpoints de Propiedades (`/api/properties/`)
 
