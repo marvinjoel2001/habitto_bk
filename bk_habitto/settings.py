@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',  # Soporte GIS para PostGIS
+    'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
@@ -156,6 +157,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bk_habitto.wsgi.application'
+ASGI_APPLICATION = 'bk_habitto.asgi.application'
 
 
 # Database
@@ -304,3 +306,23 @@ CACHES = {
         }
     }
 }
+# Channels / WebSockets
+import os
+use_redis_layer = os.environ.get('CHANNEL_LAYER', 'inmemory') == 'redis'
+if use_redis_layer:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [
+                    (os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', '6379')))
+                ]
+            }
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        }
+    }

@@ -142,3 +142,41 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         profile.is_verified = True
         profile.save()
         return Response({'status': 'verified'})
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def add_favorite(self, request):
+        """
+        Agrega una propiedad a favoritos del usuario actual.
+        Body: { "property_id": <int> }
+        """
+        prop_id = request.data.get('property_id')
+        if not prop_id:
+            return Response({'detail': 'property_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            from property.models import Property
+            prop = Property.objects.get(id=prop_id)
+        except Property.DoesNotExist:
+            return Response({'detail': 'Propiedad no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        profile = UserProfile.objects.get(user=request.user)
+        profile.favorites.add(prop)
+        return Response({'status': 'added', 'property_id': prop_id})
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def remove_favorite(self, request):
+        """
+        Elimina una propiedad de favoritos del usuario actual.
+        Body: { "property_id": <int> }
+        """
+        prop_id = request.data.get('property_id')
+        if not prop_id:
+            return Response({'detail': 'property_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            from property.models import Property
+            prop = Property.objects.get(id=prop_id)
+        except Property.DoesNotExist:
+            return Response({'detail': 'Propiedad no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        profile = UserProfile.objects.get(user=request.user)
+        profile.favorites.remove(prop)
+        return Response({'status': 'removed', 'property_id': prop_id})

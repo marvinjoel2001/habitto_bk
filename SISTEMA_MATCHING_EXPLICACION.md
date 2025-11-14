@@ -28,6 +28,7 @@ Es el "perfil de preferencias" de cada usuario. Contiene toda la información so
 - 👨‍👩‍👧‍👦 Tamaño de familia, número de hijos
 - 🚗 Si tiene vehículo
 - 🚭 Si fuma
+- 💼 Empleo estable
 - 🗣️ Idiomas que habla
 - 📚 Nivel educativo
 - 🎨 Estilo de vida y horarios
@@ -44,6 +45,14 @@ Es la conexión entre un usuario y algo que le puede interesar. Tiene:
 - 📊 **Score**: Puntuación de compatibilidad (0-100)
 - 📝 **Metadata**: Detalles de por qué es compatible
 - ✅ **Status**: pending (pendiente), accepted (aceptado), rejected (rechazado)
+
+### 2.1. Preferencias del Propietario (por propiedad)
+- 👤 Género preferido del inquilino: hombres/mujeres/cualquiera
+- 👶 Permite niños
+- 🐾 Permite mascotas
+- 🚭 Permite fumadores
+- 🎓 Solo estudiantes
+- 💼 Requiere empleo estable
 
 ### 3. **MatchFeedback** (Retroalimentación)
 Guarda la opinión del usuario sobre un match:
@@ -229,6 +238,12 @@ POST /api/matches/123/accept/
 - 💬 Envía mensaje automático al propietario: "Hola, me interesa tu propiedad (match 92%)"
 - 🔔 Notifica al propietario: "María está interesada en tu propiedad (match 92%)"
 
+### Nuevo flujo de "Like" y favorito
+- 💚 **Like**: `POST /api/matches/{id}/like/` registra interés y notifica al propietario. Si el score ≥ 95 y cumple con preferencias del propietario (owner_prefs_score ≥ 90), el sistema acepta automáticamente el match.
+- ⭐ **Favorito**: el inquilino puede marcar propiedades como favoritas; esto añade un pequeño boost al score (+3) y se gestiona con `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/`.
+- ❌ **Rechazar**: `POST /api/matches/{id}/reject/` registra el rechazo y razón opcional.
+- 👀 **Vistas**: `GET /api/properties/seen/` devuelve las propiedades que el inquilino ya vio o interactuó (like/aceptar/rechazar).
+
 **7. Propietario recibe el interés y puede responder**
 - Ve el mensaje de María
 - Puede iniciar conversación
@@ -245,6 +260,9 @@ GET /api/properties/?match_score=80
 
 # Opción B: Ver matches específicos (tipo swipe)
 GET /api/search_profiles/1/matches/?type=property&status=pending
+
+# Ordenar por compatibilidad en listados
+GET /api/properties/?order_by_match=true
 ```
 
 ### Caso 2: Buscar Roommate

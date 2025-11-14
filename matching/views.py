@@ -112,7 +112,62 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
     success_messages = {
         'accept': 'Match aceptado exitosamente',
         'reject': 'Match rechazado exitosamente',
+        'like': 'Interés registrado exitosamente',
     }
+
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        match = self.get_object()
+        if match.target_user != request.user:
+            return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Registrar feedback de like
+        MatchFeedback.objects.create(
+            match=match,
+            user=request.user,
+            feedback_type='like',
+            reason=request.data.get('reason')
+        )
+
+        # Notificar al propietario/agente del interés y crear mensaje
+        from notification.models import Notification
+        if match.match_type == 'property':
+            try:
+                prop = Property.objects.get(id=match.subject_id)
+                from message.models import Message
+                Message.objects.create(
+                    sender=request.user,
+                    receiver=prop.owner,
+                    content=f"Hola, me interesa tu propiedad (match {match.score}%)."
+                )
+                Notification.objects.create(
+                    user=prop.owner,
+                    message=f"{request.user.username} indicó interés en tu propiedad (match {match.score}%)."
+                )
+
+                # Evaluar auto-aceptación si la compatibilidad es muy alta
+                from utils.matching import calculate_property_match_score
+                profile = SearchProfile.objects.filter(user=request.user).first()
+                if profile:
+                    new_score, meta = calculate_property_match_score(profile, prop)
+                    owner_prefs_score = float(meta.get('details', {}).get('owner_prefs_score', 0))
+                    if match.score >= 95 and owner_prefs_score >= 90:
+                        match.status = 'accepted'
+                        match.save(update_fields=['status', 'updated_at'])
+                        Notification.objects.create(
+                            user=request.user,
+                            message=f"¡Match automático aceptado! Con {prop.owner.username} (score {match.score}%)."
+                        )
+                        Notification.objects.create(
+                            user=prop.owner,
+                            message=f"Match automático con {request.user.username} (score {match.score}%)."
+                        )
+            except Property.DoesNotExist:
+                pass
+
+        resp = Response({'status': match.status, 'match': MatchSerializer(match).data})
+        self.set_response_message(resp, 'Interés registrado exitosamente')
+        return resp
 
     @action(detail=True, methods=['post'])
     def accept(self, request, pk=None):
@@ -160,13 +215,12 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
         match.save(update_fields=['status', 'updated_at'])
 
         reason = request.data.get('reason')
-        if reason:
-            MatchFeedback.objects.create(
-                match=match,
-                user=request.user,
-                feedback_type='dislike',
-                reason=reason
-            )
+        MatchFeedback.objects.create(
+            match=match,
+            user=request.user,
+            feedback_type='dislike',
+            reason=reason
+        )
 
         resp = Response({'status': 'rejected', 'match': MatchSerializer(match).data})
         self.set_response_message(resp, 'Match rechazado exitosamente')

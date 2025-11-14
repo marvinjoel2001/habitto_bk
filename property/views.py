@@ -100,8 +100,9 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             pass
 
     def list(self, request, *args, **kwargs):
-        """Extiende listado para filtrar por match_score usando el SearchProfile del usuario."""
+        """Extiende listado para filtrar y ordenar por match_score usando el SearchProfile del usuario."""
         min_score = request.query_params.get('match_score')
+        order_by_match = request.query_params.get('order_by_match') in ['1', 'true', 'True']
         if min_score and request.user.is_authenticated:
             try:
                 min_score = float(min_score)
@@ -111,12 +112,12 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             min_score = None
 
         response = super().list(request, *args, **kwargs)
-        if min_score is not None:
+        if (min_score is not None or order_by_match) and request.user.is_authenticated:
             profile = SearchProfile.objects.filter(user=request.user).first()
             if not profile:
                 return response
             results = response.data.get('results') if isinstance(response.data, dict) else response.data
-            filtered = []
+            processed = []
             # results puede ser lista de dicts de propiedades serializadas
             from property.models import Property as PropertyModel
             id_key = 'id'
@@ -125,15 +126,18 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                     prop_id = item.get(id_key)
                     prop_obj = PropertyModel.objects.get(id=prop_id)
                     score, _ = calculate_property_match_score(profile, prop_obj)
-                    if score >= min_score:
-                        filtered.append(item)
+                    item['_match_score'] = score
+                    if (min_score is None) or (score >= min_score):
+                        processed.append(item)
                 except Exception:
-                    filtered.append(item)
+                    processed.append(item)
+            if order_by_match:
+                processed.sort(key=lambda x: x.get('_match_score', 0), reverse=True)
             if isinstance(response.data, dict):
-                response.data['results'] = filtered
-                response.data['count'] = len(filtered)
+                response.data['results'] = processed
+                response.data['count'] = len(processed)
             else:
-                response.data = filtered
+                response.data = processed
         return response
 
     @action(detail=False, methods=['get'], url_path='map')
@@ -336,3 +340,13 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             response_data['leads_count'] = sum(zone['demand_count'] for zone in zone_stats)
         
         return Response(response_data)
+
+    @action(detail=False, methods=['get'], url_path='seen', permission_classes=[IsAuthenticated])
+    def seen(self, request):
+        """
+        Lista de propiedades con las que el usuario ya interactuó (aceptadas, rechazadas o con feedback).
+        """
+        from matching.models import Match
+        qs = Match.objects.filter(target_user=request.user, match_type='property')
+        property_ids = list(qs.values_list('subject_id', flat=True))
+        return Response({'count': len(property_ids), 'property_ids': property_ids})

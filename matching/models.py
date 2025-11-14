@@ -33,6 +33,7 @@ class SearchProfile(models.Model):
     languages = models.JSONField(default=list)
     lifestyle = models.JSONField(default=dict)
     schedule = models.JSONField(default=dict)
+    stable_job = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

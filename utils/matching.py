@@ -72,7 +72,53 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
     except Exception:
         family_score = 80
 
-    weights = {'location': 0.28, 'price': 0.24, 'amenities': 0.15, 'roommate': 0.14, 'reputation': 0.09, 'freshness': 0.05, 'family': 0.05}
+    # 7. Preferencias del propietario sobre el inquilino
+    try:
+        owner_prefs_score = 100
+        # Género
+        pg = getattr(property_obj, 'preferred_tenant_gender', 'any') or 'any'
+        sp_gender = getattr(search_profile, 'gender', None)
+        if pg != 'any' and sp_gender and pg != sp_gender:
+            owner_prefs_score -= 25
+        # Niños
+        if getattr(search_profile, 'children_count', 0) > 0 and not getattr(property_obj, 'children_allowed', True):
+            owner_prefs_score -= 40
+        # Mascotas
+        if getattr(search_profile, 'pets_count', 0) > 0 and not getattr(property_obj, 'pets_allowed', True):
+            owner_prefs_score -= 30
+        # Fumadores
+        if getattr(search_profile, 'smoker', False) and not getattr(property_obj, 'smokers_allowed', True):
+            owner_prefs_score -= 25
+        # Solo estudiantes
+        occ = (getattr(search_profile, 'occupation', '') or '').lower()
+        if getattr(property_obj, 'students_only', False) and 'estud' not in occ:
+            owner_prefs_score -= 35
+        # Trabajo estable requerido
+        if getattr(property_obj, 'stable_job_required', False) and not getattr(search_profile, 'stable_job', False):
+            owner_prefs_score -= 35
+        owner_prefs_score = max(0, owner_prefs_score)
+    except Exception:
+        owner_prefs_score = 80
+
+    # 8. Boost por favorito (estrella)
+    try:
+        engagement_boost = 0
+        up = getattr(search_profile.user, 'profile', None)
+        if up and hasattr(up, 'favorites') and property_obj in up.favorites.all():
+            engagement_boost = 3
+    except Exception:
+        engagement_boost = 0
+
+    weights = {
+        'location': 0.26,
+        'price': 0.24,
+        'amenities': 0.13,
+        'roommate': 0.10,
+        'reputation': 0.08,
+        'freshness': 0.05,
+        'family': 0.05,
+        'owner_prefs': 0.09,
+    }
     total_score = sum([
         location_score * weights['location'],
         price_score * weights['price'],
@@ -81,7 +127,9 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         reputation_score * weights['reputation'],
         freshness_score * weights['freshness'],
         family_score * weights['family'],
+        owner_prefs_score * weights['owner_prefs'],
     ])
+    total_score = min(100.0, total_score + engagement_boost)
     details = {
         'location_score': round(location_score, 2),
         'price_score': round(price_score, 2),
@@ -90,6 +138,8 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         'reputation_score': round(reputation_score, 2),
         'freshness_score': round(freshness_score, 2),
         'family_score': round(family_score, 2),
+        'owner_prefs_score': round(owner_prefs_score, 2),
+        'engagement_boost': round(engagement_boost, 2),
     }
     return round(total_score, 2), {'details': details}
 

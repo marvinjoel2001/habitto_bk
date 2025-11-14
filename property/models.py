@@ -52,6 +52,18 @@ class Property(models.Model):
     tags = models.JSONField(default=list, blank=True)
     semantic_embedding = models.TextField(null=True, blank=True)
 
+    # Preferencias del propietario para el inquilino
+    preferred_tenant_gender = models.CharField(
+        max_length=20,
+        choices=[('any', 'Cualquiera'), ('male', 'Hombres'), ('female', 'Mujeres')],
+        default='any'
+    )
+    children_allowed = models.BooleanField(default=True)
+    pets_allowed = models.BooleanField(default=True)
+    smokers_allowed = models.BooleanField(default=True)
+    students_only = models.BooleanField(default=False)
+    stable_job_required = models.BooleanField(default=False)
+
     def __str__(self):
         return f'{self.type} en {self.address} - {self.price} BOB'
 

@@ -2902,13 +2902,20 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   ```
 
 ### Flujo de "Like" y almacenamiento
-- Al listar matches, el usuario puede enviar un "like" a través de `POST /api/matches/{id}/accept/`.
+- Para registrar interés sin aceptar todavía, usa `POST /api/matches/{id}/like/`.
+- Al hacer "like":
+  - Se guarda `MatchFeedback` con `feedback_type=like`.
+  - Si el match es de tipo `property`, se crea un `Message` automático al propietario y una `Notification` para el propietario.
+  - Si la compatibilidad es muy alta (`score ≥ 95`) y cumple preferencias del propietario (`owner_prefs_score ≥ 90`), el sistema acepta automáticamente el match.
+- Para aceptar explícitamente un match, usa `POST /api/matches/{id}/accept/`.
 - Al aceptar:
   - Se actualiza el `status` del `Match` a `accepted`.
-  - Se envía una `Notification` al usuario confirmando el like.
-  - Si el match es de tipo `property`, se crea un `Message` automático al propietario: "Hola, me interesa tu propiedad (match X%)".
-  - Además, se envía una `Notification` al propietario indicando: "<usuario> está interesado en tu propiedad (match X%)".
-- El historial de likes puede consultarse listando `GET /api/search_profiles/{id}/matches/?status=accepted`.
+  - Se envía una `Notification` al usuario confirmando la aceptación.
+- Historial: usa `GET /api/search_profiles/{id}/matches/?status=accepted` para ver matches aceptados.
+- Errores comunes:
+  - `401 Unauthorized` si la solicitud no incluye token JWT (todas las rutas de matching requieren autenticación).
+  - `403 Forbidden` si el match no pertenece al usuario autenticado (`target_user`).
+  - `404 Not Found` si el recurso no existe.
 
 ### Cómo se eligen las propiedades mostradas
 - El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).
@@ -2918,8 +2925,10 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
  - El matching para roomies considera el solapamiento de `preferred_zones` entre perfiles.
 
 ### Notas de Matching
-- Al crear una `Property`, el sistema genera matches automáticos con perfiles existentes si el score >= 70.
-- El listado de propiedades soporta `match_score` para filtrar en base al perfil del usuario.
+- Al crear una `Property`, el sistema genera matches automáticos con perfiles existentes si el score ≥ 70.
+- El listado de propiedades soporta `match_score` para filtrar y `order_by_match=true` para ordenar por mejor compatibilidad según el `SearchProfile` del usuario autenticado.
+- Favoritos: `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/`; las propiedades favoritas reciben un pequeño boost de `+3` en el score.
+- Propiedades vistas/interactuadas: `GET /api/properties/seen/` devuelve IDs con los que el usuario ya interactuó.
 - `Zone` expone métricas nuevas en `zone_stats`: `match_ratio` y `roomie_demand`.
 
 ## 8. Endpoints de Zonas (`/api/zones/`) – Métricas de Matching
@@ -2928,5 +2937,71 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 - **Descripción**: Incluye métricas adicionales:
   - `match_ratio`: proporción de matches aceptados / matches totales para propiedades de la zona.
   - `roomie_demand`: cantidad de solicitudes de roommate activas con preferencia por la zona.
+
+## 14. Chat en Tiempo Real (WebSocket)
+
+- Protocolo: WebSocket con Django Channels + Redis.
+- Ruta: `ws://<host>/ws/chat/<room_id>/`.
+
+### Envío de mensajes
+- Payload JSON:
+  ```json
+  {
+    "sender": <user_id>,
+    "receiver": <user_id>,
+    "content": "Texto del mensaje"
+  }
+  ```
+- El backend guarda el mensaje en PostgreSQL y lo difunde a todos los clientes de la sala.
+
+### Recepción
+- Evento recibido por el cliente:
+  ```json
+  {
+    "id": <message_id>,
+    "room_id": "<room_id>",
+    "sender": <user_id>,
+    "receiver": <user_id>,
+    "content": "Texto",
+    "created_at": "2025-11-14T12:34:56Z"
+  }
+  ```
+
+### Notas
+- En desarrollo, si no hay Redis, se usa una capa de canales en memoria.
+- El historial de mensajes sigue sirviéndose vía las APIs HTTP de `Message`.
+
+## 15. Conversaciones y Mensajes (REST)
+
+### `GET /api/messages/conversations/`
+- Autenticación: requerida (JWT)
+- Descripción: lista las conversaciones del usuario autenticado. Cada ítem contiene el otro usuario y el último mensaje.
+- Paginación: `page`, `page_size` (por defecto `50`).
+- Ejemplo de respuesta:
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "counterpart": { "id": 7, "username": "propietario" },
+      "last_message": {
+        "id": 123,
+        "content": "¿Te gustaría visitarla?",
+        "created_at": "2025-11-14T13:00:00Z",
+        "sender": 7,
+        "receiver": 5
+      }
+    }
+  ]
+}
+```
+
+### `GET /api/messages/thread/?other_user_id=<id>&page=1&page_size=50`
+- Autenticación: requerida (JWT)
+- Descripción: devuelve los mensajes entre el usuario autenticado y `other_user_id`.
+- Orden: más recientes primero.
+- Respuesta: paginada estándar con mensajes serializados.
 
 
