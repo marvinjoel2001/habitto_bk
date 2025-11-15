@@ -60,6 +60,43 @@ class UserProfileViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    @action(detail=False, methods=['get'], url_path='by_user/(?P<user_id>[^/]+)', permission_classes=[permissions.IsAuthenticated])
+    def by_user(self, request, user_id=None):
+        """
+        Obtener el perfil por ID de usuario (evita ambigüedad de query params).
+        Respuesta mínima: id de perfil, datos básicos del usuario y foto.
+        """
+        try:
+            user_obj = User.objects.get(id=int(user_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            profile = UserProfile.objects.get(user=user_obj)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        full_name = ((user_obj.first_name or '').strip() + ' ' + (user_obj.last_name or '').strip()).strip() or user_obj.username
+        picture_url = None
+        if profile.profile_picture:
+            try:
+                picture_url = request.build_absolute_uri(profile.profile_picture.url)
+            except Exception:
+                picture_url = profile.profile_picture.url
+
+        data = {
+            'profile_id': profile.id,
+            'user': {
+                'id': user_obj.id,
+                'username': user_obj.username,
+                'full_name': full_name,
+                'email': user_obj.email,
+            },
+            'profile_picture': picture_url,
+            'user_type': profile.user_type,
+            'is_verified': profile.is_verified,
+        }
+        return Response(data)
+
     @action(detail=False, methods=['put', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def update_me(self, request):
         """

@@ -2942,30 +2942,39 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 
 - Protocolo: WebSocket con Django Channels + Redis.
 - Ruta: `ws://<host>/ws/chat/<room_id>/`.
+  - `room_id` recomendado: `<min(sender_id)>-<max(receiver_id)>` (por ejemplo, usuarios 5 y 7 → `5-7`).
+  - El servidor valida que el `room_id` coincida con los IDs enviados en el payload.
 
 ### Envío de mensajes
 - Payload JSON:
-  ```json
-  {
-    "sender": <user_id>,
-    "receiver": <user_id>,
-    "content": "Texto del mensaje"
-  }
-  ```
+```json
+{
+  "sender": <user_id>,
+  "receiver": <user_id>,
+  "content": "Texto del mensaje"
+}
+```
 - El backend guarda el mensaje en PostgreSQL y lo difunde a todos los clientes de la sala.
+- Errores comunes:
+  - `{"error":"room_id mismatch","expected_room_id":"5-7","provided_room_id":"prop-123"}`
+  - `{"error":"IDs inválidos: sender y receiver deben ser enteros"}`
+ - Normalización de sala: si te conectas a `ws/chat/2_3`, el servidor normaliza a `2-3`.
 
 ### Recepción
 - Evento recibido por el cliente:
-  ```json
-  {
-    "id": <message_id>,
-    "room_id": "<room_id>",
-    "sender": <user_id>,
-    "receiver": <user_id>,
-    "content": "Texto",
-    "created_at": "2025-11-14T12:34:56Z"
-  }
-  ```
+```json
+{
+  "id": <message_id>,
+  "room_id": "<room_id>",
+  "roomId": "<room_id>",
+  "sender": <user_id>,
+  "receiver": <user_id>,
+  "content": "Texto",
+  "created_at": "2025-11-14T12:34:56Z",
+  "createdAt": "2025-11-14T12:34:56Z",
+  "is_read": false
+}
+```
 
 ### Notas
 - En desarrollo, si no hay Redis, se usa una capa de canales en memoria.
@@ -2977,6 +2986,10 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 - Autenticación: requerida (JWT)
 - Descripción: lista las conversaciones del usuario autenticado. Cada ítem contiene el otro usuario y el último mensaje.
 - Paginación: `page`, `page_size` (por defecto `50`).
+- Parámetros de optimización:
+  - `include_messages`: `true|false` (por defecto `false`). Si es `true`, incluye historial de mensajes.
+  - `messages_page`: entero (por defecto `1`) — paginación del historial incluido.
+  - `messages_page_size`: entero (por defecto `50`) — tamaño de página del historial.
 - Ejemplo de respuesta:
 ```json
 {
@@ -2985,23 +2998,61 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   "previous": null,
   "results": [
     {
-      "counterpart": { "id": 7, "username": "propietario" },
+      "counterpart": { "id": 7, "username": "propietario", "full_name": "Juan Pérez", "profile_picture": "https://.../media/...jpg" },
       "last_message": {
         "id": 123,
         "content": "¿Te gustaría visitarla?",
         "created_at": "2025-11-14T13:00:00Z",
         "sender": 7,
         "receiver": 5
-      }
+      },
+      "messages": [
+        { "id": 101, "sender": 5, "receiver": 7, "content": "Hola", "created_at": "2025-11-14T12:00:00Z", "is_read": true },
+        { "id": 115, "sender": 7, "receiver": 5, "content": "¿Te interesa?", "created_at": "2025-11-14T12:30:00Z", "is_read": true },
+        { "id": 123, "sender": 7, "receiver": 5, "content": "¿Te gustaría visitarla?", "created_at": "2025-11-14T13:00:00Z", "is_read": false }
+      ],
+      "messages_pagination": { "page": 1, "page_size": 50, "total": 123, "has_next": true, "has_previous": false },
+      "unread_count": 3
     }
   ]
 }
 ```
+
+- Filtro opcional: `?counterpart=<user_id>` para obtener sólo la conversación con ese usuario.
 
 ### `GET /api/messages/thread/?other_user_id=<id>&page=1&page_size=50`
 - Autenticación: requerida (JWT)
 - Descripción: devuelve los mensajes entre el usuario autenticado y `other_user_id`.
 - Orden: más recientes primero.
 - Respuesta: paginada estándar con mensajes serializados.
+
+Notas de actualización en tiempo real:
+- El endpoint `conversations` devuelve un snapshot del estado en base de datos.
+- Para actualizaciones en tiempo real, suscríbete al WebSocket `ws/chat/<room_id>/` (Channels + Redis).
+- Al recibir un nuevo mensaje por WebSocket, actualiza el contador `unread_count` y agrega el mensaje a `messages`.
+
+### Marcar mensajes como leídos
+- `POST /api/messages/{id}/mark_read/`
+  - Autenticación: requerida
+  - Restringido: sólo el receptor del mensaje puede marcarlo
+  - Respuesta: `{ "status": "ok", "message_id": <id>, "is_read": true }`
+- `POST /api/messages/mark_thread_read/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Marca como leídos todos los mensajes no leídos enviados por `<id>` al usuario autenticado
+  - Respuesta: `{ "status": "ok", "updated": <count> }`
+
+### `GET /api/profiles/by_user/<user_id>/`
+- Autenticación: requerida (JWT)
+- Descripción: devuelve el perfil asociado a un `user_id` específico (evita ambigüedad `user` vs `user_id`).
+- Ejemplo de respuesta:
+```json
+{
+  "profile_id": 12,
+  "user": { "id": 7, "username": "juan", "full_name": "Juan Pérez", "email": "juan@example.com" },
+  "profile_picture": "https://.../media/profile_pictures/user_7_....jpg",
+  "user_type": "inquilino",
+  "is_verified": false
+}
+```
 
 
