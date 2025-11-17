@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WS Test</title>
+<style>
+body{font-family:system-ui,Arial,sans-serif;margin:20px}input,button{margin:4px;padding:6px}#log{white-space:pre-wrap;border:1px solid #ccc;padding:10px;height:300px;overflow:auto}
+</style>
+</head>
+<body>
+<h3>Servidor</h3>
+<input id="host" value="ws://localhost:8000" size="30">
+<h3>Inbox</h3>
+<input id="inboxUser" placeholder="user_id">
+<button id="connectInbox">Conectar Inbox</button>
+<button id="connectNotifications">Conectar Notifications</button>
+<h3>Chat</h3>
+<input id="roomId" placeholder="room_id">
+<button id="connectChat">Conectar Chat</button>
+<div>
+<input id="sender" placeholder="sender">
+<input id="receiver" placeholder="receiver">
+<input id="content" placeholder="content" size="40">
+<button id="sendMsg">Enviar</button>
+</div>
+<h3>Log</h3>
+<div id="log"></div>
+<script>
+const logEl=document.getElementById('log');
+function log(x){const t=typeof x==='string'?x:JSON.stringify(x);logEl.textContent+="\n"+t;logEl.scrollTop=logEl.scrollHeight}
+let wsInbox=null,wsNotif=null,wsChat=null;
+document.getElementById('connectInbox').onclick=function(){const host=document.getElementById('host').value.trim();const uid=document.getElementById('inboxUser').value.trim();if(!uid)return;const url=host+"/ws/chat/inbox/"+uid+"/";log({connecting:url});wsInbox=new WebSocket(url);wsInbox.onopen=function(){log('inbox open')};wsInbox.onmessage=function(e){log({inbox:JSON.parse(e.data)})};wsInbox.onclose=function(){log('inbox close')}}
+document.getElementById('connectNotifications').onclick=function(){const host=document.getElementById('host').value.trim();const uid=document.getElementById('inboxUser').value.trim();if(!uid)return;const url=host+"/ws/notifications/"+uid+"/";log({connecting:url});wsNotif=new WebSocket(url);wsNotif.onopen=function(){log('notifications open')};wsNotif.onmessage=function(e){log({notifications:JSON.parse(e.data)})};wsNotif.onclose=function(){log('notifications close')}}
+document.getElementById('connectChat').onclick=function(){const host=document.getElementById('host').value.trim();const roomId=document.getElementById('roomId').value.trim();if(!roomId)return;const url=host+"/ws/chat/"+roomId+"/";log({connecting:url});wsChat=new WebSocket(url);wsChat.onopen=function(){log('chat open')};wsChat.onmessage=function(e){log({chat:JSON.parse(e.data)})};wsChat.onclose=function(){log('chat close')}}
+document.getElementById('sendMsg').onclick=function(){if(!wsChat||wsChat.readyState!==1){log('chat no conectado');return}const s=document.getElementById('sender').value.trim();const r=document.getElementById('receiver').value.trim();const c=document.getElementById('content').value.trim();if(!s||!r||!c){log('faltan campos');return}const payload={sender:parseInt(s),receiver:parseInt(r),content:c};wsChat.send(JSON.stringify(payload));log({enviado:payload})}
+</script>
+</body>
+</html>
