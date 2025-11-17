@@ -29,6 +29,7 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         'thread': 'Hilo de mensajes obtenido exitosamente',
         'mark_read': 'Mensaje marcado como leído exitosamente',
         'mark_thread_read': 'Conversación marcada como leída exitosamente',
+        'clear_conversation': 'Conversación limpiada exitosamente',
     }
 
     @action(detail=False, methods=['get'], url_path='conversations')
@@ -39,7 +40,9 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         include_messages = str(include_messages_param).lower() in ['1', 'true', 'yes']
         messages_page = int(request.query_params.get('messages_page') or 1)
         messages_page_size = int(request.query_params.get('messages_page_size') or 50)
-        msgs = Message.objects.filter(Q(sender=user) | Q(receiver=user)).select_related('sender', 'receiver').order_by('-created_at')
+        msgs = Message.objects.filter(
+            Q(sender=user, deleted_for_sender=False) | Q(receiver=user, deleted_for_receiver=False)
+        ).select_related('sender', 'receiver').order_by('-created_at')
         conv_map = {}
         results = []
         for m in msgs:
@@ -81,12 +84,12 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                         'profile_picture': picture_url,
                     },
                     'last_message': last_msg,
-                    'unread_count': Message.objects.filter(sender_id=other.id, receiver_id=user.id, is_read=False).count()
+                    'unread_count': Message.objects.filter(sender_id=other.id, receiver_id=user.id, is_read=False, deleted_for_receiver=False).count()
                 }
                 if include_messages:
                     thread_qs = Message.objects.filter(
-                        (Q(sender_id=user.id) & Q(receiver_id=other.id)) |
-                        (Q(sender_id=other.id) & Q(receiver_id=user.id))
+                        Q(sender_id=user.id, receiver_id=other.id, deleted_for_sender=False) |
+                        Q(sender_id=other.id, receiver_id=user.id, deleted_for_receiver=False)
                     ).order_by('created_at')
                     total = thread_qs.count()
                     start = max((messages_page - 1) * messages_page_size, 0)
@@ -119,8 +122,8 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         except ValueError:
             return Response({'detail': 'other_user_id inválido'}, status=status.HTTP_400_BAD_REQUEST)
         qs = Message.objects.filter(
-            (Q(sender_id=user.id) & Q(receiver_id=other_id)) |
-            (Q(sender_id=other_id) & Q(receiver_id=user.id))
+            Q(sender_id=user.id, receiver_id=other_id, deleted_for_sender=False) |
+            Q(sender_id=other_id, receiver_id=user.id, deleted_for_receiver=False)
         ).order_by('-created_at')
         page = self.paginate_queryset(qs)
         if page is not None:
@@ -155,3 +158,24 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         qs = Message.objects.filter(sender_id=other_id, receiver_id=request.user.id, is_read=False)
         updated = qs.update(is_read=True, read_at=timezone.now())
         return Response({'status': 'ok', 'updated': updated})
+
+    @action(detail=False, methods=['post'], url_path='clear_conversation')
+    def clear_conversation(self, request):
+        user = request.user
+        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
+        if not other_id:
+            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            other_id = int(other_id)
+        except ValueError:
+            return Response({'detail': 'other_user_id inválido'}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated_sender = Message.objects.filter(
+            sender_id=user.id, receiver_id=other_id, deleted_for_sender=False
+        ).update(deleted_for_sender=True)
+
+        updated_receiver = Message.objects.filter(
+            sender_id=other_id, receiver_id=user.id, deleted_for_receiver=False
+        ).update(deleted_for_receiver=True)
+
+        return Response({'status': 'ok', 'updated_sender': updated_sender, 'updated_receiver': updated_receiver})
