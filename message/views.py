@@ -25,6 +25,10 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         'update': 'Mensaje actualizado exitosamente',
         'partial_update': 'Mensaje actualizado exitosamente',
         'destroy': 'Mensaje eliminado exitosamente',
+        'conversations': 'Conversaciones obtenidas exitosamente',
+        'thread': 'Hilo de mensajes obtenido exitosamente',
+        'mark_read': 'Mensaje marcado como leído exitosamente',
+        'mark_thread_read': 'Conversación marcada como leída exitosamente',
     }
 
     @action(detail=False, methods=['get'], url_path='conversations')

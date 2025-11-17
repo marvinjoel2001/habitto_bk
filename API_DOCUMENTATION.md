@@ -2944,7 +2944,114 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 - Ruta: `ws://<host>/ws/chat/<room_id>/`.
   - `room_id` recomendado: `<min(sender_id)>-<max(receiver_id)>` (por ejemplo, usuarios 5 y 7 → `5-7`).
   - El servidor valida que el `room_id` coincida con los IDs enviados en el payload.
+  - Normalización de sala: si te conectas a `ws/chat/2_3`, el servidor normaliza a `2-3`.
+  - Rutas aceptadas: con o sin slash inicial en el path (`/ws/chat/...` o `ws/chat/...`) y con o sin barra final (`/...` o sin `/`). Se recomienda usar `ws://<host>/ws/chat/<room_id>/` con barra inicial y barra final.
 
+### Ejemplos de cliente (JavaScript)
+- Conexión a inbox del usuario autenticado:
+```js
+const wsBase = location.origin.replace('http', 'ws');
+const userId = CURRENT_USER_ID; // entero
+const inboxUrl = `${wsBase}/ws/chat/inbox/${userId}/`;
+const inboxSocket = new WebSocket(inboxUrl);
+
+inboxSocket.onopen = () => {
+  // Conectado: listo para recibir eventos `new_inbox_alert`
+};
+
+inboxSocket.onmessage = (evt) => {
+  const msg = JSON.parse(evt.data);
+  // msg tiene: message_id, sender, receiver, content, created_at,
+  // y datos de la contraparte: counterpart_full_name, counterpart_profile_picture
+  // Actualizar/crear conversación y reordenar por actividad
+};
+
+inboxSocket.onclose = () => {
+  // Implementar reconexión exponencial
+};
+```
+
+- Conexión a sala de chat entre dos usuarios y envío de mensaje:
+```js
+const wsBase = location.origin.replace('http', 'ws');
+const senderId = CURRENT_USER_ID;
+const receiverId = OTHER_USER_ID;
+const roomId = `${Math.min(senderId, receiverId)}-${Math.max(senderId, receiverId)}`;
+const chatUrl = `${wsBase}/ws/chat/${roomId}/`;
+const chatSocket = new WebSocket(chatUrl);
+
+chatSocket.onopen = () => {
+  chatSocket.send(JSON.stringify({
+    sender: senderId,
+    receiver: receiverId,
+    content: 'Hola! ¿Te interesa esta propiedad?'
+  }));
+};
+
+chatSocket.onmessage = (evt) => {
+  const data = JSON.parse(evt.data);
+  if (data.error) {
+    // Manejo de errores: room_id mismatch, IDs inválidos, etc.
+    return;
+  }
+  // data contiene el mensaje serializado con id, room_id, sender, receiver, content, created_at, is_read
+};
+```
+
+### Canal de Inbox (Notificaciones de conversaciones)
+- Rutas:
+  - `ws://<host>/ws/chat/inbox/<user_id>/`
+  - `ws://<host>/ws/notifications/<user_id>/`
+  - Rutas aceptadas: con o sin slash inicial y con o sin barra final. Se recomienda `ws://<host>/ws/chat/inbox/<user_id>/` con barra inicial y barra final.
+- Autenticación: si el usuario está autenticado y el `user_id` no coincide, el servidor cierra la conexión.
+- Flujo:
+  - Al almacenar un mensaje, el backend emite:
+    - En la sala específica: `ws/chat/<room_id>`
+    - En el inbox del receptor: `ws/chat/inbox/<receiver_id>`
+    - Opcionalmente en el inbox del remitente: `ws/chat/inbox/<sender_id>`
+- Payload del evento de inbox:
+```json
+{
+  "message_id": 123,
+  "sender": 7,
+  "receiver": 5,
+  "content": "¿Te gustaría visitarla?",
+  "created_at": "2025-11-14T13:00:00Z",
+  "counterpart_full_name": "Juan Pérez",
+  "counterpart_profile_picture": "https://.../media/...jpg"
+}
+```
+- Uso en cliente:
+  - La pantalla principal se suscribe solo al inbox del usuario actual.
+  - Cada evento recibido: crea/actualiza la conversación y reordena por actividad reciente.
+- Handler en cliente/servidor:
+  - El campo `type` del evento es `new_inbox_alert` y el `InboxConsumer` expone el manejador `new_inbox_alert`.
+  - Este evento se dispara solo cuando se crea una nueva conversación (primer mensaje entre dos usuarios).
+
+### Guía de implementación de cliente (Inbox)
+- Conexión:
+  - URL: `ws://<host>/ws/chat/inbox/<user_id>/`
+  - Mantén una única conexión para la pantalla principal del usuario autenticado.
+- Manejo de eventos `new_inbox_alert`:
+  - Actualiza o crea la conversación identificando la contraparte: si `receiver == current_user_id`, la contraparte es `sender`; si no, es `receiver`.
+  - Usa `counterpart_full_name` y `counterpart_profile_picture` para mostrar nombre y avatar.
+  - Reordena la lista por `created_at` descendente.
+  - No requiere consultas HTTP adicionales para descubrir nuevas conversaciones.
+- Recomendaciones de reconexión:
+  - Implementa reconexión exponencial en el cliente (p.ej., 1s, 2s, 5s, 10s) si la conexión se cierra.
+  - Valida que `user_id` en la URL coincida con el usuario autenticado; si no, el servidor cerrará la conexión.
+
+### Flujo end-to-end
+1. Usuario A envía mensaje a Usuario B.
+2. Backend guarda el mensaje y difunde en la sala `ws/chat/<room_id>` evento `chat.message`.
+3. Backend verifica si es la primera interacción entre A y B.
+4. Si es nueva conversación, envía `new_inbox_alert` a `ws/chat/inbox/<B>` y opcionalmente a `ws/chat/inbox/<A>`.
+5. La pantalla principal de B (y A, si aplica) crea/actualiza la conversación y la lista se reordena por actividad.
+
+### Seguridad y buenas prácticas
+- Autenticación: el servidor valida la identidad cuando está disponible; usa JWT/cookie segura en producción.
+- Entrega ordenada: los eventos se emiten después de persistir en base de datos.
+- Rate-limiting: se recomienda implementar límites por usuario/canal en el servidor y el cliente para prevenir abuso.
 ### Envío de mensajes
 - Payload JSON:
 ```json
@@ -3018,6 +3125,16 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 }
 ```
 
+### `POST /api/messages/clear_conversation/`
+- Autenticación: requerida (JWT)
+- Body o query: `{ "other_user_id": <id> }`
+- Semántica: marca la conversación como borrada solo para el usuario autenticado.
+  - Mensajes donde el usuario es remitente → `deleted_for_sender = true`
+  - Mensajes donde el usuario es receptor → `deleted_for_receiver = true`
+- Los endpoints `conversations` y `thread` excluyen estos mensajes para el usuario autenticado.
+- La otra persona no pierde su historial.
+- Respuesta: `{ "status": "ok", "updated_sender": <count>, "updated_receiver": <count> }`
+
 - Filtro opcional: `?counterpart=<user_id>` para obtener sólo la conversación con ese usuario.
 
 ### `GET /api/messages/thread/?other_user_id=<id>&page=1&page_size=50`
@@ -3035,11 +3152,25 @@ Notas de actualización en tiempo real:
 - `POST /api/messages/{id}/mark_read/`
   - Autenticación: requerida
   - Restringido: sólo el receptor del mensaje puede marcarlo
-  - Respuesta: `{ "status": "ok", "message_id": <id>, "is_read": true }`
+  - Response (200 OK):
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje marcado como leído exitosamente",
+    "data": { "status": "ok", "message_id": <id>, "is_read": true }
+  }
+  ```
 - `POST /api/messages/mark_thread_read/`
   - Body o query: `{ "other_user_id": <id> }`
   - Marca como leídos todos los mensajes no leídos enviados por `<id>` al usuario autenticado
-  - Respuesta: `{ "status": "ok", "updated": <count> }`
+  - Response (200 OK):
+  ```json
+  {
+    "success": true,
+    "message": "Conversación marcada como leída exitosamente",
+    "data": { "status": "ok", "updated": <count> }
+  }
+  ```
 
 ### `GET /api/profiles/by_user/<user_id>/`
 - Autenticación: requerida (JWT)
