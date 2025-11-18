@@ -280,12 +280,58 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
             return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
         match.status = 'accepted'
         match.save(update_fields=['status', 'updated_at'])
+        
         try:
             from notification.models import Notification
             Notification.objects.create(user=match.target_user, message=f"Tu solicitud de match fue aceptada para la propiedad {prop.address}.")
             Notification.objects.create(user=request.user, message=f"Match aceptado con {match.target_user.username}.")
-        except Exception:
+            
+            # Enviar notificación WebSocket en tiempo real
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            from message.notification_consumers import send_match_accepted_notification
+            
+            # Preparar datos del propietario
+            owner_data = {
+                'id': request.user.id,
+                'name': f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
+                'contact': {
+                    'email': request.user.email,
+                    'phone': getattr(request.user.userprofile, 'phone', '') if hasattr(request.user, 'userprofile') else ''
+                }
+            }
+            
+            # Preparar datos de la propiedad
+            property_data = {
+                'id': prop.id,
+                'title': f"{prop.type} en {prop.address}",
+                'address': prop.address,
+                'price': float(prop.price)
+            }
+            
+            # Preparar datos del match
+            match_data = {
+                'score': float(match.score),
+                'status': match.status
+            }
+            
+            # Enviar notificación asíncrona
+            channel_layer = get_channel_layer()
+            async_to_sync(send_match_accepted_notification)(
+                channel_layer,
+                match.target_user.id,
+                property_data,
+                owner_data,
+                match_data
+            )
+            
+        except Exception as e:
+            # Log del error pero no interrumpir la respuesta
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error al enviar notificación WebSocket de match aceptado: {e}")
             pass
+            
         resp = Response({'status': 'accepted', 'match': MatchSerializer(match).data})
         self.set_response_message(resp, 'Match aceptado por propietario/agente')
         return resp

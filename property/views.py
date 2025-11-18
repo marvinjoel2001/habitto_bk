@@ -396,14 +396,55 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             defaults={'score': score, 'metadata': meta, 'status': 'pending'}
         )
         MatchFeedback.objects.create(match=match, user=request.user, feedback_type='like', reason=request.data.get('reason'))
+        
         # Notificación y conversación con propietario
         try:
             from notification.models import Notification
             from message.models import Message
             Message.objects.create(sender=request.user, receiver=obj.owner, content=f"Interesado en tu propiedad (match {score}%).")
             Notification.objects.create(user=obj.owner, message=f"{request.user.username} indicó interés en tu propiedad (score {score}%).")
-        except Exception:
+            
+            # Enviar notificación WebSocket en tiempo real
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            from message.notification_consumers import send_property_like_notification
+            
+            # Preparar datos del usuario interesado
+            interested_user_data = {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name
+            }
+            
+            # Obtener información del perfil si existe
+            try:
+                user_profile = request.user.userprofile
+                interested_user_data.update({
+                    'phone': getattr(user_profile, 'phone', ''),
+                    'user_type': getattr(user_profile, 'user_type', 'inquilino')
+                })
+            except:
+                pass
+            
+            # Enviar notificación asíncrona
+            channel_layer = get_channel_layer()
+            async_to_sync(send_property_like_notification)(
+                channel_layer,
+                obj.owner.id,
+                obj.id,
+                f"{obj.type} en {obj.address}",
+                interested_user_data
+            )
+            
+        except Exception as e:
+            # Log del error pero no interrumpir la respuesta
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error al enviar notificación WebSocket: {e}")
             pass
+            
         return Response({'status': match.status, 'match_id': match.id, 'score': score})
 
     @action(detail=True, methods=['post'], url_path='reject', permission_classes=[IsAuthenticated])
