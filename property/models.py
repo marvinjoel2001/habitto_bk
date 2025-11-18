@@ -128,3 +128,23 @@ class Property(models.Model):
             location__distance_lte=(self.location, Distance(km=distance_km)),
             is_active=True
         ).exclude(id=self.id)
+
+
+class PropertyView(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='property_views')
+    property = models.ForeignKey('property.Property', on_delete=models.CASCADE, related_name='views')
+    count = models.IntegerField(default=0)
+    last_viewed = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'property')
+
+
+class PropertyViewEvent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='property_view_events')
+    property = models.ForeignKey('property.Property', on_delete=models.CASCADE, related_name='view_events')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"View {self.user_id}->{self.property_id} @ {self.created_at}"

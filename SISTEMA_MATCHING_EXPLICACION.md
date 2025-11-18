@@ -1,72 +1,68 @@
-# 🎯 Sistema de Matching de Habitto - Explicación Completa
+# 🎯 Sistema de Matching de Habitto — Documentación Técnica
 
-## ¿Qué es el Sistema de Matching?
+## Visión General
+- Conecta automáticamente usuarios con `properties`, `roommates` y `agents` según preferencias y compatibilidad.
+- Tipos de match: `property`, `roommate`, `agent` (matching/models.py:60).
+- Persistencia y estado: cada `Match` almacena `score` (0–100), `metadata` y `status` (`pending|accepted|rejected`) con índices para consulta eficiente (matching/models.py:69–80).
 
-El sistema de matching es como un **"Tinder para propiedades y roommates"**. Conecta automáticamente a usuarios con propiedades, compañeros de cuarto (roommates) y agentes inmobiliarios basándose en sus preferencias y compatibilidad.
+## Proceso End-to-End
+- Creación de `SearchProfile` por el usuario con ubicación opcional y preferencias (matching/models.py:6–39).
+- Generación de matches on-demand cuando se consultan recomendaciones (`/api/recommendations/`) o matches del perfil (`/api/search_profiles/{id}/matches/`) (matching/views.py:253–277, 49–73).
+- Generación automática al crear una propiedad: se evalúan perfiles existentes y se persisten matches si `score >= 70` (property/views.py:82–101).
+- Almacenamiento: `update_or_create` evita duplicados y solo persiste si `score >= 70` (utils/matching.py:201–208).
+- Ordenamiento: matches se listan por `score` descendente (matching/views.py:63–73).
+- Interacción del usuario: acciones `like`, `accept`, `reject` modifican el estado y generan notificaciones/mensajes (matching/views.py:118–227).
+- Like directo sobre propiedad: permite crear/actualizar el `Match` y registrar `MatchFeedback` aunque no exista previamente (property/views.py:367–391).
+- Regla de auto-aceptación: si `score >= 95` y `owner_prefs_score >= 90`, el `like` convierte el match a `accepted` (matching/views.py:148–165).
 
----
+```mermaid
+flowchart LR
+    A[Crear SearchProfile] --> B{Trigger generación}
+    B -->|GET /api/recommendations| C[create_*_matches_for_profile]
+    B -->|GET /api/search_profiles/{id}/matches| C
+    B -->|POST Property| C
+    C --> D[calculate_*_match_score]
+    D --> E{score >= 70?}
+    E -->|No| F[Descartar]
+    E -->|Sí| G[update_or_create Match]
+    G --> H[Listado ordenado por score]
+    H --> I[Acciones: like/accept/reject]
+    I --> J{Auto-aceptación}
+    J -->|Cumple| K[status=accepted + notificaciones]
+    J -->|No| L[status según acción]
+```
 
-## 📋 Componentes Principales
+## Algoritmos y Lógica de Negocio
 
-### 1. **SearchProfile** (Perfil de Búsqueda)
-Es el "perfil de preferencias" de cada usuario. Contiene toda la información sobre lo que busca:
+### Propiedades
+- Cálculo principal: `calculate_property_match_score(search_profile, property)` retorna `(score, metadata)` (utils/matching.py:12–145).
+- Factores y pesos actuales:
+  - `location` 26%: distancia geodésica aproximada; `location_score = max(0, 100 - (distance_km*10))` y `50` si falta ubicación (utils/matching.py:13–23).
+  - `price` 24%: 100 si dentro del rango; penalización proporcional si excede; soporte por persona si `allows_roommates` y `max_occupancy` (utils/matching.py:24–40).
+  - `amenities` 13%: proporción de amenidades deseadas presentes; `100` si no se especifican amenidades (utils/matching.py:41–49).
+  - `roommate/vibes` 10%: compatibilidad de roommate y etiquetas (`tags`) vs `vibes` del perfil (utils/matching.py:50–56).
+  - `reputation` 8%: promedio de reseñas × 20; `80` por defecto si no hay datos (utils/matching.py:57–62).
+  - `freshness` 5%: penalización por días desde `created_at` (`max(0, 100 - days*2)`) (utils/matching.py:63–65).
+  - `family` 5%: suficiencia de dormitorios dado `children_count` (utils/matching.py:66–73).
+  - `owner_prefs` 9%: preferencias del propietario vs atributos del perfil (género, niños, mascotas, fumador, estudiantes, empleo estable) con deducciones acumulativas y piso en `0` (utils/matching.py:75–101).
+- Engagement boost: +3 si la propiedad está en `favorites` del `UserProfile` (utils/matching.py:103–111).
+- `metadata.details` incluye los sub-scores y `owner_prefs_score` para auditoría (utils/matching.py:133–144).
+- Actualiza `zone.match_activity_score` proporcional al score en matches de propiedad (utils/matching.py:209–218, 215–216).
 
-**Información Básica:**
-- 📍 **Ubicación**: Dónde quiere vivir (coordenadas GPS)
-- 💰 **Presupuesto**: Rango de precio (mínimo y máximo)
-- 🏠 **Tipo de propiedad**: Casa, departamento, habitación, anticrético
-- 🛏️ **Dormitorios**: Cantidad mínima y máxima
+### Roommates
+- `calculate_roommate_match_score(profile1, profile2)`: solapamiento de zonas, presupuesto y preferencias/vibes con pesos 40/30/30 (utils/matching.py:147–181).
+- `subject_id` del match usa el `id` del otro `SearchProfile` (utils/matching.py:233–239).
 
-**Preferencias Adicionales:**
-- 🎯 **Amenidades**: Piscina, gimnasio, garaje, etc.
-- 🐕 **Mascotas**: Si permite mascotas
-- 💼 **Trabajo remoto**: Si necesita espacio para home office
-- 👥 **Roommate**: Si busca compañero de cuarto, está abierto, o no quiere
+### Agentes
+- `calculate_agent_match_score(profile, agent)`: heurística por comisión, verificación de agente y solapamiento de zonas (utils/matching.py:184–199).
 
-**Información Personal (para mejor matching):**
-- 👤 Edad, género, ocupación
-- 👨‍👩‍👧‍👦 Tamaño de familia, número de hijos
-- 🚗 Si tiene vehículo
-- 🚭 Si fuma
-- 💼 Empleo estable
-- 🗣️ Idiomas que habla
-- 📚 Nivel educativo
-- 🎨 Estilo de vida y horarios
+## Entradas y Salidas
 
-### 2. **Match** (Coincidencia)
-Es la conexión entre un usuario y algo que le puede interesar. Tiene:
-
-**Tipos de Match:**
-- 🏠 **property**: Usuario ↔ Propiedad
-- 👥 **roommate**: Usuario ↔ Otro usuario (para compartir)
-- 🤝 **agent**: Usuario ↔ Agente inmobiliario
-
-**Información del Match:**
-- 📊 **Score**: Puntuación de compatibilidad (0-100)
-- 📝 **Metadata**: Detalles de por qué es compatible
-- ✅ **Status**: pending (pendiente), accepted (aceptado), rejected (rechazado)
-
-### 2.1. Preferencias del Propietario (por propiedad)
-- 👤 Género preferido del inquilino: hombres/mujeres/cualquiera
-- 👶 Permite niños
-- 🐾 Permite mascotas
-- 🚭 Permite fumadores
-- 🎓 Solo estudiantes
-- 💼 Requiere empleo estable
-
-### 3. **MatchFeedback** (Retroalimentación)
-Guarda la opinión del usuario sobre un match:
-- 👍 **like**: Le gustó
-- 👎 **dislike**: No le gustó
-- 😐 **neutral**: Neutral
-- 💬 **reason**: Razón opcional del feedback
-
----
-
-## 🔄 ¿Cómo Funciona el Matching?
-
-### Paso 1: Usuario Crea su Perfil de Búsqueda
-
+### Creación/actualización de SearchProfile
+- Endpoint: `POST/PUT /api/search_profiles/`.
+- Campos especiales: `latitude` y `longitude` se convierten a `location` (PointField) en el servidor (matching/serializers.py:41–75).
+- Amenidades aceptan IDs o nombres; se normalizan mediante `AmenityFlexibleField` (matching/serializers.py:7–38).
+- Ejemplo:
 ```http
 POST /api/search_profiles/
 {
@@ -77,373 +73,254 @@ POST /api/search_profiles/
   "bedrooms_max": 3,
   "latitude": "-16.500000",
   "longitude": "-68.150000",
-  "amenities": [1, 2, 3],  // IDs de amenidades
-  "pet_allowed": true,
+  "amenities": [1, "Piscina"],
   "roommate_preference": "open",
   "age": 28,
   "children_count": 0,
-  "family_size": 2,
-  "smoker": false
+  "stable_job": true
 }
 ```
 
-### Paso 2: Sistema Calcula Compatibilidad
-
-Cuando el usuario pide recomendaciones o cuando se crea una nueva propiedad, el sistema calcula automáticamente el **score de compatibilidad** usando varios factores:
-
-#### 🏠 Para Matching con Propiedades:
-
-**1. Ubicación (28% del score)**
-- Calcula distancia entre ubicación del usuario y la propiedad
-- Mientras más cerca, mejor score
-- Ejemplo: 2km de distancia = 80 puntos, 10km = 0 puntos
-
-**2. Precio (24% del score)**
-- Compara precio de propiedad con presupuesto del usuario
-- Si está dentro del rango = 100 puntos
-- Si está fuera, penaliza según qué tan lejos esté
-
-**3. Amenidades (15% del score)**
-- Cuenta cuántas amenidades deseadas tiene la propiedad
-- Ejemplo: Usuario quiere 4 amenidades, propiedad tiene 3 = 75 puntos
-
-**4. Roommate/Vibes (14% del score)**
-- Si usuario busca roommate y propiedad lo permite = 100 puntos
-- Compara "vibes" o etiquetas de estilo de vida
-
-**5. Reputación (9% del score)**
-- Promedio de reseñas de la propiedad
-- 5 estrellas = 100 puntos, 3 estrellas = 60 puntos
-
-**6. Frescura (5% del score)**
-- Propiedades más nuevas tienen mejor score
-- Recién publicada = 100 puntos, 50 días = 0 puntos
-
-**7. Factor Familiar (5% del score)**
-- Si usuario tiene hijos, verifica que haya suficientes dormitorios
-- Familia con 2 hijos + propiedad de 3 dormitorios = 100 puntos
-
-**Ejemplo de Cálculo:**
-```
-Usuario busca:
-- Presupuesto: $800-$1500
-- Ubicación: Zona Sur
-- 2-3 dormitorios
-- Piscina, Gimnasio
-
-Propiedad:
-- Precio: $1200 ✅
-- Ubicación: 3km de distancia ✅
-- 3 dormitorios ✅
-- Tiene Piscina y Gimnasio ✅
-- Rating: 4.5 estrellas ✅
-- Publicada hace 5 días ✅
-
-Score Final = 92/100 🎯
-```
-
-#### 👥 Para Matching con Roommates:
-
-**1. Zonas Preferidas (40% del score)**
-- Compara zonas donde ambos quieren vivir
-- Más zonas en común = mejor score
-
-**2. Presupuesto (30% del score)**
-- Verifica que ambos puedan pagar un rango similar
-
-**3. Preferencias Personales (30% del score)**
-- Género preferido
-- Fumador/No fumador
-- Vibes o estilos de vida compatibles
-
-#### 🤝 Para Matching con Agentes:
-
-**1. Tipo de Usuario (40%)**
-- Verifica que sea agente verificado
-
-**2. Comisión (40%)**
-- Menor comisión = mejor score
-
-**3. Zonas que Maneja (20%)**
-- Si maneja las zonas que te interesan
-
----
-
-## 🎬 Flujo Completo de Uso
-
-### Escenario: María busca departamento
-
-**1. María crea su perfil de búsqueda**
+### Creación de Propiedades (amenidades flexibles)
+- Endpoint: `POST /api/properties/`.
+- Acepta `amenities` como IDs o nombres; si envías un nombre y no existe, se crea automáticamente.
+- Conversión de `latitude`/`longitude` a `location` y opcional `zone_id`.
+- Ejemplo:
 ```http
-POST /api/search_profiles/
+POST /api/properties/
 {
-  "budget_min": "1000",
-  "budget_max": "1800",
-  "desired_types": ["departamento"],
-  "bedrooms_min": 2,
-  "latitude": "-16.500000",
-  "longitude": "-68.150000",
-  "amenities": [1, 3, 5],  // Piscina, Garaje, Internet
-  "pet_allowed": true,
-  "age": 32,
-  "children_count": 1
+  "type": "departamento",
+  "address": "Av. Siempre Viva 123",
+  "latitude": -16.500000,
+  "longitude": -68.150000,
+  "price": "1200.00",
+  "bedrooms": 3,
+  "amenities": [1, "Piscina", "Gimnasio"],
+  "allows_roommates": true,
+  "max_occupancy": 3,
+  "preferred_tenant_gender": "any"
 }
 ```
+- Actualización de amenidades también acepta IDs o nombres vía `PUT/PATCH /api/properties/{id}/`.
 
-**2. María pide recomendaciones**
-```http
-GET /api/recommendations/?type=property
+### Consultar matches
+- Endpoint: `GET /api/search_profiles/{id}/matches/?type=property|roommate|agent&status=pending|accepted|rejected`.
+- Genera/actualiza antes de listar y ordena por `score` descendente (matching/views.py:49–73).
+
+### Recomendaciones
+- Endpoint: `GET /api/recommendations/?type=mixed|property|roommate|agent`.
+- Devuelve hasta 20 por tipo con `match` serializado y `metadata.details` (matching/views.py:259–275).
+
+### Interacciones con matches
+- `POST /api/matches/{id}/like/`: registra feedback, notifica y puede auto-aceptar (matching/views.py:118–170).
+- `POST /api/matches/{id}/accept/`: cambia estado a `accepted`, notifica y crea mensaje (matching/views.py:172–207).
+- `POST /api/matches/{id}/reject/`: cambia estado a `rejected` y crea `MatchFeedback` con razón opcional (matching/views.py:209–227).
+ - `POST /api/properties/{id}/like/`: crea/actualiza `Match` aún si no existía y registra `MatchFeedback`; notifica y abre chat (property/views.py:367–391).
+ - `POST /api/properties/{id}/reject/`: crea/actualiza `Match` y lo marca `rejected`; registra `MatchFeedback` (property/views.py:393–405).
+
+ Propietario/Agente:
+ - `GET /api/matches/pending_requests/`: lista solicitudes de match pendientes para propiedades del usuario (matching/views.py:274–307).
+ - `POST /api/matches/{id}/owner_accept/`: acepta solicitud pendiente (matching/views.py:309–329).
+ - `POST /api/matches/{id}/owner_reject/`: rechaza solicitud y registra feedback (matching/views.py:331–354).
+
+### Control de favoritos, vistos y re-vistos
+- Favoritos: `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/` (user/views.py:183–219).
+- Vistos por interacción de match: `GET /api/properties/seen/` retorna IDs con algún `Match` (property/views.py:344–352).
+- Registro de vistas cada vez que el usuario ve una propiedad:
+  - Automático al `GET /api/properties/{id}/` si el usuario está autenticado.
+  - Manual: `POST /api/properties/{id}/view/`.
+- Consulta: `GET /api/properties/views/` devuelve conteos y última vista por propiedad.
+ - Eventos de re‑vista: cada visualización se registra en `PropertyViewEvent` para mantener histórico de interacciones (property/models.py:131–138).
+
+### Listado de propiedades con score
+- `GET /api/properties/?match_score=80&order_by_match=true`: aplica cálculo por `SearchProfile` del usuario, filtra y ordena por `_match_score` (property/views.py:102–141).
+
+### Favoritos y vistos
+- Favoritos: boost +3 en score al estar en `UserProfile.favorites`.
+- Vistos: `GET /api/properties/seen/` retorna IDs con algún `Match` del usuario (property/views.py:344–352).
+
+## Casos de Uso y Escenarios
+- Descubrir propiedades cercanas y compatibles con filtros avanzados.
+- Swipe de matches por tipo: `property`, `roommate`, `agent`.
+- Flujo de like con auto-aceptación en alta compatibilidad.
+- Roommate matching según zonas y presupuesto compartido.
+- Ordenar listados por compatibilidad sin abandonar vistas de catálogo.
+- Seguimiento de interacción: rechazos, likes, favoritos, vistos y re-vistos.
+
+## Sistema de Chats
+- Modelo: `Message` con `sender`, `receiver`, `content`, `is_read`, borrado por lado, edición (message/models.py:4–14).
+- Endpoints principales:
+  - `GET /api/messages/conversations/?include_messages=true&messages_page=1&messages_page_size=50`: conversaciones con último mensaje, contador de no leídos y hilo opcional paginado.
+  - `GET /api/messages/thread/?other_user_id={id}`: hilo completo con otro usuario.
+  - `POST /api/messages/`: crear mensaje `{ sender, receiver, content }`.
+  - `POST /api/messages/{id}/mark_read/`: marcar un mensaje como leído.
+  - `POST /api/messages/mark_thread_read/ { other_user_id }`: marcar toda la conversación como leída.
+  - `POST /api/messages/clear_conversation/ { other_user_id }`: borrar conversación del lado del usuario (soft delete por lado).
+- Integración con matching: al `like` y `accept` en matches de propiedad se genera un mensaje iniciando la conversación y se crean notificaciones (matching/views.py:136–165, 187–203).
+
+## Requisitos y Dependencias Técnicas
+- Framework: Django + Django REST Framework.
+- Autenticación: JWT (`rest_framework_simplejwt`).
+- GIS: GeoDjango y base de datos con soporte espacial (p.ej., PostGIS) para `PointField` y consultas de distancia.
+- Apps relacionadas: `zone`, `amenity`, `review`, `notification`, `message`.
+- Índices: `Match` tiene índices por `match_type`, `subject_id`, `status` (matching/models.py:74–80).
+- Serialización: `SearchProfileSerializer`, `MatchSerializer`, etc. (matching/serializers.py).
+- Umbral de persistencia configurable: `MATCH_MIN_SCORE` en settings o por entorno. Útil para pruebas (`0` lista todas las propiedades con match y recomendaciones sin filtrar).
+
+## Diagramas de Flujo
+
+### Generación y consumo de matches
+```mermaid
+sequenceDiagram
+  participant User
+  participant API
+  participant Matching
+  participant DB
+  User->>API: GET /api/recommendations/?type=property
+  API->>Matching: create_property_matches_for_profile(profile)
+  Matching->>DB: calculate + update_or_create (score>=70)
+  API->>DB: Query top-20 matches
+  DB-->>API: Matches ordenados por score
+  API-->>User: {results: [{type, match{score, metadata}}]}
 ```
 
-**3. Sistema genera matches automáticamente**
-- Busca todas las propiedades activas cerca de su ubicación
-- Calcula score de compatibilidad con cada una
-- Solo guarda matches con score >= 70
-- Ordena por score (mejores primero)
-
-**4. María recibe lista de propiedades compatibles**
-```json
-{
-  "results": [
-    {
-      "type": "property",
-      "match": {
-        "id": 123,
-        "match_type": "property",
-        "subject_id": 45,  // ID de la propiedad
-        "score": 92.5,
-        "status": "pending",
-        "metadata": {
-          "details": {
-            "location_score": 95,
-            "price_score": 100,
-            "amenities_score": 75,
-            "family_score": 100
-          }
-        }
-      }
-    }
-  ]
-}
+### Like y auto-aceptación
+```mermaid
+flowchart TD
+  A[POST /api/matches/{id}/like/] --> B[Crear MatchFeedback]
+  B --> C[Notificar propietario]
+  C --> D[Recalcular score y owner_prefs]
+  D --> E{score>=95 && owner_prefs>=90}
+  E -->|Sí| F[status=accepted + 2 notificaciones]
+  E -->|No| G[status permanece]
 ```
 
-**5. María ve una propiedad que le gusta y la acepta**
-```http
-POST /api/matches/123/accept/
+### Like directo y solicitud de match
+```mermaid
+flowchart TD
+  A[POST /api/properties/{id}/like/] --> B[calculate_property_match_score]
+  B --> C[update_or_create Match status=pending]
+  C --> D[Crear MatchFeedback like]
+  D --> E[Notificar propietario + crear mensaje]
 ```
 
-**6. Sistema automáticamente:**
-- ✅ Cambia status del match a "accepted"
-- 📧 Crea notificación para María confirmando el like
-- 💬 Envía mensaje automático al propietario: "Hola, me interesa tu propiedad (match 92%)"
-- 🔔 Notifica al propietario: "María está interesada en tu propiedad (match 92%)"
+### Aceptación/Rechazo por propietario/agente
+```mermaid
+sequenceDiagram
+  participant Owner
+  participant API
+  participant DB
+  Owner->>API: GET /api/matches/pending_requests/
+  API->>DB: Query matches match_type=property status=pending por subject owner/agent
+  DB-->>API: Lista solicitudes con property + interested_user
+  Owner->>API: POST /api/matches/{id}/owner_accept/
+  API->>DB: Actualiza status=accepted, crea notificaciones
+  Owner->>API: POST /api/matches/{id}/owner_reject/
+  API->>DB: Actualiza status=rejected, crea feedback + notificaciones
+```
 
-### Nuevo flujo de "Like" y favorito
-- 💚 **Like**: `POST /api/matches/{id}/like/` registra interés y notifica al propietario. Si el score ≥ 95 y cumple con preferencias del propietario (owner_prefs_score ≥ 90), el sistema acepta automáticamente el match.
-- ⭐ **Favorito**: el inquilino puede marcar propiedades como favoritas; esto añade un pequeño boost al score (+3) y se gestiona con `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/`.
-- ❌ **Rechazar**: `POST /api/matches/{id}/reject/` registra el rechazo y razón opcional.
-- 👀 **Vistas**: `GET /api/properties/seen/` devuelve las propiedades que el inquilino ya vio o interactuó (like/aceptar/rechazar).
+## Especificación Técnica de Endpoints
+### Resumen
+- Listados por score: `GET /api/properties/?match_score=<num>&order_by_match=true`
+- Recomendaciones: `GET /api/recommendations/?type=property|roommate|agent|mixed`
+- Matches del perfil: `GET /api/search_profiles/{id}/matches/?type=...&status=...`
+- Acciones de match (usuario): `POST /api/matches/{id}/like|accept|reject`
+- Like/Reject directo sobre propiedad: `POST /api/properties/{id}/like|reject`
+- Solicitudes pendientes (propietario/agente): `GET /api/matches/pending_requests/`
+- Decisión de propietario/agente: `POST /api/matches/{id}/owner_accept|owner_reject`
+- Favoritos: `POST /api/profiles/add_favorite/`, `POST /api/profiles/remove_favorite/`
+- Vistos: `GET /api/properties/seen/`, `POST /api/properties/{id}/view/`, `GET /api/properties/views/`
 
-**7. Propietario recibe el interés y puede responder**
-- Ve el mensaje de María
-- Puede iniciar conversación
-- Ve que es un match de 92% (alta compatibilidad)
+### Detalle y ejemplos
+- `GET /api/properties/?match_score=80&order_by_match=true`
+  - 200 OK: lista paginada con `_match_score` y orden por compatibilidad
+  - 401 Unauthorized si no hay usuario para cálculo de score
 
----
+- `POST /api/matches/{id}/like/`
+  - Body opcional: `{ "reason": "string" }`
+  - 200 OK: `{ status, match }`
+  - 403 si el `match.target_user != requester`
+  - Side effects: mensaje + notificaciones; auto‑aceptación si aplica
 
-## 🎯 Casos de Uso Principales
+- `POST /api/properties/{id}/like/`
+  - 200 OK: `{ status: "pending", match_id, score }`
+  - Crea/actualiza `Match` aunque no existiera; registra `MatchFeedback`.
+  - Side effects: mensaje al propietario + notificación.
 
-### Caso 1: Buscar Propiedades Compatibles
+- `POST /api/properties/{id}/reject/`
+  - 200 OK: `{ status: "rejected", match_id }`
+  - Crea/actualiza `Match` y lo marca como `rejected`; registra `MatchFeedback`.
+
+- `GET /api/matches/pending_requests/`
+  - 200 OK: lista de `{ match, property{...}, interested_user{...} }`
+  - Filtra por propiedades del owner/agent autenticado.
+
+- `POST /api/matches/{id}/owner_accept/`
+  - 200 OK: `{ status: "accepted", match }`
+  - 403 si el solicitante no es owner/agent de la propiedad
+
+- `POST /api/matches/{id}/owner_reject/`
+  - Body opcional: `{ "reason": "string" }`
+  - 200 OK: `{ status: "rejected", match }`
+  - Registra `MatchFeedback` del lado del propietario/agente
+
+### Códigos de estado y errores
+- 200 OK: operación exitosa
+- 201 Created: creación de recursos (p.ej. mensajes)
+- 400 Bad Request: parámetros inválidos o faltantes
+- 401 Unauthorized: requiere autenticación
+- 403 Forbidden: usuario no autorizado para la acción
+- 404 Not Found: recurso inexistente
+
+## Rendimiento y Limitaciones
+- Límites de candidatos: 500 propiedades/roommates y 200 agentes por generación para evitar cargas excesivas (utils/matching.py:228–236, 241–245).
+- Distancia geodésica aproximada: el cálculo usa `distance * 100` y una penalización lineal; ajustar si se requiere precisión geográfica (utils/matching.py:16–21).
+- Umbral de persistencia: solo `score >= 70` se almacena; bajar/elevar modifica volumen y calidad (utils/matching.py:201–208).
+- Regeneración on-demand: las consultas de matches y recomendaciones recalculan; considerar caching adicional si el tráfico crece (matching/views.py:49–61, 253–275).
+- Costo de ordenamiento por match en listados: cada propiedad visible puede recalcularse; el endpoint limita y ordena para mitigar (property/views.py:114–141, 191–198).
+- Dependencia de datos: reputación requiere `reviews`; si faltan datos, se aplican valores por defecto que pueden sesgar el score.
+
+## Ejemplos Prácticos
 ```http
-# Opción A: Ver todas las propiedades con filtro de score
-GET /api/properties/?match_score=80
+# Recomendaciones mixtas
+GET /api/recommendations/?type=mixed
 
-# Opción B: Ver matches específicos (tipo swipe)
+# Matches pendientes de propiedades del perfil 1
 GET /api/search_profiles/1/matches/?type=property&status=pending
 
-# Ordenar por compatibilidad en listados
-GET /api/properties/?order_by_match=true
+# Like y auto-aceptación potencial
+POST /api/matches/123/like/
+{ "reason": "Excelente ubicación" }
+
+# Listado de propiedades ordenado por compatibilidad
+GET /api/properties/?match_score=85&order_by_match=true
+
+# Like directo sobre una propiedad
+POST /api/properties/45/like/
+{ "reason": "Me encanta la zona" }
+
+# Rechazar una propiedad sin match previo
+POST /api/properties/45/reject/
+{ "reason": "Muy lejos" }
+
+# Solicitudes de match pendientes para propietario/agente
+GET /api/matches/pending_requests/
+
+# Aceptar/Rechazar una solicitud de match por propietario/agente
+POST /api/matches/123/owner_accept/
+POST /api/matches/123/owner_reject/
+{ "reason": "Preferimos no alquilar a fumadores" }
 ```
 
-### Caso 2: Buscar Roommate
-```http
-# Crear solicitud de roommate
-POST /api/roommate_requests/
-{
-  "desired_move_in_date": "2025-12-01",
-  "max_roommates": 2,
-  "gender_preference": "any",
-  "smoker_ok": false,
-  "budget_per_person": "600.00"
-}
+## Referencias de Código
+- `utils/matching.py`: cálculo de score y generación (_calculate_* y _store_match) — utils/matching.py:12–145, 201–245.
+- `matching/views.py`: endpoints `matches`, `recommendations`, `like/accept/reject` — matching/views.py:49–73, 118–227, 247–277.
+- `property/views.py`: generación en `perform_create`, listado con `_match_score`, `seen` — property/views.py:82–141, 344–352.
+- `matching/models.py`: `SearchProfile`, `Match`, `MatchFeedback` — matching/models.py:6–39, 59–93.
+- `matching/serializers.py`: normalización de amenidades y lat/lng — matching/serializers.py:7–38, 41–75.
 
-# Ver matches de roommates
-GET /api/search_profiles/1/matches/?type=roommate
-```
+## Resumen Ejecutivo
+- Captura preferencias en `SearchProfile` y calcula compatibilidad multi-factor.
+- Persiste y ordena matches de alta calidad; soporta interacción con notificaciones y mensajería.
+- Diseñado para escalabilidad moderada con límites, índices y regeneración on-demand.
 
-### Caso 3: Aceptar/Rechazar Matches
-```http
-# Aceptar (like)
-POST /api/matches/123/accept/
-
-# Rechazar con razón
-POST /api/matches/124/reject/
-{
-  "reason": "Muy lejos de mi trabajo"
-}
-```
-
-### Caso 4: Dar Feedback
-```http
-POST /api/match_feedback/
-{
-  "match": 123,
-  "feedback_type": "like",
-  "reason": "Perfecta ubicación y precio"
-}
-```
-
----
-
-## 🔄 Generación Automática de Matches
-
-### ¿Cuándo se generan matches?
-
-**1. Cuando usuario pide recomendaciones:**
-```http
-GET /api/recommendations/?type=property
-```
-→ Sistema genera matches on-demand si no existen recientes
-
-**2. Cuando se crea una nueva propiedad:**
-→ Sistema busca perfiles compatibles y crea matches automáticamente
-
-**3. Cuando usuario consulta sus matches:**
-```http
-GET /api/search_profiles/1/matches/?type=property
-```
-→ Sistema actualiza matches antes de mostrarlos
-
-### Reglas de Almacenamiento
-
-- ✅ Solo se guardan matches con **score >= 70**
-- 🔄 Se actualizan si ya existen (no duplicados)
-- 📊 Se ordenan por score (mejores primero)
-- ⏱️ Se pueden regenerar on-demand
-
----
-
-## 📊 Ventajas del Sistema
-
-### Para Usuarios (Inquilinos):
-- 🎯 **Recomendaciones personalizadas** basadas en sus preferencias
-- ⏱️ **Ahorro de tiempo** - no buscar manualmente
-- 📈 **Mejor compatibilidad** - algoritmo considera múltiples factores
-- 💬 **Conexión directa** - mensaje automático al propietario
-
-### Para Propietarios:
-- 👥 **Leads calificados** - solo usuarios realmente compatibles
-- 📊 **Score de compatibilidad** - saber qué tan buen match es
-- 🎯 **Notificaciones automáticas** cuando alguien está interesado
-- 💰 **Mayor probabilidad de alquiler** - usuarios pre-filtrados
-
-### Para Agentes:
-- 🤝 **Conexión con clientes potenciales** compatibles
-- 📍 **Basado en zonas** que manejan
-- 💼 **Comisión competitiva** considerada en el matching
-
----
-
-## 🔧 Configuración y Personalización
-
-### Ajustar Pesos del Algoritmo
-En `utils/matching.py` puedes modificar los pesos:
-
-```python
-weights = {
-    'location': 0.28,    # 28% - Ubicación
-    'price': 0.24,       # 24% - Precio
-    'amenities': 0.15,   # 15% - Amenidades
-    'roommate': 0.14,    # 14% - Roommate
-    'reputation': 0.09,  # 9% - Reputación
-    'freshness': 0.05,   # 5% - Frescura
-    'family': 0.05       # 5% - Factor familiar
-}
-```
-
-### Cambiar Umbral Mínimo de Score
-Por defecto solo se guardan matches con score >= 70:
-
-```python
-if score >= 70:  # Cambiar este valor
-    _store_match(...)
-```
-
----
-
-## 📱 Ejemplo de Flujo en App Móvil
-
-### Pantalla 1: Crear Perfil
-```
-┌─────────────────────────┐
-│ 📝 Tu Perfil de Búsqueda│
-├─────────────────────────┤
-│ Presupuesto: $800-$1500 │
-│ Ubicación: Zona Sur     │
-│ Dormitorios: 2-3        │
-│ Amenidades:             │
-│  ☑ Piscina              │
-│  ☑ Gimnasio             │
-│  ☐ Garaje               │
-│                         │
-│ [Guardar Perfil]        │
-└─────────────────────────┘
-```
-
-### Pantalla 2: Ver Matches (Swipe)
-```
-┌─────────────────────────┐
-│ 🏠 Casa en Zona Sur     │
-│ $1,200/mes              │
-│                         │
-│ 🎯 Match: 92%           │
-│                         │
-│ ✅ Piscina              │
-│ ✅ Gimnasio             │
-│ ✅ 3 dormitorios        │
-│                         │
-│ [❌ Rechazar] [💚 Like] │
-└─────────────────────────┘
-```
-
-### Pantalla 3: Match Aceptado
-```
-┌─────────────────────────┐
-│ ✅ ¡Match Aceptado!     │
-│                         │
-│ Hemos notificado al     │
-│ propietario Juan Pérez  │
-│                         │
-│ Mensaje enviado:        │
-│ "Hola, me interesa tu   │
-│  propiedad (match 92%)" │
-│                         │
-│ [Ver Conversación]      │
-└─────────────────────────┘
-```
-
----
-
-## 🎓 Resumen Ejecutivo
-
-**El sistema de matching es un motor de recomendaciones inteligente que:**
-
-1. 📝 **Captura** las preferencias del usuario en un SearchProfile
-2. 🔍 **Analiza** propiedades, roommates y agentes disponibles
-3. 🧮 **Calcula** scores de compatibilidad usando múltiples factores
-4. 🎯 **Filtra** solo matches con alta compatibilidad (>= 70%)
-5. 📊 **Ordena** por mejor compatibilidad primero
-6. 💬 **Conecta** automáticamente usuarios con propietarios
-7. 📈 **Aprende** del feedback para mejorar futuras recomendaciones
-
-**Resultado:** Experiencia tipo Tinder para encontrar la propiedad o roommate perfecto, ahorrando tiempo y aumentando la probabilidad de éxito en el alquiler.

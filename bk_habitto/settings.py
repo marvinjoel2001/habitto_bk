@@ -318,7 +318,7 @@ if use_redis_layer:
                     (os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', '6379')))
                 ]
             }
-        }
+    }
     }
 else:
     CHANNEL_LAYERS = {
@@ -326,3 +326,5 @@ else:
             'BACKEND': 'channels.layers.InMemoryChannelLayer'
         }
     }
+
+MATCH_MIN_SCORE = int(os.environ.get('MATCH_MIN_SCORE', '0'))

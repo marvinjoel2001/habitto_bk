@@ -7,6 +7,9 @@ from matching.models import Match, SearchProfile, RoommateRequest
 from property.models import Property
 from zone.models import Zone
 from django.contrib.auth.models import User
+from django.conf import settings
+
+THRESHOLD = getattr(settings, 'MATCH_MIN_SCORE', 70)
 
 
 def calculate_property_match_score(search_profile: SearchProfile, property_obj: Property) -> Tuple[float, Dict]:
@@ -199,7 +202,7 @@ def calculate_agent_match_score(profile: SearchProfile, agent: User) -> Tuple[fl
 
 
 def _store_match(match_type: str, subject_id: int, target_user: User, score: float, metadata: Dict):
-    if score >= 70:
+    if score >= THRESHOLD:
         Match.objects.update_or_create(
             match_type=match_type,
             subject_id=subject_id,

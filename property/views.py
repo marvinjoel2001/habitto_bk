@@ -7,7 +7,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
 from django.db.models import Q, Count, Avg
-from .models import Property
+from .models import Property, PropertyView, PropertyViewEvent
 from .serializers import (
     PropertySerializer, PropertyGeoSerializer, PropertyCreateSerializer,
     PropertyMapSerializer, PropertySearchSerializer
@@ -16,6 +16,7 @@ from zone.models import Zone
 from bk_habitto.mixins import MessageConfigMixin
 from matching.models import SearchProfile
 from utils.matching import calculate_property_match_score, create_property_matches_for_profile
+from django.conf import settings
 
 class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """
@@ -89,7 +90,8 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             for profile in profiles[:500]:
                 score, meta = calculate_property_match_score(profile, prop)
                 from matching.models import Match
-                if score >= 70:
+                threshold = getattr(settings, 'MATCH_MIN_SCORE', 70)
+                if score >= threshold:
                     Match.objects.update_or_create(
                         match_type='property',
                         subject_id=prop.id,
@@ -98,6 +100,19 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                     )
         except Exception:
             pass
+
+    def retrieve(self, request, *args, **kwargs):
+        obj = self.get_object()
+        resp = super().retrieve(request, *args, **kwargs)
+        try:
+            if request.user.is_authenticated:
+                pv, _ = PropertyView.objects.get_or_create(user=request.user, property=obj)
+                pv.count = (pv.count or 0) + 1
+                pv.save(update_fields=['count', 'last_viewed'])
+                PropertyViewEvent.objects.create(user=request.user, property=obj)
+        except Exception:
+            pass
+        return resp
 
     def list(self, request, *args, **kwargs):
         """Extiende listado para filtrar y ordenar por match_score usando el SearchProfile del usuario."""
@@ -350,3 +365,61 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         qs = Match.objects.filter(target_user=request.user, match_type='property')
         property_ids = list(qs.values_list('subject_id', flat=True))
         return Response({'count': len(property_ids), 'property_ids': property_ids})
+
+    @action(detail=True, methods=['post'], url_path='view', permission_classes=[IsAuthenticated])
+    def view(self, request, pk=None):
+        obj = self.get_object()
+        pv, _ = PropertyView.objects.get_or_create(user=request.user, property=obj)
+        pv.count = (pv.count or 0) + 1
+        pv.save(update_fields=['count', 'last_viewed'])
+        PropertyViewEvent.objects.create(user=request.user, property=obj)
+        return Response({'status': 'ok', 'property_id': obj.id, 'count': pv.count})
+
+    @action(detail=False, methods=['get'], url_path='views', permission_classes=[IsAuthenticated])
+    def views(self, request):
+        qs = PropertyView.objects.filter(user=request.user).select_related('property').order_by('-last_viewed')
+        data = [{'property_id': v.property_id, 'count': v.count, 'last_viewed': v.last_viewed} for v in qs]
+        return Response({'count': qs.count(), 'results': data})
+
+    @action(detail=True, methods=['post'], url_path='like', permission_classes=[IsAuthenticated])
+    def like(self, request, pk=None):
+        obj = self.get_object()
+        profile = SearchProfile.objects.filter(user=request.user).first()
+        from matching.models import Match, MatchFeedback
+        # Calcular score y crear/actualizar match independientemente del umbral
+        try:
+            score, meta = calculate_property_match_score(profile, obj) if profile else (0, {})
+        except Exception:
+            score, meta = (0, {})
+        match, _ = Match.objects.update_or_create(
+            match_type='property', subject_id=obj.id, target_user=request.user,
+            defaults={'score': score, 'metadata': meta, 'status': 'pending'}
+        )
+        MatchFeedback.objects.create(match=match, user=request.user, feedback_type='like', reason=request.data.get('reason'))
+        # Notificación y conversación con propietario
+        try:
+            from notification.models import Notification
+            from message.models import Message
+            Message.objects.create(sender=request.user, receiver=obj.owner, content=f"Interesado en tu propiedad (match {score}%).")
+            Notification.objects.create(user=obj.owner, message=f"{request.user.username} indicó interés en tu propiedad (score {score}%).")
+        except Exception:
+            pass
+        return Response({'status': match.status, 'match_id': match.id, 'score': score})
+
+    @action(detail=True, methods=['post'], url_path='reject', permission_classes=[IsAuthenticated])
+    def reject(self, request, pk=None):
+        obj = self.get_object()
+        profile = SearchProfile.objects.filter(user=request.user).first()
+        from matching.models import Match, MatchFeedback
+        try:
+            score, meta = calculate_property_match_score(profile, obj) if profile else (0, {})
+        except Exception:
+            score, meta = (0, {})
+        match, _ = Match.objects.update_or_create(
+            match_type='property', subject_id=obj.id, target_user=request.user,
+            defaults={'score': score, 'metadata': meta}
+        )
+        match.status = 'rejected'
+        match.save(update_fields=['status', 'updated_at'])
+        MatchFeedback.objects.create(match=match, user=request.user, feedback_type='dislike', reason=request.data.get('reason'))
+        return Response({'status': 'rejected', 'match_id': match.id})

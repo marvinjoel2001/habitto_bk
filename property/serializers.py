@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from django.contrib.gis.geos import Point
 from .models import Property
+from matching.serializers import AmenityFlexibleField
 
 
 class PropertySerializer(serializers.ModelSerializer):
@@ -14,6 +15,7 @@ class PropertySerializer(serializers.ModelSerializer):
     latitude = serializers.ReadOnlyField()
     longitude = serializers.ReadOnlyField()
     main_photo = serializers.SerializerMethodField()
+    amenities = AmenityFlexibleField(required=False)
     
     class Meta:
         model = Property
@@ -45,6 +47,13 @@ class PropertySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("La longitud debe estar entre -180 y 180.")
         
         return data
+
+    def update(self, instance, validated_data):
+        amenities_data = validated_data.pop('amenities', None)
+        instance = super().update(instance, validated_data)
+        if amenities_data is not None:
+            instance.amenities.set(amenities_data)
+        return instance
 
     def get_main_photo(self, obj):
         """
@@ -88,6 +97,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
     zone_id = serializers.IntegerField(required=False, allow_null=True)
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
+    amenities = AmenityFlexibleField(required=False)
     
     class Meta:
         model = Property
@@ -146,8 +156,11 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             except Zone.DoesNotExist:
                 raise serializers.ValidationError(f"Zona con ID {zone_id} no existe.")
         
-        # Crear la propiedad (el método save() se encargará de la auto-asignación)
-        return super().create(validated_data)
+        amenities_data = validated_data.pop('amenities', None)
+        obj = super().create(validated_data)
+        if amenities_data is not None:
+            obj.amenities.set(amenities_data)
+        return obj
 
 
 class PropertyMapSerializer(serializers.ModelSerializer):
