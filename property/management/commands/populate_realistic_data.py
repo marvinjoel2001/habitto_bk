@@ -233,15 +233,14 @@ class Command(BaseCommand):
                     location=Point(lon, lat),
                     budget_min=random.randint(300, 800),
                     budget_max=random.randint(800, 1500),
-                    bedrooms=random.randint(1, 3),
-                    bathrooms=random.randint(1, 2),
+                    bedrooms_min=random.randint(1, 3),
+                    bedrooms_max=random.randint(1, 3),
                     age=random.randint(18, 35),
                     gender=random.choice(['male', 'female']),
                     children_count=random.randint(0, 2) if random.choice([True, False]) else 0,
                     smoker=random.choice([True, False]),
-                    has_pets=random.choice([True, False]),
+                    pets_count=random.randint(0, 2) if random.choice([True, False]) else 0,
                     stable_job=random.choice([True, False]),
-                    students_only=random.choice([True, False]),
                     roommate_preference='looking' if user_data['type'] == 'tenant_roomie' else random.choice(['no', 'open']),
                     roommate_preferences={
                         'gender': random.choice(['any', 'male', 'female']),
@@ -251,13 +250,7 @@ class Command(BaseCommand):
                         'age_max': random.randint(25, 40)
                     },
                     vibes=random.choice(vibes_list),
-                    description=random.choice([
-                        'Busco lugar tranquilo para estudiar/trabajar',
-                        'Soy persona ordenada y responsable',
-                        'Me gusta socializar pero también respeto el espacio',
-                        'Busco compartir con personas similares',
-                        'Soy profesional buscando estabilidad'
-                    ])
+                    occupation=random.choice(['Estudiante', 'Profesional', 'Empresario', 'Freelancer', 'Comerciante'])
                 )
 
                 # Asignar zonas preferidas
@@ -401,8 +394,7 @@ class Command(BaseCommand):
                     property=property_obj,
                     user=reviewer,
                     rating=random.randint(3, 5),
-                    comment=random.choice(review_texts),
-                    would_recommend=random.choice([True, True, False])
+                    comment=random.choice(review_texts)
                 )
 
     def create_property_views(self):
@@ -445,24 +437,19 @@ class Command(BaseCommand):
             '¿Hay algún contrato mínimo?'
         ]
 
-        # Crear conversaciones entre propietarios e inquilinos interesados
-        for property_obj in random.sample(self.properties, min(6, len(self.properties))):
-            interested_users = random.sample([u for u in self.users if u != property_obj.owner], random.randint(1, 3))
-
-            for interested_user in interested_users:
-                # Crear 1-3 mensajes por conversación
-                for _ in range(random.randint(1, 3)):
-                    sender = random.choice([property_obj.owner, interested_user])
-                    receiver = property_obj.owner if sender == interested_user else interested_user
-
-                    Message.objects.create(
-                        sender=sender,
-                        receiver=receiver,
-                        property=property_obj,
-                        content=random.choice(message_contents),
-                        read=random.choice([True, False]),
-                        created_at=timezone.now() - timedelta(hours=random.randint(1, 168))  # Última semana
-                    )
+        # Crear conversaciones entre usuarios aleatorios
+        for _ in range(min(10, len(self.users))):
+            sender = random.choice(self.users)
+            receiver = random.choice([u for u in self.users if u != sender])
+            
+            # Crear 1-3 mensajes por conversación
+            for _ in range(random.randint(1, 3)):
+                Message.objects.create(
+                    sender=sender,
+                    receiver=receiver,
+                    content=random.choice(message_contents),
+                    is_read=random.choice([True, False])
+                )
 
     def create_notifications(self):
         """Crea notificaciones."""
@@ -490,11 +477,8 @@ class Command(BaseCommand):
                 notif_type = random.choice(notification_types)
                 Notification.objects.create(
                     user=user,
-                    type=notif_type,
-                    title=messages[notif_type],
                     message=messages[notif_type] + ' hace ' + str(random.randint(1, 24)) + ' horas',
-                    read=random.choice([True, False]),
-                    created_at=timezone.now() - timedelta(hours=random.randint(1, 24))
+                    is_read=random.choice([True, False])
                 )
 
 
