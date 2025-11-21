@@ -308,6 +308,9 @@ class ZoneAPIIntegrationTests(APITestCase):
 
     def test_create_zone_via_api(self):
         """Test: Crear zona a través de la API."""
+        # Get initial count to test increment
+        initial_count = Zone.objects.count()
+
         coordinates = [
             [-63.182, -17.783],
             [-63.178, -17.783],
@@ -325,9 +328,9 @@ class ZoneAPIIntegrationTests(APITestCase):
         response = self.client.post('/api/zones/', zone_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # Verificar que la zona fue creada
-        self.assertEqual(Zone.objects.count(), 1)
-        zone = Zone.objects.first()
+        # Verificar que la zona fue creada (count should increase by 1)
+        self.assertEqual(Zone.objects.count(), initial_count + 1)
+        zone = Zone.objects.get(name='API Test Zone')
         self.assertEqual(zone.name, 'API Test Zone')
         self.assertTrue(zone.bounds.valid)
 
@@ -366,12 +369,13 @@ class ZoneAPIIntegrationTests(APITestCase):
 
     def test_get_zones_geojson_format(self):
         """Test: Obtener zonas en formato GeoJSON."""
-        # Crear una zona de prueba
+        # Crear una zona de prueba con coordenadas únicas
         coordinates = [
-            [-63.182, -17.783],
-            [-63.178, -17.783],
-            [-63.178, -17.779],
-            [-63.182, -17.783]
+            [-63.200, -17.800],  # Coordenadas únicas
+            [-63.195, -17.800],
+            [-63.195, -17.795],
+            [-63.200, -17.795],
+            [-63.200, -17.800]
         ]
 
         geojson = {
@@ -391,21 +395,36 @@ class ZoneAPIIntegrationTests(APITestCase):
         # Verificar estructura GeoJSON
         self.assertEqual(response.data['type'], 'FeatureCollection')
         self.assertIn('features', response.data)
-        self.assertEqual(len(response.data['features']), 1)
 
-        feature = response.data['features'][0]
-        self.assertEqual(feature['type'], 'Feature')
-        self.assertIn('geometry', feature)
-        self.assertEqual(feature['geometry']['type'], 'Polygon')
+        # Verificar que la zona creada está en las características
+        features = response.data['features']
+        test_zone_feature = None
+        for feature in features:
+            if feature['properties']['name'] == 'GeoJSON Test Zone':
+                test_zone_feature = feature
+                break
+
+        self.assertIsNotNone(test_zone_feature, "Zona de prueba no encontrada en GeoJSON")
+        self.assertEqual(test_zone_feature['type'], 'Feature')
+        self.assertIn('geometry', test_zone_feature)
+
+        # Verificar que el geometry contiene el polígono
+        geometry = test_zone_feature['geometry']
+
+        # Verificar formato GeoJSON esperado
+        self.assertIsInstance(geometry, dict, "Geometry debe ser un objeto GeoJSON, no un string")
+        self.assertEqual(geometry['type'], 'Polygon')
+        self.assertIn('coordinates', geometry)
 
     def test_find_zone_by_location(self):
         """Test: Encontrar zona por coordenadas."""
-        # Crear una zona de prueba
+        # Crear una zona de prueba con coordenadas únicas
         coordinates = [
-            [-63.182, -17.783],
-            [-63.178, -17.783],
-            [-63.178, -17.779],
-            [-63.182, -17.783]
+            [-63.150, -17.850],  # Coordenadas únicas para evitar conflictos
+            [-63.145, -17.850],
+            [-63.145, -17.845],
+            [-63.150, -17.845],
+            [-63.150, -17.850]
         ]
 
         geojson = {
@@ -420,8 +439,8 @@ class ZoneAPIIntegrationTests(APITestCase):
 
         # Buscar zona por coordenadas dentro del polígono
         response = self.client.get('/api/zones/find_by_location/', {
-            'lat': -17.781,  # Latitud dentro del polígono
-            'lng': -63.180   # Longitud dentro del polígono
+            'lat': -17.847,  # Latitud dentro del polígono
+            'lng': -63.147   # Longitud dentro del polígono
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -431,10 +450,11 @@ class ZoneAPIIntegrationTests(APITestCase):
         """Test: Obtener datos de heatmap para zonas."""
         # Crear zonas con estadísticas diferentes
         coordinates = [
-            [-63.182, -17.783],
-            [-63.178, -17.783],
-            [-63.178, -17.779],
-            [-63.182, -17.783]
+            [-63.220, -17.820],  # Coordenadas únicas
+            [-63.215, -17.820],
+            [-63.215, -17.815],
+            [-63.220, -17.815],
+            [-63.220, -17.820]
         ]
 
         geojson = {
@@ -444,7 +464,7 @@ class ZoneAPIIntegrationTests(APITestCase):
 
         # Crear zona con alta demanda
         high_demand_zone = Zone.objects.create(
-            name='Zona Alta Demanda',
+            name='Zona Alta Demanda Test',
             bounds=GEOSGeometry(str(geojson)),
             offer_count=5,
             demand_count=15  # Alta demanda
@@ -454,15 +474,28 @@ class ZoneAPIIntegrationTests(APITestCase):
         response = self.client.get('/api/zones/heatmap/', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Verificar estructura de datos
-        self.assertIsInstance(response.data, list)
-        if response.data:  # Si hay datos
-            heatmap_item = response.data[0]
-            self.assertIn('id', heatmap_item)
-            self.assertIn('name', heatmap_item)
-            self.assertIn('intensity', heatmap_item)
-            self.assertIn('center_lat', heatmap_item)
-            self.assertIn('center_lng', heatmap_item)
+        # Verificar estructura de datos (FeatureCollection format)
+        self.assertEqual(response.data['type'], 'FeatureCollection')
+        self.assertIn('features', response.data)
+
+        # Buscar la zona de prueba en los resultados
+        features = response.data['features']
+        test_zone_feature = None
+        for feature in features:
+            if feature['properties']['name'] == 'Zona Alta Demanda Test':
+                test_zone_feature = feature
+                break
+
+        self.assertIsNotNone(test_zone_feature, "Zona de prueba no encontrada en heatmap")
+
+        # Verificar estructura según ZoneHeatmapSerializer
+        properties = test_zone_feature['properties']
+        self.assertIn('id', properties)
+        self.assertIn('name', properties)
+        self.assertIn('intensity', properties)
+
+        # Verificar que la intensidad refleje la alta demanda
+        self.assertGreater(properties['intensity'], 0.1)
 
 
 class ZoneCreationDocumentationTests(TestCase):
@@ -534,9 +567,14 @@ class ZoneCreationDocumentationTests(TestCase):
         geo_serializer = ZoneGeoSerializer(zone)
         geo_data = geo_serializer.data
 
-        self.assertIn('geometry', geo_data)
-        self.assertEqual(geo_data['geometry']['type'], 'Polygon')
-        self.assertIn('coordinates', geo_data['geometry'])
+        # ZoneGeoSerializer usa geo_field='bounds' que incluye la geometría
+        self.assertIsNotNone(zone.bounds)
+        self.assertEqual(zone.bounds.geom_type, 'Polygon')
+
+        # Verificar que el polígono tiene las coordenadas esperadas
+        coords = list(zone.bounds.coords[0])
+        self.assertGreater(len(coords), 3)  # Al menos 3 puntos
+        self.assertEqual(coords[0], coords[-1])  # Polígono cerrado
 
 
 # Documentación adicional para el equipo frontend

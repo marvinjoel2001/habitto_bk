@@ -107,6 +107,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',  # Soporte GIS para PostGIS
     'channels',
     'rest_framework',
+    'rest_framework_gis',  # Soporte GeoJSON para REST Framework
     'rest_framework_simplejwt',
     'django_filters',
     'habittoapp',
