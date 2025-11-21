@@ -158,32 +158,65 @@ class ZoneCreateSerializer(serializers.ModelSerializer):
     """
     Serializer para crear nuevas zonas.
     Incluye validaciones específicas para bounds GIS.
+    Acepta coordenadas en formato array: [[lng, lat], [lng, lat], ...]
     """
-    bounds_geojson = serializers.JSONField(write_only=True, required=False)
+    coordinates = serializers.ListField(
+        child=serializers.ListField(
+            child=serializers.FloatField(),
+            min_length=2,
+            max_length=2
+        ),
+        write_only=True,
+        required=False,
+        help_text="Array de coordenadas [lng, lat] para el polígono de la zona"
+    )
+    bounds = serializers.CharField(required=False)  # Hacer bounds opcional
     
     class Meta:
         model = Zone
-        fields = ['name', 'description', 'bounds', 'bounds_geojson']
+        fields = ['name', 'description', 'bounds', 'coordinates']
 
-    def validate_bounds_geojson(self, value):
+    def validate(self, data):
         """
-        Valida que el GeoJSON sea un polígono válido.
+        Validación general del serializer.
         """
-        try:
-            geom = GEOSGeometry(str(value))
-            if geom.geom_type != 'Polygon':
-                raise serializers.ValidationError("El bounds debe ser un polígono válido.")
-            return value
-        except Exception as e:
-            raise serializers.ValidationError(f"GeoJSON inválido: {str(e)}")
+        # Verificar que se proporcione al menos una forma de definir los límites
+        if not data.get('bounds') and not data.get('coordinates'):
+            raise serializers.ValidationError("Debe proporcionar 'bounds' o 'coordinates'.")
+        
+        return data
+
+    def validate_coordinates(self, value):
+        """
+        Valida que las coordenadas formen un polígono válido.
+        """
+        if not value or len(value) < 3:
+            raise serializers.ValidationError("Se requieren al menos 3 coordenadas para formar un polígono.")
+        
+        # Verificar que el polígono esté cerrado (primera coordenada == última)
+        if value[0] != value[-1]:
+            # Cerrar automáticamente el polígono
+            value.append(value[0])
+        
+        # Validar que todas las coordenadas tengan exactamente 2 elementos
+        for coord in value:
+            if len(coord) != 2:
+                raise serializers.ValidationError("Cada coordenada debe tener exactamente 2 elementos [lng, lat].")
+        
+        return value
 
     def create(self, validated_data):
         """
-        Crear zona convirtiendo GeoJSON a GeoDjango geometry si es necesario.
+        Crear zona convirtiendo coordenadas a GeoDjango geometry.
         """
-        bounds_geojson = validated_data.pop('bounds_geojson', None)
+        coordinates = validated_data.pop('coordinates', None)
         
-        if bounds_geojson and not validated_data.get('bounds'):
-            validated_data['bounds'] = GEOSGeometry(str(bounds_geojson))
+        if coordinates:
+            # Convertir coordenadas a formato GeoJSON
+            geojson = {
+                "type": "Polygon",
+                "coordinates": [coordinates]  # GeoJSON Polygon requiere array de arrays
+            }
+            validated_data['bounds'] = GEOSGeometry(str(geojson))
         
         return super().create(validated_data)
