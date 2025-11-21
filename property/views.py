@@ -10,7 +10,7 @@ from django.db.models import Q, Count, Avg
 from .models import Property, PropertyView, PropertyViewEvent
 from .serializers import (
     PropertySerializer, PropertyGeoSerializer, PropertyCreateSerializer,
-    PropertyMapSerializer, PropertySearchSerializer
+    PropertyMapSerializer, PropertySearchSerializer, RoomieSeekerPropertySerializer
 )
 from zone.models import Zone
 from bk_habitto.mixins import MessageConfigMixin
@@ -79,6 +79,42 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             )
         
         return queryset
+    
+    def list(self, request, *args, **kwargs):
+        """
+        Override list to include roomie seekers when requested.
+        """
+        include_roomies = request.query_params.get('include_roomies', 'false').lower() == 'true'
+        
+        if include_roomies:
+            # Get regular properties
+            properties = self.filter_queryset(self.get_queryset())
+            
+            # Get roomie seekers
+            roomie_seekers = SearchProfile.objects.filter(
+                roommate_preference__in=['looking', 'open']
+            ).select_related('user').prefetch_related('preferred_zones')
+            
+            # Serialize both
+            properties_serializer = self.get_serializer(properties, many=True)
+            roomie_serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context=self.get_serializer_context())
+            
+            # Combine results
+            combined_data = properties_serializer.data + roomie_serializer.data
+            
+            # Sort by created_at or other criteria (handle mixed types)
+            def get_sort_key(item):
+                created_at = item.get('created_at', '')
+                if created_at:
+                    # Convert to string for consistent comparison
+                    return str(created_at)
+                return ''
+            
+            combined_data.sort(key=get_sort_key, reverse=True)
+            
+            return Response(combined_data)
+        else:
+            return super().list(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         """Asigna el propietario automáticamente al crear una propiedad."""
@@ -115,9 +151,13 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         return resp
 
     def list(self, request, *args, **kwargs):
-        """Extiende listado para filtrar y ordenar por match_score usando el SearchProfile del usuario."""
+        """
+        Override list to include roomie seekers when requested, and handle match scoring.
+        """
+        include_roomies = request.query_params.get('include_roomies', 'false').lower() == 'true'
         min_score = request.query_params.get('match_score')
         order_by_match = request.query_params.get('order_by_match') in ['1', 'true', 'True']
+        
         if min_score and request.user.is_authenticated:
             try:
                 min_score = float(min_score)
@@ -125,35 +165,112 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                 min_score = None
         else:
             min_score = None
-
-        response = super().list(request, *args, **kwargs)
-        if (min_score is not None or order_by_match) and request.user.is_authenticated:
-            profile = SearchProfile.objects.filter(user=request.user).first()
-            if not profile:
-                return response
-            results = response.data.get('results') if isinstance(response.data, dict) else response.data
-            processed = []
-            # results puede ser lista de dicts de propiedades serializadas
-            from property.models import Property as PropertyModel
-            id_key = 'id'
-            for item in results:
-                try:
-                    prop_id = item.get(id_key)
-                    prop_obj = PropertyModel.objects.get(id=prop_id)
-                    score, _ = calculate_property_match_score(profile, prop_obj)
-                    item['_match_score'] = score
-                    if (min_score is None) or (score >= min_score):
+        
+        if include_roomies:
+            # Get regular properties
+            properties = self.filter_queryset(self.get_queryset())
+            
+            # Get roomie seekers
+            roomie_seekers = SearchProfile.objects.filter(
+                roommate_preference__in=['looking', 'open']
+            ).select_related('user').prefetch_related('preferred_zones')
+            
+            # Serialize both
+            properties_serializer = self.get_serializer(properties, many=True)
+            roomie_serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context=self.get_serializer_context())
+            
+            # Combine results
+            combined_data = properties_serializer.data + roomie_serializer.data
+            
+            # Sort by created_at or other criteria (handle mixed types)
+            def get_sort_key(item):
+                created_at = item.get('created_at', '')
+                if created_at:
+                    # Convert to string for consistent comparison
+                    return str(created_at)
+                return ''
+            
+            combined_data.sort(key=get_sort_key, reverse=True)
+            
+            return Response(combined_data)
+        else:
+            response = super().list(request, *args, **kwargs)
+            if (min_score is not None or order_by_match) and request.user.is_authenticated:
+                profile = SearchProfile.objects.filter(user=request.user).first()
+                if not profile:
+                    return response
+                results = response.data.get('results') if isinstance(response.data, dict) else response.data
+                processed = []
+                # results puede ser lista de dicts de propiedades serializadas
+                from property.models import Property as PropertyModel
+                id_key = 'id'
+                for item in results:
+                    try:
+                        prop_id = item.get(id_key)
+                        prop_obj = PropertyModel.objects.get(id=prop_id)
+                        score, _ = calculate_property_match_score(profile, prop_obj)
+                        item['_match_score'] = score
+                        if (min_score is None) or (score >= min_score):
+                            processed.append(item)
+                    except Exception:
                         processed.append(item)
-                except Exception:
-                    processed.append(item)
-            if order_by_match:
-                processed.sort(key=lambda x: x.get('_match_score', 0), reverse=True)
-            if isinstance(response.data, dict):
-                response.data['results'] = processed
-                response.data['count'] = len(processed)
-            else:
-                response.data = processed
-        return response
+                if order_by_match:
+                    processed.sort(key=lambda x: x.get('_match_score', 0), reverse=True)
+                if isinstance(response.data, dict):
+                    response.data['results'] = processed
+                    response.data['count'] = len(processed)
+                else:
+                    response.data = processed
+            return response
+    
+    @action(detail=True, methods=['post'], url_path='convert-to-roomie')
+    def convert_to_roomie_listing(self, request, pk=None):
+        """
+        Convierte una propiedad en una publicación de búsqueda de roomie.
+        Se usa cuando un inquilino da like a una propiedad y el propietario acepta.
+        """
+        property_obj = self.get_object()
+        
+        # Verificar que el usuario sea el propietario o tenga permisos
+        if property_obj.owner != request.user:
+            return Response(
+                {'error': 'No tiene permisos para convertir esta propiedad'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Verificar que la propiedad permite roomies
+        if not property_obj.allows_roommates:
+            return Response(
+                {'error': 'Esta propiedad no permite roomies'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Obtener el perfil del inquilino que dio like (debe estar en el request)
+        tenant_profile_id = request.data.get('tenant_profile_id')
+        if not tenant_profile_id:
+            return Response(
+                {'error': 'Se requiere tenant_profile_id'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            tenant_profile = SearchProfile.objects.get(id=tenant_profile_id)
+        except SearchProfile.DoesNotExist:
+            return Response(
+                {'error': 'Perfil de inquilino no encontrado'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Marcar la propiedad como roomie listing
+        property_obj.is_roomie_listing = True
+        property_obj.roomie_profile = tenant_profile
+        property_obj.save()
+        
+        # Serializar la propiedad actualizada
+        serializer = self.get_serializer(property_obj)
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Propiedad convertida a búsqueda de roomie exitosamente')
+        return resp
 
     @action(detail=False, methods=['get'], url_path='map')
     def map(self, request):

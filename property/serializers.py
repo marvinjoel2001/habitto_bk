@@ -2,7 +2,8 @@ from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from django.contrib.gis.geos import Point
 from .models import Property
-from matching.serializers import AmenityFlexibleField
+from matching.serializers import AmenityFlexibleField, SearchProfileSerializer
+from matching.models import SearchProfile, RoommateRequest
 
 
 class PropertySerializer(serializers.ModelSerializer):
@@ -16,6 +17,8 @@ class PropertySerializer(serializers.ModelSerializer):
     longitude = serializers.ReadOnlyField()
     main_photo = serializers.SerializerMethodField()
     amenities = AmenityFlexibleField(required=False)
+    is_roomie_listing = serializers.SerializerMethodField()
+    roomie_seeker_info = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
@@ -68,6 +71,128 @@ class PropertySerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(url) if request else url
         except Exception:
             return None
+    
+    def get_is_roomie_listing(self, obj):
+        """
+        Indica si esta propiedad es una publicación de búsqueda de roomie.
+        """
+        return getattr(obj, 'is_roomie_listing', False)
+    
+    def get_roomie_seeker_info(self, obj):
+        """
+        Retorna información del usuario que busca roomie si aplica.
+        """
+        if not getattr(obj, 'is_roomie_listing', False):
+            return None
+        
+        # Obtener el SearchProfile asociado
+        roomie_profile = getattr(obj, 'roomie_profile', None)
+        if not roomie_profile:
+            return None
+        
+        from matching.serializers import SearchProfileSerializer
+        serializer = SearchProfileSerializer(roomie_profile, context=self.context)
+        return serializer.data
+
+
+class RoomieSeekerPropertySerializer(serializers.Serializer):
+    """
+    Serializer para representar usuarios buscando roomies como propiedades.
+    """
+    id = serializers.IntegerField(source='user.id')
+    type = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    bedrooms = serializers.SerializerMethodField()
+    bathrooms = serializers.SerializerMethodField()
+    size = serializers.SerializerMethodField()
+    zone_id = serializers.SerializerMethodField()
+    zone_name = serializers.SerializerMethodField()
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+    is_active = serializers.SerializerMethodField()
+    is_roomie_listing = serializers.SerializerMethodField()
+    roomie_seeker_info = serializers.SerializerMethodField()
+    main_photo = serializers.SerializerMethodField()
+    nearby_properties_count = serializers.SerializerMethodField()
+    amenities = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
+    updated_at = serializers.SerializerMethodField()
+    
+    def get_type(self, obj):
+        return 'roomie_seeker'
+    
+    def get_address(self, obj):
+        # Use preferred zones as address
+        zones = obj.preferred_zones.all()
+        if zones:
+            return f"Buscando en: {', '.join(zone.name for zone in zones)}"
+        return "Zona no especificada"
+    
+    def get_description(self, obj):
+        prefs = obj.roommate_preferences or {}
+        vibes = obj.vibes or []
+        description = f"Buscando roomie - Presupuesto: ${obj.budget_min or 0} - ${obj.budget_max or 0}"
+        if vibes:
+            description += f" | Intereses: {', '.join(vibes[:3])}"
+        if prefs.get('gender') and prefs['gender'] != 'any':
+            description += f" | Prefiere: {prefs['gender']}"
+        return description
+    
+    def get_price(self, obj):
+        # Use budget range as price
+        return obj.budget_max or obj.budget_min or 0
+    
+    def get_bedrooms(self, obj):
+        return obj.bedrooms_min or 1
+    
+    def get_bathrooms(self, obj):
+        return 1  # Default for roomie seekers
+    
+    def get_size(self, obj):
+        return 0  # Not applicable for roomie seekers
+    
+    def get_zone_id(self, obj):
+        zones = obj.preferred_zones.all()
+        return zones.first().id if zones else None
+    
+    def get_zone_name(self, obj):
+        zones = obj.preferred_zones.all()
+        return zones.first().name if zones else None
+    
+    def get_latitude(self, obj):
+        return obj.location.y if obj.location else None
+    
+    def get_longitude(self, obj):
+        return obj.location.x if obj.location else None
+    
+    def get_is_active(self, obj):
+        return obj.roommate_preference in ['looking', 'open']
+    
+    def get_is_roomie_listing(self, obj):
+        return True
+    
+    def get_roomie_seeker_info(self, obj):
+        # Return the search profile data
+        serializer = SearchProfileSerializer(obj, context=self.context)
+        return serializer.data
+    
+    def get_main_photo(self, obj):
+        # Return default avatar or user profile photo
+        return None  # Can be enhanced to use user profile photo
+    
+    def get_nearby_properties_count(self, obj):
+        return 0  # Not applicable for roomie seekers
+    
+    def get_amenities(self, obj):
+        return []  # Not applicable for roomie seekers
+    
+    def get_created_at(self, obj):
+        return obj.created_at
+    
+    def get_updated_at(self, obj):
+        return obj.updated_at
 
 
 class PropertyGeoSerializer(GeoFeatureModelSerializer):

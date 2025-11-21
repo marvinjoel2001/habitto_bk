@@ -14,6 +14,7 @@ from utils.matching import (
     create_property_matches_for_profile, create_roommate_matches_for_profile, create_agent_matches_for_profile
 )
 from property.models import Property
+from property.serializers import RoomieSeekerPropertySerializer
 
 
 class SearchProfileViewSet(MessageConfigMixin, viewsets.ModelViewSet):
@@ -102,6 +103,55 @@ class RoommateRequestViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         serializer = RoommateRequestSerializer(qs, many=True)
         resp = Response(serializer.data)
         self.set_response_message(resp, 'Solicitudes de roomie del usuario obtenidas exitosamente')
+        return resp
+
+
+class RoomieSearchViewSet(MessageConfigMixin, viewsets.ViewSet):
+    """
+    ViewSet para búsqueda independiente de roomies.
+    """
+    permission_classes = [IsAuthenticated]
+    success_messages = {
+        'list': 'Roomies buscando compañía obtenidos exitosamente',
+        'available_roomies': 'Roomies disponibles obtenidos exitosamente',
+    }
+    
+    @action(detail=False, methods=['get'], url_path='available')
+    def available_roomies(self, request):
+        """
+        Obtener todos los usuarios que buscan roomie y no tienen propiedad asignada.
+        """
+        # Obtener usuarios que buscan roomie
+        roomie_seekers = SearchProfile.objects.filter(
+            roommate_preference__in=['looking', 'open']
+        ).select_related('user').prefetch_related('preferred_zones', 'amenities')
+        
+        # Filtrar aquellos que no tienen propiedad asignada (no tienen roomie_properties)
+        roomie_seekers = roomie_seekers.filter(
+            roomie_properties__isnull=True
+        ).distinct()
+        
+        # Serializar usando el serializer de roomie seekers
+        serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context={'request': request})
+        
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Roomies disponibles obtenidos exitosamente')
+        return resp
+    
+    @action(detail=False, methods=['get'], url_path='all-seekers')
+    def all_seekers(self, request):
+        """
+        Obtener todos los usuarios que buscan roomie (con o sin propiedad).
+        """
+        roomie_seekers = SearchProfile.objects.filter(
+            roommate_preference__in=['looking', 'open']
+        ).select_related('user').prefetch_related('preferred_zones', 'amenities')
+        
+        # Serializar usando el serializer de roomie seekers
+        serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context={'request': request})
+        
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Todos los roomies buscando compañía obtenidos exitosamente')
         return resp
 
 
@@ -325,6 +375,20 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                 match_data
             )
             
+            # Check if tenant has roommate preference and property allows roommates
+            tenant_profile = SearchProfile.objects.filter(user=match.target_user).first()
+            if tenant_profile and tenant_profile.roommate_preference in ['looking', 'open'] and prop.allows_roommates:
+                # Convert property to roomie listing
+                prop.is_roomie_listing = True
+                prop.roomie_profile = tenant_profile
+                prop.save(update_fields=['is_roomie_listing', 'roomie_profile'])
+                
+                # Notify tenant that their roomie listing has been created
+                Notification.objects.create(
+                    user=match.target_user, 
+                    message=f"¡Tu búsqueda de roomie ha sido publicada! La propiedad {prop.address} ahora aparece como disponible para roomies."
+                )
+                
         except Exception as e:
             # Log del error pero no interrumpir la respuesta
             import logging
