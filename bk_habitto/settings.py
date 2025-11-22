@@ -160,18 +160,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bk_habitto.wsgi.application'
 ASGI_APPLICATION = 'bk_habitto.asgi.application'
 
+# Hosts para despliegue
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # PostgreSQL con PostGIS
-        'NAME': 'habito_db',
-        'USER': 'postgres',
-        'PASSWORD': 'sistemas123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.contrib.gis.db.backends.postgis'),
+        'NAME': os.environ.get('DB_NAME', 'habito_db'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'sistemas123'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
     }
 }
 
@@ -289,8 +293,8 @@ LOGGING = {
 }
 
 # Configuración de Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -301,25 +305,22 @@ CELERY_ENABLE_UTC = True
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379/1'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
 # Channels / WebSockets
-import os
-use_redis_layer = os.environ.get('CHANNEL_LAYER', 'inmemory') == 'redis'
-if use_redis_layer:
+redis_layer_url = os.environ.get('CHANNEL_REDIS_URL', os.environ.get('REDIS_URL'))
+if redis_layer_url:
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels_redis.core.RedisChannelLayer',
             'CONFIG': {
-                'hosts': [
-                    (os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', '6379')))
-                ]
+                'hosts': [redis_layer_url]
             }
-    }
+        }
     }
 else:
     CHANNEL_LAYERS = {
