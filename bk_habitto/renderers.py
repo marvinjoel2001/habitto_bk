@@ -43,14 +43,5 @@ class WrappedJSONRenderer(JSONRenderer):
             }
             return super().render(wrapped, accepted_media_type, renderer_context)
 
-        # Error responses: let exception handler define structure where possible
-        # If not already wrapped, wrap here
-        if isinstance(data, dict) and ('success' in data and data.get('success') is False):
-            return super().render(data, accepted_media_type, renderer_context)
-
-        wrapped_error = {
-            'success': False,
-            'message': 'Error de solicitud',
-            'data': data,
-        }
-        return super().render(wrapped_error, accepted_media_type, renderer_context)
+        # Error responses: no envolver, dejar estructura de DRF (field errors)
+        return super().render(data, accepted_media_type, renderer_context)

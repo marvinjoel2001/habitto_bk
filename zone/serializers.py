@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from django.contrib.gis.geos import GEOSGeometry
+import json
 from .models import Zone, ZoneSearchLog
 
 
@@ -170,19 +171,37 @@ class ZoneCreateSerializer(serializers.ModelSerializer):
         required=False,
         help_text="Array de coordenadas [lng, lat] para el polígono de la zona"
     )
-    bounds = serializers.CharField(required=False)  # Hacer bounds opcional
+    bounds_geojson = serializers.DictField(required=False, write_only=True)
     
     class Meta:
         model = Zone
-        fields = ['name', 'description', 'bounds', 'coordinates']
+        fields = ['name', 'description', 'coordinates', 'bounds_geojson']
 
     def validate(self, data):
         """
         Validación general del serializer.
         """
-        # Verificar que se proporcione al menos una forma de definir los límites
-        if not data.get('bounds') and not data.get('coordinates'):
+        # Debe proporcionar al menos una forma de definir los límites
+        if not data.get('bounds_geojson') and not data.get('coordinates'):
             raise serializers.ValidationError("Debe proporcionar 'bounds' o 'coordinates'.")
+
+        # Validación de GeoJSON si se proporciona
+        geo = data.get('bounds_geojson')
+        if geo is not None:
+            if not isinstance(geo, dict) or geo.get('type') != 'Polygon':
+                raise serializers.ValidationError({'bounds_geojson': 'Debe ser GeoJSON tipo Polygon'})
+            coords = geo.get('coordinates')
+            if not isinstance(coords, list) or len(coords) == 0:
+                raise serializers.ValidationError({'bounds_geojson': 'GeoJSON debe incluir coordinates'})
+            ring = coords[0]
+            if not isinstance(ring, list) or len(ring) < 3:
+                raise serializers.ValidationError({'bounds_geojson': 'Se requieren al menos 3 coordenadas'})
+            # Asegurar cierre
+            if ring[0] != ring[-1]:
+                ring.append(ring[0])
+            # Reasignar el ring ajustado
+            geo['coordinates'] = [ring]
+            data['bounds_geojson'] = geo
         
         return data
 
@@ -210,13 +229,21 @@ class ZoneCreateSerializer(serializers.ModelSerializer):
         Crear zona convirtiendo coordenadas a GeoDjango geometry.
         """
         coordinates = validated_data.pop('coordinates', None)
-        
-        if coordinates:
-            # Convertir coordenadas a formato GeoJSON
+        geo = validated_data.pop('bounds_geojson', None)
+
+        if geo:
+            validated_data['bounds'] = GEOSGeometry(json.dumps(geo))
+        elif coordinates:
             geojson = {
                 "type": "Polygon",
-                "coordinates": [coordinates]  # GeoJSON Polygon requiere array de arrays
+                "coordinates": [coordinates]
             }
-            validated_data['bounds'] = GEOSGeometry(str(geojson))
-        
+            validated_data['bounds'] = GEOSGeometry(json.dumps(geojson))
+
         return super().create(validated_data)
+
+    def save(self, **kwargs):
+        # Asegurar validación implícita si el test llama save() directamente
+        if not hasattr(self, '_errors'):
+            self.is_valid(raise_exception=True)
+        return super().save(**kwargs)

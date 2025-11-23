@@ -7,16 +7,17 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DistanceFunction
 from django.db.models import Q, Count, Avg
-from .models import Property, PropertyView, PropertyViewEvent
+from .models import Property, PropertyView, PropertyViewEvent, PropertyOccupancy
 from .serializers import (
     PropertySerializer, PropertyGeoSerializer, PropertyCreateSerializer,
-    PropertyMapSerializer, PropertySearchSerializer, RoomieSeekerPropertySerializer
+    PropertyMapSerializer, PropertySearchSerializer, RoomieSeekerPropertySerializer, PropertyOccupancySerializer
 )
 from zone.models import Zone
 from bk_habitto.mixins import MessageConfigMixin
 from matching.models import SearchProfile
 from utils.matching import calculate_property_match_score, create_property_matches_for_profile
 from django.conf import settings
+from django.utils import timezone
 
 class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """
@@ -497,6 +498,84 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         qs = PropertyView.objects.filter(user=request.user).select_related('property').order_by('-last_viewed')
         data = [{'property_id': v.property_id, 'count': v.count, 'last_viewed': v.last_viewed} for v in qs]
         return Response({'count': qs.count(), 'results': data})
+
+    @action(detail=True, methods=['post'], url_path='occupy', permission_classes=[IsAuthenticated])
+    def occupy(self, request, pk=None):
+        prop = self.get_object()
+        if not (prop.owner_id == request.user.id or (prop.agent_id and prop.agent_id == request.user.id)):
+            return Response({'error': 'No tiene permisos para ocupar esta propiedad'}, status=status.HTTP_403_FORBIDDEN)
+        tenant_id = request.data.get('tenant_id')
+        if not tenant_id:
+            return Response({'error': 'Se requiere tenant_id'}, status=status.HTTP_400_BAD_REQUEST)
+        from django.contrib.auth.models import User
+        try:
+            tenant = User.objects.get(id=tenant_id)
+        except User.DoesNotExist:
+            return Response({'error': 'Inquilino no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        active = PropertyOccupancy.objects.filter(property=prop, status='occupied').first()
+        if active:
+            return Response({'error': 'La propiedad ya está ocupada'}, status=status.HTTP_400_BAD_REQUEST)
+        occ = PropertyOccupancy.objects.create(
+            property=prop,
+            tenant=tenant,
+            owner=prop.owner,
+            agent=prop.agent,
+            created_by=request.user,
+            status='occupied'
+        )
+        prop.is_available = False
+        prop.save(update_fields=['is_available'])
+        data = PropertyOccupancySerializer(occ).data
+        resp = Response({'occupancy': data, 'property_id': prop.id})
+        self.set_response_message(resp, 'Propiedad marcada como ocupada')
+        return resp
+
+    @action(detail=True, methods=['post'], url_path='vacate', permission_classes=[IsAuthenticated])
+    def vacate(self, request, pk=None):
+        prop = self.get_object()
+        if not (prop.owner_id == request.user.id or (prop.agent_id and prop.agent_id == request.user.id)):
+            return Response({'error': 'No tiene permisos para desocupar esta propiedad'}, status=status.HTTP_403_FORBIDDEN)
+        occ = PropertyOccupancy.objects.filter(property=prop, status='occupied').order_by('-start_date').first()
+        if not occ:
+            return Response({'error': 'No hay ocupación activa'}, status=status.HTTP_400_BAD_REQUEST)
+        occ.status = 'vacated'
+        occ.end_date = timezone.now()
+        rt = request.data.get('rating_tenant_by_owner')
+        ro = request.data.get('rating_owner_by_tenant')
+        cto = request.data.get('comment_tenant_by_owner')
+        cot = request.data.get('comment_owner_by_tenant')
+        if rt is not None:
+            try:
+                occ.rating_tenant_by_owner = int(rt)
+            except Exception:
+                pass
+        if ro is not None:
+            try:
+                occ.rating_owner_by_tenant = int(ro)
+            except Exception:
+                pass
+        if cto is not None:
+            occ.comment_tenant_by_owner = cto
+        if cot is not None:
+            occ.comment_owner_by_tenant = cot
+        occ.save()
+        prop.is_available = True
+        prop.save(update_fields=['is_available'])
+        data = PropertyOccupancySerializer(occ).data
+        resp = Response({'occupancy': data, 'property_id': prop.id})
+        self.set_response_message(resp, 'Propiedad desocupada exitosamente')
+        return resp
+
+    @action(detail=True, methods=['get'], url_path='occupancy_history', permission_classes=[IsAuthenticated])
+    def occupancy_history(self, request, pk=None):
+        prop = self.get_object()
+        if not (prop.owner_id == request.user.id or (prop.agent_id and prop.agent_id == request.user.id)):
+            return Response({'error': 'No tiene permisos para ver el historial'}, status=status.HTTP_403_FORBIDDEN)
+        qs = PropertyOccupancy.objects.filter(property=prop).order_by('-start_date')
+        serializer = PropertyOccupancySerializer(qs, many=True)
+        resp = Response({'count': qs.count(), 'results': serializer.data})
+        self.set_response_message(resp, 'Historial de ocupación obtenido')
+        return resp
 
     @action(detail=True, methods=['post'], url_path='like', permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):

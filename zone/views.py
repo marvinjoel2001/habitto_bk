@@ -309,7 +309,7 @@ class ZoneViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         
         try:
             point = Point(float(lng), float(lat))
-            zone = Zone.objects.filter(bounds__contains=point).first()
+            zone = Zone.objects.filter(bounds__contains=point).order_by('-created_at').first()
             
             if zone:
                 serializer = ZoneSerializer(zone)

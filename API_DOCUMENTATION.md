@@ -770,6 +770,15 @@ Además, las respuestas de propiedades incluyen el campo `main_photo` con la URL
   ```
   - Si la propiedad no tiene fotos, `main_photo` será `null`.
 
+## 4.2. Campo `is_available` en Propiedades
+
+- **Descripción**: Indica si la propiedad está disponible para alquilar (`true`) o ocupada (`false`).
+- **Origen**: Campo gestionado por los endpoints de ocupación.
+- **Dónde aparece**: En las respuestas de propiedades, incluido `GET /api/properties/geojson/`.
+- **Cómo se modifica**:
+  - `POST /api/properties/{id}/occupy/` establece `is_available=false`.
+  - `POST /api/properties/{id}/vacate/` establece `is_available=true`.
+
 
 ## 5. Endpoints de Amenidades (`/api/amenities/`)
 
@@ -1598,11 +1607,12 @@ Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de merca
 - **Descripción**: Crea una nueva zona (solo administradores).
 - **Autenticación**: Requerida (solo administradores).
 - **Request Body**:
+  - Opción A (GeoJSON):
   ```json
   {
     "name": "Zona Norte",
     "description": "Zona residencial al norte de la ciudad",
-    "bounds": {
+    "bounds_geojson": {
       "type": "Polygon",
       "coordinates": [[
         [-63.1821, -17.7834],
@@ -1612,6 +1622,19 @@ Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de merca
         [-63.1821, -17.7834]
       ]]
     }
+  }
+  ```
+  - Opción B (array de coordenadas `[lng, lat]`; el backend auto-cierra el polígono):
+  ```json
+  {
+    "name": "Zona Norte",
+    "coordinates": [
+      [-63.1821, -17.7834],
+      [-63.1800, -17.7834],
+      [-63.1800, -17.7800],
+      [-63.1821, -17.7800],
+      [-63.1821, -17.7834]
+    ]
   }
   ```
 - **Response (201 Created)**:
@@ -1648,8 +1671,7 @@ Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de merca
       "success": false,
       "message": "Datos inválidos",
       "data": {
-        "name": ["Este campo es requerido."],
-        "bounds": ["Formato de coordenadas inválido."]
+        "bounds_geojson": ["Debe ser GeoJSON tipo Polygon"]
       }
     }
     ```
@@ -1665,6 +1687,7 @@ Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de merca
 ### `GET /api/zones/{id}/`
 - **Descripción**: Obtiene detalles de una zona específica.
 - **Autenticación**: No requerida.
+- **Nota**: El polígono `bounds` se expone en `GET /api/zones/geojson/`.
 - **Response (200 OK)**:
   ```json
   {
@@ -1674,10 +1697,6 @@ Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de merca
       "id": 1,
       "name": "Centro",
       "description": "Zona céntrica de la ciudad",
-      "bounds": {
-        "type": "Polygon",
-        "coordinates": [...]
-      },
       "offer_count": 15,
       "demand_count": 25,
       "avg_price": "1200.00",
@@ -2797,7 +2816,7 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   - `preferred_zones` (opcional): Array de IDs de zonas preferidas
   - Campos adicionales para mejorar el matching:
     - `age` (opcional): Edad
-    - `children_count` (opcional): Número de hijos
+  - `children_count` (opcional): Número de hijos
     - `family_size` (opcional): Tamaño del grupo familiar
     - `smoker` (opcional): Si fuma
     - `gender` (opcional): `male` | `female` | `other`
@@ -3185,5 +3204,95 @@ Notas de actualización en tiempo real:
   "is_verified": false
 }
 ```
+
+## 11. Endpoints de Ocupación de Propiedades (`/api/properties/{id}/occupy/`, `/api/properties/{id}/vacate/`, `/api/properties/{id}/occupancy_history/`)
+
+### `POST /api/properties/{id}/occupy/`
+- Descripción: Marca una propiedad como ocupada por un inquilino y crea un registro de ocupación.
+- Autenticación: Requerida. Permisos: solo propietario de la propiedad o su agente asignado.
+- Request Body:
+```json
+{
+  "tenant_id": 42
+}
+```
+- Response (200 OK):
+```json
+{
+  "success": true,
+  "message": "Propiedad marcada como ocupada",
+  "data": {
+    "occupancy": {
+      "id": 1,
+      "property": 10,
+      "tenant": 42,
+      "owner": 7,
+      "agent": null,
+      "status": "occupied",
+      "start_date": "2025-11-23T10:00:00Z"
+    },
+    "property_id": 10
+  }
+}
+```
+- Errores comunes:
+  - 403 Forbidden: usuario no es propietario ni agente de la propiedad
+  - 400 Bad Request: propiedad ya ocupada o falta `tenant_id`
+  - 404 Not Found: `tenant_id` inexistente
+
+### `POST /api/properties/{id}/vacate/`
+- Descripción: Marca la propiedad como desocupada, cierra la ocupación activa y registra calificaciones.
+- Autenticación: Requerida. Permisos: solo propietario de la propiedad o su agente asignado.
+- Request Body (opcional):
+```json
+{
+  "rating_tenant_by_owner": 5,
+  "rating_owner_by_tenant": 4,
+  "comment_tenant_by_owner": "Excelente inquilino",
+  "comment_owner_by_tenant": "Buena experiencia"
+}
+```
+- Response (200 OK):
+```json
+{
+  "success": true,
+  "message": "Propiedad desocupada exitosamente",
+  "data": {
+    "occupancy": {
+      "id": 1,
+      "status": "vacated",
+      "end_date": "2025-11-23T11:00:00Z",
+      "rating_tenant_by_owner": 5,
+      "rating_owner_by_tenant": 4
+    },
+    "property_id": 10
+  }
+}
+```
+- Efectos colaterales: la propiedad queda `is_available=true`.
+- Errores comunes:
+  - 400 Bad Request: no existe ocupación activa
+  - 403 Forbidden: usuario sin permisos
+
+### `GET /api/properties/{id}/occupancy_history/`
+- Descripción: Lista el historial de ocupaciones de la propiedad.
+- Autenticación: Requerida. Permisos: propietario o agente asignado.
+- Response (200 OK):
+```json
+{
+  "success": true,
+  "message": "Historial de ocupación obtenido",
+  "data": {
+    "count": 2,
+    "results": [
+      { "id": 1, "status": "vacated", "tenant": 42, "start_date": "...", "end_date": "..." },
+      { "id": 2, "status": "occupied", "tenant": 55, "start_date": "...", "end_date": null }
+    ]
+  }
+}
+```
+- Notas:
+  - `is_available` en `Property` refleja disponibilidad actual.
+  - Las calificaciones almacenan evaluación del inquilino y del propietario.
 
 
