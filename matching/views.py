@@ -166,6 +166,7 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
         'pending_requests': 'Solicitudes de match pendientes obtenidas exitosamente',
         'owner_accept': 'Match aceptado por propietario/agente',
         'owner_reject': 'Match rechazado por propietario/agente',
+        'my': 'Matches del usuario obtenidos exitosamente',
     }
 
     @action(detail=True, methods=['post'])
@@ -315,6 +316,28 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
             return self.get_paginated_response(page)
         resp = Response(results)
         self.set_response_message(resp, 'Solicitudes de match pendientes obtenidas exitosamente')
+        return resp
+
+    @action(detail=False, methods=['get'], url_path='my')
+    def my(self, request):
+        """
+        Lista los matches del usuario autenticado (por token),
+        con filtros opcionales `type` (property|roommate|agent) y `status` (pending|accepted|rejected).
+        """
+        match_type = request.query_params.get('type')
+        status_filter = request.query_params.get('status')
+        qs = Match.objects.filter(target_user=request.user).order_by('-score', '-created_at')
+        if match_type in ['property', 'roommate', 'agent']:
+            qs = qs.filter(match_type=match_type)
+        if status_filter in ['pending', 'accepted', 'rejected']:
+            qs = qs.filter(status=status_filter)
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = MatchSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = MatchSerializer(qs, many=True)
+        resp = Response(serializer.data)
+        self.set_response_message(resp, 'Matches del usuario obtenidos exitosamente')
         return resp
 
     @action(detail=True, methods=['post'], url_path='owner_accept')

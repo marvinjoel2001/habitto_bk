@@ -69,3 +69,20 @@ class NotificationAPITestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Notification.objects.count(), 0)
+
+    def test_my_notifications_aggregate(self):
+        self.client.force_authenticate(user=self.user)
+        from message.models import Message
+        from matching.models import Match, MatchFeedback
+        from property.models import Property
+        other = User.objects.create_user(username='other', email='o@example.com', password='x')
+        Message.objects.create(sender=other, receiver=self.user, content='Hola')
+        prop = Property.objects.create(owner=self.user, type='casa', address='Calle Test', price='1000.00', description='Desc')
+        match = Match.objects.create(match_type='property', subject_id=prop.id, target_user=other, score=82.5, metadata={}, status='pending')
+        MatchFeedback.objects.create(match=match, user=other, feedback_type='like')
+        url = reverse('notification-my')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('notifications', response.data)
+        self.assertIn('messages', response.data)
+        self.assertIn('likes', response.data)

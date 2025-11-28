@@ -2472,10 +2472,9 @@ Gestiona las reseñas y calificaciones de propiedades.
 Gestiona las notificaciones del sistema para los usuarios.
 
 ### `GET /api/notifications/`
-- **Descripción**: Obtiene una lista paginada de notificaciones.
+- **Descripción**: Devuelve SOLO las notificaciones del usuario autenticado, ordenadas por `created_at` descendente.
 - **Autenticación**: Requerida.
 - **Parámetros de consulta**:
-  - `user`: Filtra por ID de usuario
   - `is_read`: Filtra por estado de lectura (`true`/`false`)
 - **Response (200 OK)**:
   ```json
@@ -2489,14 +2488,14 @@ Gestiona las notificaciones del sistema para los usuarios.
       "results": [
         {
           "id": 1,
-          "user": 1,
+          "user": 7,
           "message": "Has recibido un nuevo mensaje de Juan sobre la propiedad en Calle Falsa 123",
           "is_read": false,
           "created_at": "2025-10-22T10:00:00Z"
         },
         {
           "id": 2,
-          "user": 1,
+          "user": 7,
           "message": "Tu pago de alquiler vence en 3 días",
           "is_read": true,
           "created_at": "2025-10-22T09:00:00Z"
@@ -2835,6 +2834,22 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   - `POST /api/matches/{id}/accept/`: Acepta un match y crea notificación/mensaje.
   - `POST /api/matches/{id}/reject/`: Rechaza un match y almacena feedback opcional.
 
+### `GET /api/matches/my/?type=property|roommate|agent&status=pending|accepted|rejected`
+- **Descripción**: Lista los matches del usuario autenticado directamente por token (sin necesidad de `search_profile_id`).
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `type` (opcional): `property` (por defecto), `roommate`, `agent`
+  - `status` (opcional): `pending`, `accepted`, `rejected`
+- **Response (200 OK)**: Respuesta paginada estándar si aplica (`count`, `next`, `previous`, `results`).
+
+### `POST /api/properties/{id}/like/`
+- **Descripción**: Un inquilino indica interés (“me gusta”) sobre una propiedad; crea/actualiza el `Match` correspondiente (`match_type=property`, `subject_id=<id>`, `target_user=<tenant>`), registra `MatchFeedback` con `feedback_type=like`, envía `Message` y `Notification` al propietario, y emite notificación WebSocket.
+- **Autenticación**: Requerida (inquilino).
+- **Response (200 OK)**:
+```json
+{ "status": "pending", "match_id": 123, "score": 82.0 }
+```
+
 ### `POST /api/match_feedback/`
 - **Descripción**: Envía feedback sobre un match (`like`, `dislike`, `neutral`) con razón opcional.
 - **Autenticación**: Requerida.
@@ -2902,7 +2917,7 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   ```
 
 ### Flujo de "Like" y almacenamiento
-- Para registrar interés sin aceptar todavía, usa `POST /api/matches/{id}/like/`.
+- Para registrar interés sin aceptar todavía, puedes usar `POST /api/properties/{id}/like/` (recomendado desde la vista de propiedad) o `POST /api/matches/{id}/like/` si ya existe el match.
 - Al hacer "like":
   - Se guarda `MatchFeedback` con `feedback_type=like`.
   - Si el match es de tipo `property`, se crea un `Message` automático al propietario y una `Notification` para el propietario.
@@ -3186,4 +3201,40 @@ Notas de actualización en tiempo real:
 }
 ```
 
-
+### `GET /api/notifications/my/`
+- **Descripción**: Agregado que identifica al usuario autenticado y devuelve:
+  - `notifications`: lista de sus notificaciones.
+  - `messages`: últimos mensajes recibidos y conteo de no leídos.
+  - `likes`: likes realizados por otros usuarios en sus propiedades.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificaciones del usuario obtenidas exitosamente",
+    "data": {
+      "notifications": [
+        { "id": 10, "message": "Interés en tu propiedad", "is_read": false, "created_at": "2025-11-26T10:00:00Z" }
+      ],
+      "messages": {
+        "count": 3,
+        "unread_count": 2,
+        "latest": [
+          { "id": 101, "sender": 5, "receiver": 7, "content": "Hola", "created_at": "2025-11-26T09:59:00Z", "is_read": false }
+        ]
+      },
+      "likes": {
+        "count": 1,
+        "results": [
+          {
+            "property_id": 45,
+            "property_title": "departamento en Calle Falsa 123",
+            "liker": { "id": 5, "username": "juan" },
+            "score": 82.5,
+            "created_at": "2025-11-26T09:58:00Z"
+          }
+        ]
+      }
+    }
+  }
+  ```

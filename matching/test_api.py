@@ -90,6 +90,19 @@ class MatchingAPITestCase(APITestCase):
         # Notificar también al propietario que hay interés
         self.assertTrue(Notification.objects.filter(user=owner_user, message__icontains='interesado en tu propiedad').exists())
 
+    def test_my_matches_endpoint(self):
+        # Crear perfil y propiedad que genere un match
+        sp = SearchProfile.objects.create(user=self.user, location=Point(-63.1821, -17.7834), budget_min=Decimal('400.00'), budget_max=Decimal('800.00'))
+        owner_user = User.objects.create_user(username='owner2', email='owner2@example.com', password='ownerpass123')
+        prop = Property.objects.create(owner=owner_user, type='departamento', address='Z', location=Point(-63.1821, -17.7834), price=Decimal('600.00'), description='Prop Z', bedrooms=1, bathrooms=1)
+        Match.objects.create(match_type='property', subject_id=prop.id, target_user=self.user, score=80.0, metadata={})
+        # Consultar matches del usuario autenticado vía token
+        resp = self.client.get('/api/matches/my/?type=property&status=pending')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.data
+        items = data.get('results') if isinstance(data, dict) else data
+        self.assertTrue(items, msg='Debe retornar al menos un match')
+
     def test_recommendations_mixed(self):
         # Crear perfil del usuario y datos que generen recomendaciones
         sp = SearchProfile.objects.create(
