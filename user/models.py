@@ -80,3 +80,21 @@ class ProfilePictureHistory(models.Model):
 
     def __str__(self):
         return f"{self.user_profile.user.username} - {self.uploaded_at}"
+
+
+class Block(models.Model):
+    """
+    Relación de bloqueo entre usuarios. Si A bloquea a B, se debe evitar interacción y visibilidad en ambos sentidos.
+    """
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocks_made')
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blocks_received')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('blocker', 'blocked')
+        indexes = [
+            models.Index(fields=['blocker', 'blocked']),
+        ]
+
+    def __str__(self):
+        return f"{self.blocker.username} bloqueó a {self.blocked.username}"

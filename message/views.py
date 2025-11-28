@@ -8,6 +8,7 @@ from django.utils import timezone
 from bk_habitto.mixins import MessageConfigMixin
 from .models import Message
 from .serializers import MessageSerializer
+from user.models import Block
 
 class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     queryset = Message.objects.all().order_by('-created_at')
@@ -40,9 +41,11 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         include_messages = str(include_messages_param).lower() in ['1', 'true', 'yes']
         messages_page = int(request.query_params.get('messages_page') or 1)
         messages_page_size = int(request.query_params.get('messages_page_size') or 50)
+        # Excluir conversaciones con usuarios bloqueados en ambos sentidos
+        blocked_ids = set(Block.objects.filter(blocker=user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=user).values_list('blocker_id', flat=True))
         msgs = Message.objects.filter(
             Q(sender=user, deleted_for_sender=False) | Q(receiver=user, deleted_for_receiver=False)
-        ).select_related('sender', 'receiver').order_by('-created_at')
+        ).exclude(Q(sender_id__in=blocked_ids) | Q(receiver_id__in=blocked_ids)).select_related('sender', 'receiver').order_by('-created_at')
         conv_map = {}
         results = []
         for m in msgs:
@@ -179,3 +182,16 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         ).update(deleted_for_receiver=True)
 
         return Response({'status': 'ok', 'updated_sender': updated_sender, 'updated_receiver': updated_receiver})
+        # Bloqueo bidireccional
+        if Block.objects.filter(blocker=user, blocked_id=other_id).exists() or Block.objects.filter(blocked=user, blocker_id=other_id).exists():
+            return Response({'detail': 'Conversación bloqueada'}, status=status.HTTP_403_FORBIDDEN)
+    def create(self, request, *args, **kwargs):
+        # Impedir envío si hay bloqueo en ambos sentidos
+        receiver_id = request.data.get('receiver')
+        try:
+            receiver_id = int(receiver_id)
+        except (TypeError, ValueError):
+            return super().create(request, *args, **kwargs)  # dejar validación estándar
+        if Block.objects.filter(blocker=request.user, blocked_id=receiver_id).exists() or Block.objects.filter(blocked=request.user, blocker_id=receiver_id).exists():
+            return Response({'detail': 'No puede enviar mensajes a este usuario (bloqueo activo).'}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)

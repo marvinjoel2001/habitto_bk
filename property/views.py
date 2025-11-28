@@ -63,6 +63,15 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             return queryset.filter(is_active=True)
         
         user_type = getattr(self.request.user, 'user_type', 'inquilino')
+
+        # Excluir propiedades de usuarios bloqueados (bidireccional)
+        try:
+            from user.models import Block
+            blocked_ids = set(Block.objects.filter(blocker=self.request.user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=self.request.user).values_list('blocker_id', flat=True))
+            if blocked_ids:
+                queryset = queryset.exclude(owner_id__in=list(blocked_ids))
+        except Exception:
+            pass
         
         if user_type == 'inquilino':
             # Inquilinos solo ven propiedades activas
@@ -584,6 +593,13 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='like', permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
         obj = self.get_object()
+        # Impedir like si existe bloqueo entre usuarios
+        try:
+            from user.models import Block
+            if Block.objects.filter(blocker=request.user, blocked=obj.owner).exists() or Block.objects.filter(blocked=request.user, blocker=obj.owner).exists():
+                return Response({'detail': 'No puede indicar interés en propiedades de este usuario (bloqueo activo).'}, status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            pass
         profile = SearchProfile.objects.filter(user=request.user).first()
         from matching.models import Match, MatchFeedback
         # Calcular score y crear/actualizar match independientemente del umbral

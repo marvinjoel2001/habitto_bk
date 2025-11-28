@@ -15,6 +15,7 @@ from utils.matching import (
 )
 from property.models import Property
 from property.serializers import RoomieSeekerPropertySerializer
+from user.models import Block
 
 
 class SearchProfileViewSet(MessageConfigMixin, viewsets.ModelViewSet):
@@ -62,6 +63,15 @@ class SearchProfileViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             create_agent_matches_for_profile(profile)
 
         qs = Match.objects.filter(target_user=profile.user, match_type=match_type).order_by('-score')
+        # Excluir matches con usuarios bloqueados y propiedades de dueños bloqueados
+        blocked_ids = set(Block.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=request.user).values_list('blocker_id', flat=True))
+        if blocked_ids:
+            if match_type in ['roommate', 'agent']:
+                qs = qs.exclude(target_user_id__in=list(blocked_ids))
+            if match_type == 'property':
+                prop_ids = list(Property.objects.filter(owner_id__in=list(blocked_ids)).values_list('id', flat=True))
+                if prop_ids:
+                    qs = qs.exclude(subject_id__in=prop_ids)
         if status_filter in ['pending', 'accepted', 'rejected']:
             qs = qs.filter(status=status_filter)
         page = self.paginate_queryset(qs)
@@ -481,16 +491,27 @@ class RecommendationViewSet(MessageConfigMixin, viewsets.ViewSet):
         if rec_type in ['mixed', 'property']:
             create_property_matches_for_profile(profile)
             pmatches = Match.objects.filter(target_user=request.user, match_type='property').order_by('-score')[:20]
+            blocked_ids = set(Block.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=request.user).values_list('blocker_id', flat=True))
+            if blocked_ids:
+                prop_ids = list(Property.objects.filter(owner_id__in=list(blocked_ids)).values_list('id', flat=True))
+                if prop_ids:
+                    pmatches = pmatches.exclude(subject_id__in=prop_ids)
             results.extend([{'type': 'property', 'match': MatchSerializer(m).data} for m in pmatches])
 
         if rec_type in ['mixed', 'roommate']:
             create_roommate_matches_for_profile(profile)
             rmatches = Match.objects.filter(target_user=request.user, match_type='roommate').order_by('-score')[:20]
+            blocked_ids = set(Block.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=request.user).values_list('blocker_id', flat=True))
+            if blocked_ids:
+                rmatches = rmatches.exclude(target_user_id__in=list(blocked_ids))
             results.extend([{'type': 'roommate', 'match': MatchSerializer(m).data} for m in rmatches])
 
         if rec_type in ['mixed', 'agent']:
             create_agent_matches_for_profile(profile)
             amatches = Match.objects.filter(target_user=request.user, match_type='agent').order_by('-score')[:20]
+            blocked_ids = set(Block.objects.filter(blocker=request.user).values_list('blocked_id', flat=True)) | set(Block.objects.filter(blocked=request.user).values_list('blocker_id', flat=True))
+            if blocked_ids:
+                amatches = amatches.exclude(target_user_id__in=list(blocked_ids))
             results.extend([{'type': 'agent', 'match': MatchSerializer(m).data} for m in amatches])
 
         resp = Response({'results': results})

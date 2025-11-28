@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.contrib.auth.models import User
 from .models import UserProfile, ProfilePictureHistory
+from .models import Block
 from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer, ProfilePictureHistorySerializer
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -70,6 +71,10 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             user_obj = User.objects.get(id=int(user_id))
         except (User.DoesNotExist, ValueError, TypeError):
             return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verificar bloqueo en ambos sentidos
+        if Block.objects.filter(blocker=request.user, blocked=user_obj).exists() or Block.objects.filter(blocker=user_obj, blocked=request.user).exists():
+            return Response({'detail': 'Acceso bloqueado'}, status=status.HTTP_403_FORBIDDEN)
         try:
             profile = UserProfile.objects.get(user=user_obj)
         except UserProfile.DoesNotExist:
@@ -96,6 +101,48 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             'is_verified': profile.is_verified,
         }
         return Response(data)
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def block(self, request):
+        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
+        if not other_id:
+            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            other = User.objects.get(id=int(other_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        if other.id == request.user.id:
+            return Response({'detail': 'No puede bloquearse a sí mismo'}, status=status.HTTP_400_BAD_REQUEST)
+        Block.objects.get_or_create(blocker=request.user, blocked=other)
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message=f'Has bloqueado a {other.username}.')
+        except Exception:
+            pass
+        return Response({'status': 'blocked', 'other_user_id': other.id})
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def unblock(self, request):
+        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
+        if not other_id:
+            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            other = User.objects.get(id=int(other_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        Block.objects.filter(blocker=request.user, blocked=other).delete()
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message=f'Has desbloqueado a {other.username}.')
+        except Exception:
+            pass
+        return Response({'status': 'unblocked', 'other_user_id': other.id})
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def blocked(self, request):
+        qs = Block.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
+        results = [{'id': b.blocked.id, 'username': b.blocked.username, 'first_name': b.blocked.first_name, 'last_name': b.blocked.last_name} for b in qs]
+        return Response({'count': len(results), 'results': results})
 
     @action(detail=False, methods=['put', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def update_me(self, request):

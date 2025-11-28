@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import UserProfile
+from .models import Block
 
 
 class UserAPITestCase(APITestCase):
@@ -157,6 +158,39 @@ class UserProfileAPITestCase(APITestCase):
         response = self.client.post(url, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('is_verified'))
+
+    def test_block_user_prevents_profile_access_and_messages(self):
+        other = User.objects.create_user(username='other', email='o@example.com', password='x')
+        # crear perfiles
+        UserProfile.objects.create(user=other)
+        self.client.force_authenticate(user=self.user)
+        # bloquear
+        resp = self.client.post(reverse('userprofile-block'), {'other_user_id': other.id}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # acceso a perfil bloqueado
+        resp2 = self.client.get(reverse('userprofile-by-user', kwargs={'user_id': other.id}))
+        self.assertEqual(resp2.status_code, status.HTTP_403_FORBIDDEN)
+        # enviar mensaje
+        from message.models import Message
+        self.client.force_authenticate(user=self.user)
+        resp3 = self.client.post(reverse('message-list'), {'sender': self.user.id, 'receiver': other.id, 'content': 'Hola'}, format='json')
+        self.assertEqual(resp3.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_block_user_filters_properties(self):
+        other = User.objects.create_user(username='ownerB', email='b@example.com', password='x')
+        from property.models import Property
+        from django.contrib.gis.geos import Point
+        from decimal import Decimal
+        Property.objects.create(owner=other, type='casa', address='Block St', location=Point(-63.1821, -17.7834), price=Decimal('1000.00'), description='X', bedrooms=1, bathrooms=1)
+        self.client.force_authenticate(user=self.user)
+        # bloquear
+        self.client.post(reverse('userprofile-block'), {'other_user_id': other.id}, format='json')
+        # listar propiedades, debe excluir del owner bloqueado
+        resp = self.client.get(reverse('property-list'))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        results = resp.data.get('results') if isinstance(resp.data, dict) else resp.data
+        for item in results:
+            self.assertNotEqual(item.get('owner'), other.id)
         
     def test_delete_user_profile(self):
         """Test eliminar perfil"""

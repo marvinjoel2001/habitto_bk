@@ -3326,3 +3326,27 @@ Sistema para reportar perfiles de usuarios (propietarios, agentes, inquilinos) y
 - Validación estricta de entradas (tipos, obligatoriedad, longitud mínima).
 - Límite básico anti-abuso: máximo 10 reportes por hora.
 - Reportes y adjuntos asociados solo al reportante y personal autorizado.
+
+### Bloqueo de usuarios
+- `POST /api/profiles/block/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Efecto: el usuario autenticado bloquea a `<id>`. Se evita en ambos sentidos: no se podrán ver perfiles, propiedades del bloqueado, ni enviar/recibir mensajes.
+  - Respuesta: `{ "status": "blocked", "other_user_id": <id> }`
+- `POST /api/profiles/unblock/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Respuesta: `{ "status": "unblocked", "other_user_id": <id> }`
+- `GET /api/profiles/blocked/`
+  - Lista de usuarios bloqueados por el usuario autenticado.
+  - Respuesta: `{ "count": <n>, "results": [{ "id": <id>, "username": "..." }] }`
+
+### Efectos del bloqueo
+- Mensajería (`/api/messages/`):
+  - Enviar mensaje a un usuario bloqueado o que te bloqueó retorna `403`.
+  - Conversaciones y hilos excluyen usuarios bloqueados.
+- Propiedades (`/api/properties/`):
+  - Listados excluyen propiedades cuyo `owner` está bloqueado o te bloqueó.
+  - `POST /api/properties/{id}/like/` retorna `403` si el propietario está bloqueado.
+- Perfiles (`/api/profiles/by_user/<id>/`):
+  - Retorna `403` si existe bloqueo en cualquiera de los dos sentidos.
+- Matching/Recomendaciones:
+  - Matches y recomendaciones excluyen usuarios bloqueados y propiedades de dueños bloqueados.
