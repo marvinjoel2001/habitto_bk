@@ -131,6 +131,8 @@ Gestiona las propiedades inmobiliarias del sistema.
   - `page`: Número de página
   - `page_size`: Elementos por página
   - `match_score`: Umbral de score de matching (0–100). Si el usuario autenticado tiene `SearchProfile`, se devuelven solo propiedades con score >= `match_score` respecto a su perfil.
+  - `order_by_match`: Si está en `true`, ordena por mejor compatibilidad respecto al `SearchProfile` del usuario
+  - `include_own`: Cuando se usa `match_score` y/o `order_by_match`, por defecto se excluyen las propiedades del propio usuario; establece `include_own=true` para incluirlas en los resultados
 - **Response (200 OK)**:
   ```json
   {
@@ -373,7 +375,7 @@ Gestiona las propiedades inmobiliarias del sistema.
       "data": null
     }
     ```
- 
+
  - **Siguiente paso recomendado**:
    - Usa el `id` retornado para subir fotos de la propiedad:
      ```bash
@@ -3238,3 +3240,6 @@ Notas de actualización en tiempo real:
     }
   }
   ```
+**Nota sobre listados por compatibilidad**
+- Cuando el usuario autenticado solicita listados basados en compatibilidad (`match_score` y/o `order_by_match=true`), el sistema excluye por defecto las propiedades cuyo `owner` coincide con el usuario actual.
+- Para incluir estas propiedades propias en el mismo listado, añade `include_own=true` en la consulta.

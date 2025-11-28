@@ -7,6 +7,7 @@ from decimal import Decimal
 from .models import Property
 from amenity.models import Amenity
 from paymentmethod.models import PaymentMethod
+from matching.models import SearchProfile
 
 
 class PropertyAPITestCase(APITestCase):
@@ -191,3 +192,45 @@ class PropertyAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], nearby_property.id)
+
+    def test_match_listing_excludes_own_by_default(self):
+        self.client.force_authenticate(user=self.owner)
+        SearchProfile.objects.create(user=self.owner)
+        url = reverse('property-list')
+        response = self.client.get(url, {
+            'match_score': 0,
+            'order_by_match': 'true',
+            'page': 1,
+            'page_size': 50
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results') if isinstance(response.data, dict) else response.data
+        for item in results:
+            self.assertNotEqual(item.get('owner'), self.owner.id)
+
+    def test_match_listing_include_own_when_param_true(self):
+        other = User.objects.create_user(username='other_owner', email='o@example.com', password='x')
+        Property.objects.create(
+            owner=other,
+            type='departamento',
+            address='Otra Prop',
+            location=Point(-63.1822, -17.7835),
+            price=Decimal('1300.00'),
+            description='Otra',
+            bedrooms=2,
+            bathrooms=1
+        )
+        self.client.force_authenticate(user=self.owner)
+        SearchProfile.objects.create(user=self.owner)
+        url = reverse('property-list')
+        response = self.client.get(url, {
+            'match_score': 0,
+            'order_by_match': 'true',
+            'include_own': 'true',
+            'page': 1,
+            'page_size': 50
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results') if isinstance(response.data, dict) else response.data
+        owners = {item.get('owner') for item in results}
+        self.assertIn(self.owner.id, owners)

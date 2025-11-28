@@ -214,6 +214,10 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                             processed.append(item)
                     except Exception:
                         processed.append(item)
+                # Excluir propiedades propias por defecto cuando se usa match/order_by_match
+                include_own = str(request.query_params.get('include_own')).lower() in ['1', 'true', 'yes']
+                if not include_own:
+                    processed = [it for it in processed if it.get('owner') != request.user.id]
                 if order_by_match:
                     processed.sort(key=lambda x: x.get('_match_score', 0), reverse=True)
                 if isinstance(response.data, dict):
