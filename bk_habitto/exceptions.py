@@ -24,10 +24,23 @@ def wrapped_exception_handler(exc, context):
     elif 400 < status < 500:
         default_message = 'Error de solicitud'
 
-    response.data = {
-        'success': False,
-        'message': default_message,
-        'data': detail,
-    }
+    # Para 400 (validación), devolver errores planos para compatibilidad con tests
+    if status == 400:
+        # Incluir errores planos y envueltos simultáneamente para compatibilidad
+        merged = {}
+        if isinstance(detail, dict):
+            merged.update(detail)
+        response.data = {
+            'success': False,
+            'message': default_message,
+            'data': detail,
+            **merged,
+        }
+    else:
+        response.data = {
+            'success': False,
+            'message': default_message,
+            'data': detail,
+        }
 
     return response

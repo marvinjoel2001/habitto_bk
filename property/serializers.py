@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from django.contrib.gis.geos import Point
-from .models import Property
+from .models import Property, PropertyOccupancy
 from matching.serializers import AmenityFlexibleField, SearchProfileSerializer
 from matching.models import SearchProfile, RoommateRequest
 
@@ -210,7 +210,7 @@ class PropertyGeoSerializer(GeoFeatureModelSerializer):
         geo_field = 'location'
         fields = [
             'id', 'type', 'address', 'latitude', 'longitude', 'price', 'guarantee', 'description',
-            'size', 'bedrooms', 'bathrooms', 'is_active', 'zone_id', 'zone_name',
+            'size', 'bedrooms', 'bathrooms', 'is_active', 'is_available', 'zone_id', 'zone_name',
             'availability_date', 'created_at'
         ]
 
@@ -286,6 +286,13 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         if amenities_data is not None:
             obj.amenities.set(amenities_data)
         return obj
+
+
+class PropertyOccupancySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PropertyOccupancy
+        fields = '__all__'
+        read_only_fields = ['id', 'property', 'owner', 'agent', 'status', 'start_date', 'created_by', 'created_at', 'updated_at']
 
 
 class PropertyMapSerializer(serializers.ModelSerializer):

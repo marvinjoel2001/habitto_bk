@@ -1,8 +1,6 @@
 import json
 import logging
 from datetime import datetime
-from django.db import models
-from django.contrib.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -63,33 +61,6 @@ class WebSocketInteractionLogger:
         logger.error(f"WebSocket Error: {json.dumps(log_data)}")
 
 # Modelo opcional para persistir interacciones importantes
-class WebSocketInteraction(models.Model):
-    """
-    Modelo para persistir interacciones de WebSocket importantes
-    """
-    INTERACTION_TYPES = [
-        ('connection', 'Conexión'),
-        ('notification_sent', 'Notificación Enviada'),
-        ('notification_received', 'Notificación Recibida'),
-        ('error', 'Error'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='websocket_interactions')
-    interaction_type = models.CharField(max_length=50, choices=INTERACTION_TYPES)
-    data = models.JSONField(default=dict)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.TextField(blank=True)
-    
-    class Meta:
-        ordering = ['-timestamp']
-        indexes = [
-            models.Index(fields=['user', 'interaction_type']),
-            models.Index(fields=['timestamp']),
-        ]
-    
-    def __str__(self):
-        return f"{self.user.username} - {self.get_interaction_type_display()} - {self.timestamp}"
 
 # Funciones helper para usar en los consumers
 def log_websocket_connection(user, connection_type):

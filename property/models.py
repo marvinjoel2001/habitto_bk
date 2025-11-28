@@ -38,6 +38,7 @@ class Property(models.Model):
     amenities = models.ManyToManyField('amenity.Amenity', blank=True)
     availability_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -152,3 +153,26 @@ class PropertyViewEvent(models.Model):
 
     def __str__(self):
         return f"View {self.user_id}->{self.property_id} @ {self.created_at}"
+
+
+class PropertyOccupancy(models.Model):
+    property = models.ForeignKey('property.Property', on_delete=models.CASCADE, related_name='occupancies')
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tenancies')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner_occupancies')
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='agent_occupancies')
+    status = models.CharField(max_length=20, choices=(
+        ('occupied', 'Occupied'),
+        ('vacated', 'Vacated'),
+    ), default='occupied')
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_occupancies')
+    rating_tenant_by_owner = models.IntegerField(null=True, blank=True)
+    rating_owner_by_tenant = models.IntegerField(null=True, blank=True)
+    comment_tenant_by_owner = models.TextField(blank=True, null=True)
+    comment_owner_by_tenant = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.property_id}:{self.tenant_id}:{self.status}"

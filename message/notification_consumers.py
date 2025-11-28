@@ -13,11 +13,21 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
     """
     
     async def connect(self):
-        self.user_id = self.scope['url_route']['kwargs'].get('user_id')
-        self.user = self.scope['user']
+        self.user = self.scope.get('user')
+        # Obtener user_id desde url_route o parsear del path
+        try:
+            self.user_id = (self.scope.get('url_route') or {}).get('kwargs', {}).get('user_id')
+        except Exception:
+            self.user_id = None
+        if not self.user_id:
+            path = self.scope.get('path') or ''
+            # path esperado: /ws/property-notifications/<user_id>/
+            parts = [p for p in path.split('/') if p]
+            if parts:
+                self.user_id = parts[-1]
         
         # Verificar autenticación
-        if not self.user.is_authenticated:
+        if not self.user or not self.user.is_authenticated:
             await self.close()
             return
             
@@ -136,11 +146,19 @@ class TenantNotificationConsumer(AsyncWebsocketConsumer):
     """
     
     async def connect(self):
-        self.user_id = self.scope['url_route']['kwargs'].get('user_id')
-        self.user = self.scope['user']
+        self.user = self.scope.get('user')
+        try:
+            self.user_id = (self.scope.get('url_route') or {}).get('kwargs', {}).get('user_id')
+        except Exception:
+            self.user_id = None
+        if not self.user_id:
+            path = self.scope.get('path') or ''
+            parts = [p for p in path.split('/') if p]
+            if parts:
+                self.user_id = parts[-1]
         
         # Verificar autenticación
-        if not self.user.is_authenticated:
+        if not self.user or not self.user.is_authenticated:
             await self.close()
             return
             
