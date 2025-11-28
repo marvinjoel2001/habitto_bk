@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import UserProfile
 
 
@@ -139,6 +140,23 @@ class UserProfileAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.profile.refresh_from_db()
         self.assertTrue(self.profile.is_verified)
+
+    def test_submit_verification_marks_verified(self):
+        """Test verificación automática con documentos y selfie"""
+        self.client.force_authenticate(user=self.user)
+        url = reverse('userprofile-submit-verification')
+        front = SimpleUploadedFile('front.jpg', b'front', content_type='image/jpeg')
+        back = SimpleUploadedFile('back.jpg', b'back', content_type='image/jpeg')
+        selfie = SimpleUploadedFile('selfie.jpg', b'selfie', content_type='image/jpeg')
+        data = {
+            'id_front': front,
+            'id_back': back,
+            'selfie': selfie,
+            'document_number': 'CI-1234567'
+        }
+        response = self.client.post(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('is_verified'))
         
     def test_delete_user_profile(self):
         """Test eliminar perfil"""

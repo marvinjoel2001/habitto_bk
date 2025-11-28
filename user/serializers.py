@@ -67,7 +67,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['id', 'user', 'user_id', 'user_type', 'phone', 'profile_picture', 'is_verified', 'created_at', 'updated_at', 'favorites', 'picture_history']
+        fields = [
+            'id', 'user', 'user_id', 'user_type', 'phone', 'profile_picture', 'is_verified',
+            'id_card_front', 'id_card_back', 'selfie', 'document_number',
+            'created_at', 'updated_at', 'favorites', 'picture_history'
+        ]
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
 
     def create(self, validated_data):

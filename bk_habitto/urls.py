@@ -43,6 +43,8 @@ def api_root(request):
         'matches': '/api/matches/',
         'match_feedback': '/api/match_feedback/',
         'recommendations': '/api/recommendations/',
+        'reports': '/api/reports/',
+        'report_categories': '/api/report-categories/',
         }
     })
 
@@ -64,6 +66,7 @@ urlpatterns = [
     path('api/', include('incentive.urls')),
     path('api/', include('guarantee.urls')),
     path('api/', include('matching.urls')),
+    path('api/', include('report.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

@@ -124,6 +124,7 @@ INSTALLED_APPS = [
     'incentive',
     'guarantee',
     'matching',
+    'report',
     'django_extensions',
 ]
 

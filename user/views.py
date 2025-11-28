@@ -180,6 +180,49 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         profile.save()
         return Response({'status': 'verified'})
 
+    @action(detail=False, methods=['post'], url_path='submit_verification', permission_classes=[permissions.IsAuthenticated], parser_classes=[MultiPartParser, FormParser, JSONParser])
+    def submit_verification(self, request):
+        """
+        Verificación automática: recibe imágenes de carnet frontal/trasera, selfie y número de documento.
+        Marca el perfil como verificado al recibir los datos.
+        Campos (multipart/form-data):
+        - id_front (file)
+        - id_back (file)
+        - selfie (file)
+        - document_number (string)
+        """
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'El usuario no tiene un perfil creado'}, status=status.HTTP_404_NOT_FOUND)
+
+        id_front = request.FILES.get('id_front')
+        id_back = request.FILES.get('id_back')
+        selfie = request.FILES.get('selfie')
+        document_number = request.data.get('document_number')
+
+        updated_fields = []
+        if id_front is not None:
+            profile.id_card_front = id_front
+            updated_fields.append('id_card_front')
+        if id_back is not None:
+            profile.id_card_back = id_back
+            updated_fields.append('id_card_back')
+        if selfie is not None:
+            profile.selfie = selfie
+            updated_fields.append('selfie')
+        if document_number:
+            profile.document_number = document_number
+            updated_fields.append('document_number')
+
+        # Marcar como verificado automáticamente
+        profile.is_verified = True
+        updated_fields.append('is_verified')
+        profile.save(update_fields=updated_fields or ['is_verified'])
+
+        serializer = self.get_serializer(profile)
+        return Response(serializer.data)
+
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def add_favorite(self, request):
         """

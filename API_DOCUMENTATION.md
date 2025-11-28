@@ -113,7 +113,29 @@ curl -X GET http://localhost:8000/api/profiles/picture_history/ \
 - Formatos soportados: JPG, PNG, GIF, WEBP
 - Tamaño máximo recomendado: 5MB
 - Las URLs de las imágenes incluyen el dominio completo en las respuestas
-- Si no envías el token JWT, la API responde `401 Unauthorized`. Asegúrate de incluir `Authorization: Bearer <token>`.
+- **Si no envías el token JWT, la API responde `401 Unauthorized`. Asegúrate de incluir `Authorization: Bearer <token>`.
+
+### Envío de verificación automática
+- **Endpoint**: `POST /api/profiles/submit_verification/`
+- **Autenticación**: Requerida (JWT)
+- **Content-Type**: `multipart/form-data`
+- **Campos**:
+  - `id_front` (archivo): Foto frontal del documento de identidad (CI/Pasaporte)
+  - `id_back` (archivo): Foto trasera del documento de identidad
+  - `selfie` (archivo): Foto frontal del usuario
+  - `document_number` (string): Número de documento (CI/Pasaporte)
+- **Comportamiento actual**: Al recibir estos datos, el sistema marca el perfil como verificado (`is_verified: true`) automáticamente. En futuras versiones se agregará validación documental real.
+- **Ejemplo (curl)**:
+```bash
+curl -X POST http://localhost:8000/api/profiles/submit_verification/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: multipart/form-data" \
+  -F "id_front=@/ruta/a/ci_frontal.jpg" \
+  -F "id_back=@/ruta/a/ci_trasera.jpg" \
+  -F "selfie=@/ruta/a/selfie.jpg" \
+  -F "document_number=CI-1234567"
+```
+- **Respuesta (200 OK)**: Devuelve el `UserProfile` actualizado con `is_verified: true`.
 
 ## 3. Endpoints de Propiedades (`/api/properties/`)
 
@@ -3243,3 +3265,64 @@ Notas de actualización en tiempo real:
 **Nota sobre listados por compatibilidad**
 - Cuando el usuario autenticado solicita listados basados en compatibilidad (`match_score` y/o `order_by_match=true`), el sistema excluye por defecto las propiedades cuyo `owner` coincide con el usuario actual.
 - Para incluir estas propiedades propias en el mismo listado, añade `include_own=true` en la consulta.
+## 16. Endpoints de Reportes (`/api/reports/`, `/api/report-categories/`)
+
+Sistema para reportar perfiles de usuarios (propietarios, agentes, inquilinos) y propiedades (casas, departamentos, terrenos, otros).
+
+### `GET /api/report-categories/`
+- Descripción: Lista categorías activas de reportes.
+- Autenticación: Requerida.
+- Response (200 OK): arreglo con `{ id, name, scope, is_active }`.
+
+### `POST /api/reports/`
+- Descripción: Crea un reporte.
+- Autenticación: Requerida.
+- Body (JSON):
+```json
+{
+  "target_type": "property", // "user" o "property"
+  "target_property": 123,      // requerido si target_type = "property"
+  "target_user": 45,           // requerido si target_type = "user"
+  "category": 1,               // opcional
+  "title": "Dirección incorrecta",
+  "description": "La dirección no coincide con la realidad.",
+  "severity": "medium"         // opcional
+}
+```
+- Response (201 Created): reporte creado. Se envía una notificación al usuario confirmando recepción.
+- Validaciones:
+  - `title` obligatorio, `description` ≥ 10 caracteres.
+  - Uno y solo uno de `target_user` / `target_property` según `target_type`.
+  - Límite anti-abuso: máx. 10 reportes por hora por usuario.
+
+### `GET /api/reports/`
+- Descripción: Lista de reportes.
+- Autenticación: Requerida.
+- Permisos:
+  - Usuario normal: ve solo sus propios reportes.
+  - Admin (`is_staff`): ve todos los reportes.
+
+### `GET /api/reports/my/`
+- Descripción: Lista paginada de reportes enviados por el usuario autenticado.
+- Autenticación: Requerida.
+
+### `POST /api/reports/{id}/add_attachment/`
+- Descripción: Agrega un adjunto (archivo) al reporte.
+- Autenticación: Requerida.
+- Content-Type: `multipart/form-data`
+- Campos: `file` (requerido).
+
+### `POST /api/reports/{id}/update_status/`
+- Descripción: Actualiza el estado de un reporte (solo admin/staff).
+- Autenticación: Requerida.
+- Body:
+```json
+{ "status": "in_review", "admin_notes": "Se está revisando" }
+```
+- Estados permitidos: `submitted`, `in_review`, `resolved`, `rejected`.
+- Efectos: Se notifica al reportante el cambio de estado.
+
+### Consideraciones de seguridad
+- Validación estricta de entradas (tipos, obligatoriedad, longitud mínima).
+- Límite básico anti-abuso: máximo 10 reportes por hora.
+- Reportes y adjuntos asociados solo al reportante y personal autorizado.

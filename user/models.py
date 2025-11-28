@@ -23,6 +23,19 @@ def user_profile_picture_path(instance, filename):
     new_filename = f"user_{user_id}_{timestamp}_{unique_id}.{ext}"
     return os.path.join('profile_pictures', new_filename)
 
+def verification_document_path(instance, filename):
+    """
+    Ruta para almacenar documentos de verificación (CI/Pasaporte y selfie).
+    Incluye ID de usuario, timestamp y UUID para unicidad.
+    """
+    ext = filename.split('.')[-1].lower() if '.' in filename else 'jpg'
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    unique_id = str(uuid.uuid4())[:8]
+    user_obj = getattr(instance, 'user', None)
+    user_id = user_obj.id if user_obj else 'unknown'
+    new_filename = f"verify_{user_id}_{timestamp}_{unique_id}.{ext}"
+    return os.path.join('verification_docs', new_filename)
+
 class UserProfile(models.Model):
     USER_TYPE_CHOICES = (
         ('inquilino', 'Inquilino'),
@@ -34,6 +47,11 @@ class UserProfile(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    # Campos de verificación automática
+    id_card_front = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    id_card_back = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    selfie = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    document_number = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
