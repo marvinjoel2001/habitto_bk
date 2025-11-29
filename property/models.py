@@ -155,6 +155,27 @@ class PropertyViewEvent(models.Model):
         return f"View {self.user_id}->{self.property_id} @ {self.created_at}"
 
 
+class PropertyInteractionEvent(models.Model):
+    """
+    Eventos de interacción adicionales del usuario con propiedades (p.ej., 'volver atrás').
+    """
+    EVENT_CHOICES = (
+        ('back', 'Volver atrás'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='property_interaction_events')
+    property = models.ForeignKey('property.Property', on_delete=models.CASCADE, related_name='interaction_events')
+    event_type = models.CharField(max_length=20, choices=EVENT_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'event_type', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.event_type} {self.user_id}->{self.property_id} @ {self.created_at}"
+
+
 class PropertyOccupancy(models.Model):
     property = models.ForeignKey('property.Property', on_delete=models.CASCADE, related_name='occupancies')
     tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tenancies')

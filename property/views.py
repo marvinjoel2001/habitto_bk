@@ -680,3 +680,70 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         match.save(update_fields=['status', 'updated_at'])
         MatchFeedback.objects.create(match=match, user=request.user, feedback_type='dislike', reason=request.data.get('reason'))
         return Response({'status': 'rejected', 'match_id': match.id})
+    @action(detail=True, methods=['post'], url_path='back', permission_classes=[IsAuthenticated])
+    def back(self, request, pk=None):
+        """
+        Registra que el usuario hizo 'volver atrás' en una propiedad específica.
+        """
+        obj = self.get_object()
+        from .models import PropertyInteractionEvent
+        PropertyInteractionEvent.objects.create(user=request.user, property=obj, event_type='back')
+        return Response({'status': 'ok', 'property_id': obj.id, 'event': 'back'})
+
+    @action(detail=False, methods=['get'], url_path='interaction_stats', permission_classes=[IsAuthenticated])
+    def interaction_stats(self, request):
+        """
+        Estadísticas diarias de interacciones del usuario: vistas, 'volver atrás' y 'X' (dislike/reject).
+        Parámetro opcional: `date=YYYY-MM-DD` (por defecto hoy).
+        """
+        from datetime import datetime, timedelta
+        date_str = request.query_params.get('date')
+        try:
+            base_date = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else datetime.utcnow().date()
+        except ValueError:
+            base_date = datetime.utcnow().date()
+        start_dt = datetime.combine(base_date, datetime.min.time()).replace(tzinfo=None)
+        end_dt = start_dt + timedelta(days=1)
+
+        # Vistas del día
+        views_qs = PropertyViewEvent.objects.filter(user=request.user, created_at__gte=start_dt, created_at__lt=end_dt)
+        views_count = views_qs.count()
+
+        # Back del día
+        from .models import PropertyInteractionEvent
+        back_qs = PropertyInteractionEvent.objects.filter(user=request.user, event_type='back', created_at__gte=start_dt, created_at__lt=end_dt)
+        back_count = back_qs.count()
+
+        # Dislikes del día (X)
+        from matching.models import MatchFeedback
+        dislikes_qs = MatchFeedback.objects.filter(user=request.user, feedback_type='dislike', created_at__gte=start_dt, created_at__lt=end_dt)
+        dislikes_count = dislikes_qs.count()
+
+        # Por propiedad
+        by_property = {}
+        for ev in views_qs:
+            by_property.setdefault(ev.property_id, {'views': 0, 'back': 0, 'dislikes': 0})
+            by_property[ev.property_id]['views'] += 1
+        for ev in back_qs:
+            by_property.setdefault(ev.property_id, {'views': 0, 'back': 0, 'dislikes': 0})
+            by_property[ev.property_id]['back'] += 1
+        for fb in dislikes_qs:
+            try:
+                # match.subject_id es el ID de la propiedad para match_type='property'
+                prop_id = fb.match.subject_id if fb.match.match_type == 'property' else None
+            except Exception:
+                prop_id = None
+            if prop_id:
+                by_property.setdefault(prop_id, {'views': 0, 'back': 0, 'dislikes': 0})
+                by_property[prop_id]['dislikes'] += 1
+
+        results = [{'property_id': pid, **stats} for pid, stats in by_property.items()]
+        return Response({
+            'date': str(base_date),
+            'counts': {
+                'views': views_count,
+                'back': back_count,
+                'dislikes': dislikes_count,
+            },
+            'by_property': results
+        })

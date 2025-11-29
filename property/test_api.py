@@ -193,6 +193,20 @@ class PropertyAPITestCase(APITestCase):
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['id'], nearby_property.id)
 
+    def test_back_event_and_stats(self):
+        # Registrar vista y back
+        self.client.force_authenticate(user=self.owner)
+        view_url = reverse('property-view', kwargs={'pk': self.property.pk})
+        back_url = reverse('property-back', kwargs={'pk': self.property.pk})
+        self.client.post(view_url)
+        self.client.post(back_url)
+        stats_url = reverse('property-interaction-stats')
+        resp = self.client.get(stats_url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        counts = resp.data.get('counts', {})
+        self.assertGreaterEqual(counts.get('views', 0), 1)
+        self.assertGreaterEqual(counts.get('back', 0), 1)
+
     def test_match_listing_excludes_own_by_default(self):
         self.client.force_authenticate(user=self.owner)
         SearchProfile.objects.create(user=self.owner)

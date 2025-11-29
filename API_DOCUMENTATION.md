@@ -2968,6 +2968,18 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 - El listado de propiedades soporta `match_score` para filtrar y `order_by_match=true` para ordenar por mejor compatibilidad según el `SearchProfile` del usuario autenticado.
 - Favoritos: `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/`; las propiedades favoritas reciben un pequeño boost de `+3` en el score.
 - Propiedades vistas/interactuadas: `GET /api/properties/seen/` devuelve IDs con los que el usuario ya interactuó.
+
+### Control de Interacciones del Usuario
+- `POST /api/properties/{id}/view/` — registra una vista y aumenta contador personal.
+- `POST /api/properties/{id}/back/` — registra acción de “volver atrás” sobre una propiedad.
+- `GET /api/properties/interaction_stats/?date=YYYY-MM-DD` — devuelve estadísticas diarias del usuario:
+  - `counts`: `{ views, back, dislikes }`
+  - `by_property`: arreglo con `{ property_id, views, back, dislikes }`
+  - `date`: fecha consultada (por defecto, hoy)
+- Notas:
+  - `dislikes` se contabiliza desde `MatchFeedback` con `feedback_type=dislike` (acción `reject`).
+  - `views` se contabiliza desde `PropertyViewEvent`.
+  - `back` se contabiliza desde `PropertyInteractionEvent` con `event_type=back`.
 - `Zone` expone métricas nuevas en `zone_stats`: `match_ratio` y `roomie_demand`.
 
 ## 8. Endpoints de Zonas (`/api/zones/`) – Métricas de Matching
