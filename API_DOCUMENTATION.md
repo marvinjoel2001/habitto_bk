@@ -2964,6 +2964,27 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 
 #### Solicitudes pendientes para propietarios/agentes
 - `GET /api/matches/pending_requests/` devuelve las solicitudes de match pendientes para las propiedades del propietario o agente autenticado.
+  - Cada elemento incluye:
+    - `match`: datos básicos del match (incluye `created_at`)
+    - `property`: datos básicos de la propiedad
+    - `interested_user`: `{ id, username, profile_picture }`
+    - `created_ago`: texto relativo (por ej. `"hace 3 minutos"`)
+
+  - Ejemplo:
+  ```json
+  {
+    "success": true,
+    "message": "Solicitudes de match pendientes obtenidas exitosamente",
+    "data": [
+      {
+        "match": { "id": 4, "subject_id": 3, "status": "pending", "score": 86.9, "created_at": "2025-11-30T19:12:20Z" },
+        "property": { "id": 3, "address": "Av. Test 123", "type": "departamento", "price": 700.0 },
+        "interested_user": { "id": 6, "username": "tenant_test", "profile_picture": "https://.../media/profile_pictures/user_6_....jpg" },
+        "created_ago": "hace 3 minutos"
+      }
+    ]
+  }
+  ```
 
 ### Cómo se eligen las propiedades mostradas
 - El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).

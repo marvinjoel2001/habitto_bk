@@ -16,6 +16,7 @@ from utils.matching import (
 from property.models import Property
 from property.serializers import RoomieSeekerPropertySerializer
 from user.models import Block
+from django.utils import timezone
 
 
 class SearchProfileViewSet(MessageConfigMixin, viewsets.ModelViewSet):
@@ -226,14 +227,38 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                         interested_user_data
                     )
                     pending_count = Match.objects.filter(match_type='property', status='pending', subject_id=prop.id).count()
+                    # Datos enriquecidos para solicitudes pendientes
+                    # Foto de perfil del interesado
+                    profile_pic = None
+                    try:
+                        up = request.user.userprofile
+                        if getattr(up, 'profile_picture', None):
+                            url = up.profile_picture.url
+                            profile_pic = request.build_absolute_uri(url) if request else url
+                    except Exception:
+                        pass
+                    created_delta = timezone.now() - match.created_at
+                    minutes = int(created_delta.total_seconds() // 60)
+                    if minutes < 60:
+                        created_ago = f"hace {minutes} minutos"
+                    else:
+                        hours = minutes // 60
+                        if hours < 24:
+                            created_ago = f"hace {hours} horas"
+                        else:
+                            days = hours // 24
+                            created_ago = f"hace {days} días"
                     requests_data = [{
                         'match_id': match.id,
                         'property_id': prop.id,
                         'interested_user': {
                             'id': request.user.id,
                             'username': request.user.username,
+                            'profile_picture': profile_pic,
                         },
                         'score': match.score,
+                        'created_at': match.created_at,
+                        'created_ago': created_ago,
                     }]
                     async_to_sync(send_pending_requests_count)(
                         channel_layer,
@@ -340,6 +365,26 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                 prop = Property.objects.get(id=m.subject_id)
             except Property.DoesNotExist:
                 continue
+            created_delta = timezone.now() - m.created_at
+            minutes = int(created_delta.total_seconds() // 60)
+            if minutes < 60:
+                created_ago = f"hace {minutes} minutos"
+            else:
+                hours = minutes // 60
+                if hours < 24:
+                    created_ago = f"hace {hours} horas"
+                else:
+                    days = hours // 24
+                    created_ago = f"hace {days} días"
+            # Perfil del usuario interesado
+            profile_pic = None
+            try:
+                up = m.target_user.userprofile
+                if getattr(up, 'profile_picture', None):
+                    url = up.profile_picture.url
+                    profile_pic = request.build_absolute_uri(url) if request else url
+            except Exception:
+                pass
             results.append({
                 'match': MatchSerializer(m).data,
                 'property': {
@@ -354,7 +399,10 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                 'interested_user': {
                     'id': m.target_user_id,
                     'username': m.target_user.username,
-                }
+                    'profile_picture': profile_pic,
+                },
+                'created_at': m.created_at,
+                'created_ago': created_ago,
             })
         page = self.paginate_queryset(results)
         if page is not None:
