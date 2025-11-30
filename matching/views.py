@@ -17,6 +17,24 @@ from property.models import Property
 from property.serializers import RoomieSeekerPropertySerializer
 from user.models import Block
 from django.utils import timezone
+from user.models import UserProfile
+
+
+def _absolute_profile_pic(user, request):
+    pic_url = None
+    try:
+        up = getattr(user, 'profile', None)
+        if up and getattr(up, 'profile_picture', None):
+            url = up.profile_picture.url
+            pic_url = request.build_absolute_uri(url) if request else url
+        elif up:
+            current = up.picture_history.filter(is_current=True).first()
+            if current and getattr(current, 'image', None):
+                url = current.image.url
+                pic_url = request.build_absolute_uri(url) if request else url
+    except Exception:
+        pass
+    return pic_url
 
 
 class SearchProfileViewSet(MessageConfigMixin, viewsets.ModelViewSet):
@@ -229,14 +247,7 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                     pending_count = Match.objects.filter(match_type='property', status='pending', subject_id=prop.id).count()
                     # Datos enriquecidos para solicitudes pendientes
                     # Foto de perfil del interesado
-                    profile_pic = None
-                    try:
-                        up = request.user.userprofile
-                        if getattr(up, 'profile_picture', None):
-                            url = up.profile_picture.url
-                            profile_pic = request.build_absolute_uri(url) if request else url
-                    except Exception:
-                        pass
+                    profile_pic = _absolute_profile_pic(request.user, request)
                     created_delta = timezone.now() - match.created_at
                     minutes = int(created_delta.total_seconds() // 60)
                     if minutes < 60:
@@ -377,14 +388,7 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                     days = hours // 24
                     created_ago = f"hace {days} días"
             # Perfil del usuario interesado
-            profile_pic = None
-            try:
-                up = m.target_user.userprofile
-                if getattr(up, 'profile_picture', None):
-                    url = up.profile_picture.url
-                    profile_pic = request.build_absolute_uri(url) if request else url
-            except Exception:
-                pass
+            profile_pic = _absolute_profile_pic(m.target_user, request)
             results.append({
                 'match': MatchSerializer(m).data,
                 'property': {

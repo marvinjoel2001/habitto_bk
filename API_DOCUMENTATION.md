@@ -2985,6 +2985,7 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
     ]
   }
   ```
+  - Observación: `interested_user.profile_picture` devuelve la foto de perfil actual del usuario (URL absoluta). Si la foto principal está vacía, se usa la última marcada como `is_current` en su historial.
 
 ### Cómo se eligen las propiedades mostradas
 - El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).
