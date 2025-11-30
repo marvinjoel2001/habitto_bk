@@ -208,6 +208,41 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                     user=prop.owner,
                     message=f"{request.user.username} indicó interés en tu propiedad (match {match.score}%)."
                 )
+                try:
+                    from asgiref.sync import async_to_sync
+                    from channels.layers import get_channel_layer
+                    from message.notification_consumers import send_property_like_notification, send_pending_requests_count
+                    channel_layer = get_channel_layer()
+                    interested_user_data = {
+                        'id': request.user.id,
+                        'username': request.user.username,
+                        'email': request.user.email,
+                    }
+                    async_to_sync(send_property_like_notification)(
+                        channel_layer,
+                        prop.owner.id,
+                        prop.id,
+                        f"{prop.type} en {prop.address}",
+                        interested_user_data
+                    )
+                    pending_count = Match.objects.filter(match_type='property', status='pending', subject_id=prop.id).count()
+                    requests_data = [{
+                        'match_id': match.id,
+                        'property_id': prop.id,
+                        'interested_user': {
+                            'id': request.user.id,
+                            'username': request.user.username,
+                        },
+                        'score': match.score,
+                    }]
+                    async_to_sync(send_pending_requests_count)(
+                        channel_layer,
+                        prop.owner.id,
+                        pending_count,
+                        requests_data
+                    )
+                except Exception:
+                    pass
 
                 # Evaluar auto-aceptación si la compatibilidad es muy alta
                 from utils.matching import calculate_property_match_score

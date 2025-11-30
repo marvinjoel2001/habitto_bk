@@ -2945,6 +2945,9 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
 - Al hacer "like":
   - Se guarda `MatchFeedback` con `feedback_type=like`.
   - Si el match es de tipo `property`, se crea un `Message` automático al propietario y una `Notification` para el propietario.
+  - Se emiten eventos WebSocket en `ws/property-notifications/{owner_id}/`:
+    - `property_like` con datos de la propiedad y del usuario interesado.
+    - `pending_requests_count` (enviado como `general_notification`) con `data.count` y la lista de solicitudes recientes.
   - Si la compatibilidad es muy alta (`score ≥ 95`) y cumple preferencias del propietario (`owner_prefs_score ≥ 90`), el sistema acepta automáticamente el match.
 - Para aceptar explícitamente un match, usa `POST /api/matches/{id}/accept/`.
 - Al aceptar:
@@ -2955,6 +2958,12 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   - `401 Unauthorized` si la solicitud no incluye token JWT (todas las rutas de matching requieren autenticación).
   - `403 Forbidden` si el match no pertenece al usuario autenticado (`target_user`).
   - `404 Not Found` si el recurso no existe.
+
+#### Listar mis matches
+- `GET /api/matches/my/?type=property|roommate|agent&status=pending|accepted|rejected` devuelve los matches del usuario autenticado, paginados.
+
+#### Solicitudes pendientes para propietarios/agentes
+- `GET /api/matches/pending_requests/` devuelve las solicitudes de match pendientes para las propiedades del propietario o agente autenticado.
 
 ### Cómo se eligen las propiedades mostradas
 - El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).

@@ -305,3 +305,22 @@ async def send_match_accepted_notification(channel_layer, tenant_user_id, proper
         f'tenant_notifications_{tenant_user_id}',
         tenant_notification
     )
+
+
+async def send_pending_requests_count(channel_layer, owner_id, count, requests_data=None):
+    """Enviar conteo de solicitudes de match pendientes para un propietario"""
+    from datetime import datetime
+    await channel_layer.group_send(
+        f'property_notifications_{owner_id}',
+        {
+            'type': 'general_notification',
+            'notification_type': 'pending_requests_count',
+            'message': 'Actualización de solicitudes de match pendientes',
+            'data': {
+                'count': count,
+                'requests': requests_data or []
+            },
+            'timestamp': datetime.now().isoformat(),
+            'notification_id': None
+        }
+    )
