@@ -144,7 +144,7 @@ class RoomieSearchViewSet(MessageConfigMixin, viewsets.ViewSet):
         'list': 'Roomies buscando compañía obtenidos exitosamente',
         'available_roomies': 'Roomies disponibles obtenidos exitosamente',
     }
-    
+
     @action(detail=False, methods=['get'], url_path='available')
     def available_roomies(self, request):
         """
@@ -154,19 +154,19 @@ class RoomieSearchViewSet(MessageConfigMixin, viewsets.ViewSet):
         roomie_seekers = SearchProfile.objects.filter(
             roommate_preference__in=['looking', 'open']
         ).select_related('user').prefetch_related('preferred_zones', 'amenities')
-        
+
         # Filtrar aquellos que no tienen propiedad asignada (no tienen roomie_properties)
         roomie_seekers = roomie_seekers.filter(
             roomie_properties__isnull=True
         ).distinct()
-        
+
         # Serializar usando el serializer de roomie seekers
         serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context={'request': request})
-        
+
         resp = Response(serializer.data)
         self.set_response_message(resp, 'Roomies disponibles obtenidos exitosamente')
         return resp
-    
+
     @action(detail=False, methods=['get'], url_path='all-seekers')
     def all_seekers(self, request):
         """
@@ -175,10 +175,10 @@ class RoomieSearchViewSet(MessageConfigMixin, viewsets.ViewSet):
         roomie_seekers = SearchProfile.objects.filter(
             roommate_preference__in=['looking', 'open']
         ).select_related('user').prefetch_related('preferred_zones', 'amenities')
-        
+
         # Serializar usando el serializer de roomie seekers
         serializer = RoomieSeekerPropertySerializer(roomie_seekers, many=True, context={'request': request})
-        
+
         resp = Response(serializer.data)
         self.set_response_message(resp, 'Todos los roomies buscando compañía obtenidos exitosamente')
         return resp
@@ -450,17 +450,17 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
             return Response({'error': 'No autorizado'}, status=status.HTTP_403_FORBIDDEN)
         match.status = 'accepted'
         match.save(update_fields=['status', 'updated_at'])
-        
+
         try:
             from notification.models import Notification
             Notification.objects.create(user=match.target_user, message=f"Tu solicitud de match fue aceptada para la propiedad {prop.address}.")
             Notification.objects.create(user=request.user, message=f"Match aceptado con {match.target_user.username}.")
-            
+
             # Enviar notificación WebSocket en tiempo real
             from asgiref.sync import async_to_sync
             from channels.layers import get_channel_layer
             from message.notification_consumers import send_match_accepted_notification
-            
+
             # Preparar datos del propietario
             owner_data = {
                 'id': request.user.id,
@@ -470,7 +470,7 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                     'phone': getattr(request.user.userprofile, 'phone', '') if hasattr(request.user, 'userprofile') else ''
                 }
             }
-            
+
             # Preparar datos de la propiedad
             property_data = {
                 'id': prop.id,
@@ -478,23 +478,32 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                 'address': prop.address,
                 'price': float(prop.price)
             }
-            
+
             # Preparar datos del match
             match_data = {
                 'score': float(match.score),
                 'status': match.status
             }
-            
+
             # Enviar notificación asíncrona
             channel_layer = get_channel_layer()
+            # Datos del inquilino para socket (mostrar usuario en frontend)
+            tenant_data = {
+                'id': match.target_user.id,
+                'username': match.target_user.username,
+                'full_name': f"{match.target_user.first_name} {match.target_user.last_name}".strip() or match.target_user.username,
+                'profile_picture': _absolute_profile_pic(match.target_user, request)
+            }
+
             async_to_sync(send_match_accepted_notification)(
                 channel_layer,
                 match.target_user.id,
                 property_data,
                 owner_data,
-                match_data
+                match_data,
+                tenant_data
             )
-            
+
             # Check if tenant has roommate preference and property allows roommates
             tenant_profile = SearchProfile.objects.filter(user=match.target_user).first()
             if tenant_profile and tenant_profile.roommate_preference in ['looking', 'open'] and prop.allows_roommates:
@@ -502,20 +511,20 @@ class MatchViewSet(MessageConfigMixin, viewsets.GenericViewSet):
                 prop.is_roomie_listing = True
                 prop.roomie_profile = tenant_profile
                 prop.save(update_fields=['is_roomie_listing', 'roomie_profile'])
-                
+
                 # Notify tenant that their roomie listing has been created
                 Notification.objects.create(
-                    user=match.target_user, 
+                    user=match.target_user,
                     message=f"¡Tu búsqueda de roomie ha sido publicada! La propiedad {prop.address} ahora aparece como disponible para roomies."
                 )
-                
+
         except Exception as e:
             # Log del error pero no interrumpir la respuesta
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f"Error al enviar notificación WebSocket de match aceptado: {e}")
             pass
-            
+
         resp = Response({'status': 'accepted', 'match': MatchSerializer(match).data})
         self.set_response_message(resp, 'Match aceptado por propietario/agente')
         return resp

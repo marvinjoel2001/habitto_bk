@@ -2,6 +2,9 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework_simplejwt.views import TokenObtainPairView
+from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import UserProfile, ProfilePictureHistory
 from .models import Block
@@ -60,89 +63,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
                 {'detail': 'El usuario no tiene un perfil creado'},
                 status=status.HTTP_404_NOT_FOUND
             )
-
-    @action(detail=False, methods=['get'], url_path='by_user/(?P<user_id>[^/]+)', permission_classes=[permissions.IsAuthenticated])
-    def by_user(self, request, user_id=None):
-        """
-        Obtener el perfil por ID de usuario (evita ambigüedad de query params).
-        Respuesta mínima: id de perfil, datos básicos del usuario y foto.
-        """
-        try:
-            user_obj = User.objects.get(id=int(user_id))
-        except (User.DoesNotExist, ValueError, TypeError):
-            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-        # Verificar bloqueo en ambos sentidos
-        if Block.objects.filter(blocker=request.user, blocked=user_obj).exists() or Block.objects.filter(blocker=user_obj, blocked=request.user).exists():
-            return Response({'detail': 'Acceso bloqueado'}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            profile = UserProfile.objects.get(user=user_obj)
-        except UserProfile.DoesNotExist:
-            return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-        full_name = ((user_obj.first_name or '').strip() + ' ' + (user_obj.last_name or '').strip()).strip() or user_obj.username
-        picture_url = None
-        if profile.profile_picture:
-            try:
-                picture_url = request.build_absolute_uri(profile.profile_picture.url)
-            except Exception:
-                picture_url = profile.profile_picture.url
-
-        data = {
-            'profile_id': profile.id,
-            'user': {
-                'id': user_obj.id,
-                'username': user_obj.username,
-                'full_name': full_name,
-                'email': user_obj.email,
-            },
-            'profile_picture': picture_url,
-            'user_type': profile.user_type,
-            'is_verified': profile.is_verified,
-        }
-        return Response(data)
-
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def block(self, request):
-        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
-        if not other_id:
-            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            other = User.objects.get(id=int(other_id))
-        except (User.DoesNotExist, ValueError, TypeError):
-            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        if other.id == request.user.id:
-            return Response({'detail': 'No puede bloquearse a sí mismo'}, status=status.HTTP_400_BAD_REQUEST)
-        Block.objects.get_or_create(blocker=request.user, blocked=other)
-        try:
-            from notification.models import Notification
-            Notification.objects.create(user=request.user, message=f'Has bloqueado a {other.username}.')
-        except Exception:
-            pass
-        return Response({'status': 'blocked', 'other_user_id': other.id})
-
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def unblock(self, request):
-        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
-        if not other_id:
-            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            other = User.objects.get(id=int(other_id))
-        except (User.DoesNotExist, ValueError, TypeError):
-            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-        Block.objects.filter(blocker=request.user, blocked=other).delete()
-        try:
-            from notification.models import Notification
-            Notification.objects.create(user=request.user, message=f'Has desbloqueado a {other.username}.')
-        except Exception:
-            pass
-        return Response({'status': 'unblocked', 'other_user_id': other.id})
-
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
-    def blocked(self, request):
-        qs = Block.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
-        results = [{'id': b.blocked.id, 'username': b.blocked.username, 'first_name': b.blocked.first_name, 'last_name': b.blocked.last_name} for b in qs]
-        return Response({'count': len(results), 'results': results})
 
     @action(detail=False, methods=['put', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def update_me(self, request):
@@ -269,6 +189,152 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(profile)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='by_user/(?P<user_id>[^/]+)', permission_classes=[permissions.IsAuthenticated])
+    def by_user(self, request, user_id=None):
+        """
+        Obtener el perfil por ID de usuario (evita ambigüedad de query params).
+        Respuesta mínima: id de perfil, datos básicos del usuario y foto.
+        """
+        try:
+            user_obj = User.objects.get(id=int(user_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Verificar bloqueo en ambos sentidos
+        if Block.objects.filter(blocker=request.user, blocked=user_obj).exists() or Block.objects.filter(blocker=user_obj, blocked=request.user).exists():
+            return Response({'detail': 'Acceso bloqueado'}, status=status.HTTP_403_FORBIDDEN)
+        try:
+            profile = UserProfile.objects.get(user=user_obj)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        full_name = ((user_obj.first_name or '').strip() + ' ' + (user_obj.last_name or '').strip()).strip() or user_obj.username
+        picture_url = None
+        if profile.profile_picture:
+            try:
+                picture_url = request.build_absolute_uri(profile.profile_picture.url)
+            except Exception:
+                picture_url = profile.profile_picture.url
+
+        data = {
+            'profile_id': profile.id,
+            'user': {
+                'id': user_obj.id,
+                'username': user_obj.username,
+                'full_name': full_name,
+                'email': user_obj.email,
+            },
+            'profile_picture': picture_url,
+            'user_type': profile.user_type,
+            'is_verified': profile.is_verified,
+        }
+        return Response(data)
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def block(self, request):
+        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
+        if not other_id:
+            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            other = User.objects.get(id=int(other_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        if other.id == request.user.id:
+            return Response({'detail': 'No puede bloquearse a sí mismo'}, status=status.HTTP_400_BAD_REQUEST)
+        Block.objects.get_or_create(blocker=request.user, blocked=other)
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message=f'Has bloqueado a {other.username}.')
+        except Exception:
+            pass
+        return Response({'status': 'blocked', 'other_user_id': other.id})
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def unblock(self, request):
+        other_id = request.data.get('other_user_id') or request.query_params.get('other_user_id')
+        if not other_id:
+            return Response({'detail': 'other_user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            other = User.objects.get(id=int(other_id))
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response({'detail': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        Block.objects.filter(blocker=request.user, blocked=other).delete()
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message=f'Has desbloqueado a {other.username}.')
+        except Exception:
+            pass
+        return Response({'status': 'unblocked', 'other_user_id': other.id})
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def blocked(self, request):
+        qs = Block.objects.filter(blocker=request.user).select_related('blocked').order_by('-created_at')
+        results = [{'id': b.blocked.id, 'username': b.blocked.username, 'first_name': b.blocked.first_name, 'last_name': b.blocked.last_name} for b in qs]
+        return Response({'count': len(results), 'results': results})
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def request_delete_account(self, request):
+        """
+        Solicita eliminación de cuenta: se marca como pendiente y se agenda para 30 días.
+        """
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        now = timezone.now()
+        profile.deletion_pending = True
+        profile.deletion_requested_at = now
+        profile.deletion_scheduled_for = now + timedelta(days=30)
+        profile.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message='Tu cuenta será eliminada en 30 días. Si vuelves a iniciar sesión, se cancelará la eliminación.')
+        except Exception:
+            pass
+        return Response({
+            'status': 'deletion_scheduled',
+            'scheduled_for': profile.deletion_scheduled_for
+        })
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def cancel_delete_account(self, request):
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        profile.deletion_pending = False
+        profile.deletion_requested_at = None
+        profile.deletion_scheduled_for = None
+        profile.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
+        try:
+            from notification.models import Notification
+            Notification.objects.create(user=request.user, message='La eliminación de tu cuenta ha sido cancelada.')
+        except Exception:
+            pass
+        return Response({'status': 'deletion_cancelled'})
+
+
+class UserTokenObtainPairView(TokenObtainPairView):
+    """
+    Login JWT que además cancela eliminación pendiente si el usuario inicia sesión.
+    """
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            username = (request.data or {}).get('username')
+            try:
+                user_obj = User.objects.filter(username=username).first()
+                if user_obj:
+                    profile = UserProfile.objects.filter(user=user_obj).first()
+                    if profile and profile.deletion_pending:
+                        profile.deletion_pending = False
+                        profile.deletion_requested_at = None
+                        profile.deletion_scheduled_for = None
+                        profile.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
+            except Exception:
+                pass
+        return response
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def add_favorite(self, request):

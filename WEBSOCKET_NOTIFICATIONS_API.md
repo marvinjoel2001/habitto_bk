@@ -72,6 +72,12 @@ const socket = new WebSocket(`ws://localhost:8000/ws/property-notifications/${us
     "email": "owner@example.com",
     "phone": "+1234567890"
   },
+  "tenant_user": {
+    "id": 456,
+    "username": "juan_perez",
+    "full_name": "Juan Pérez",
+    "profile_picture": "https://.../media/profile_pictures/user_456_....jpg"
+  },
   "match_status": "accepted",
   "next_steps": [
     "Contactar al inquilino para coordinar visita",
@@ -148,7 +154,7 @@ sequenceDiagram
     participant API as API REST
     participant WS as WebSocket Server
     participant Owner as Propietario
-    
+
     Tenant->>API: POST /api/properties/{id}/like/
     API->>API: Crear Match + Notificación
     API->>WS: Enviar notificación WebSocket
@@ -163,7 +169,7 @@ sequenceDiagram
     participant API as API REST
     participant WS as WebSocket Server
     participant Tenant as Inquilino
-    
+
     Owner->>API: POST /api/matches/{id}/owner_accept/
     API->>API: Actualizar Match + Notificación
     API->>WS: Enviar notificaciones WebSocket
@@ -196,39 +202,39 @@ class HabittoWebSocketClient {
         this.socket = null;
         this.reconnectInterval = 5000;
     }
-    
+
     connect() {
         const url = `ws://localhost:8000/ws/property-notifications/${this.userId}/?token=${this.token}`;
         this.socket = new WebSocket(url);
-        
+
         this.socket.onopen = (event) => {
             console.log('Conectado a notificaciones');
             this.startPingInterval();
         };
-        
+
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             this.handleMessage(data);
         };
-        
+
         this.socket.onclose = (event) => {
             console.log('Desconectado de notificaciones');
             this.stopPingInterval();
             setTimeout(() => this.connect(), this.reconnectInterval);
         };
-        
+
         this.socket.onerror = (error) => {
             console.error('Error de WebSocket:', error);
         };
     }
-    
+
     handleMessage(data) {
         switch(data.type) {
             case 'property_like':
                 this.showPropertyLikeNotification(data);
                 break;
             case 'match_accepted':
-                this.showMatchAcceptedNotification(data);
+                this.showMatchAcceptedNotification(data); // incluye tenant_user para mostrar tarjeta de usuario
                 break;
             case 'match_accepted_by_owner':
                 this.showMatchAcceptedByOwnerNotification(data);
@@ -241,42 +247,42 @@ class HabittoWebSocketClient {
                 break;
         }
     }
-    
+
     showPropertyLikeNotification(data) {
         const notification = {
             title: '¡Nuevo interesado en tu propiedad!',
             body: `${data.interested_user.first_name} ${data.interested_user.last_name} está interesado en tu propiedad`,
             data: data
         };
-        
+
         // Mostrar notificación en UI o usar Web Push API
         this.displayNotification(notification);
     }
-    
+
     showMatchAcceptedNotification(data) {
         const notification = {
             title: '¡Match Aceptado!',
-            body: 'Has aceptado un match exitosamente',
+            body: `Match con ${data.tenant_user?.full_name || 'inquilino'}`,
             data: data
         };
-        
+
         this.displayNotification(notification);
     }
-    
+
     showMatchAcceptedByOwnerNotification(data) {
         const notification = {
             title: '¡Tu solicitud fue aceptada!',
             body: `El propietario ${data.owner_name} aceptó tu solicitud para ${data.property_title}`,
             data: data
         };
-        
+
         this.displayNotification(notification);
     }
-    
+
     displayNotification(notification) {
         // Implementar lógica de visualización de notificaciones
         console.log('Notificación:', notification);
-        
+
         // Ejemplo con Web Push API
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(notification.title, {
@@ -285,7 +291,7 @@ class HabittoWebSocketClient {
             });
         }
     }
-    
+
     startPingInterval() {
         this.pingInterval = setInterval(() => {
             if (this.socket.readyState === WebSocket.OPEN) {
@@ -293,13 +299,13 @@ class HabittoWebSocketClient {
             }
         }, 30000); // Ping cada 30 segundos
     }
-    
+
     stopPingInterval() {
         if (this.pingInterval) {
             clearInterval(this.pingInterval);
         }
     }
-    
+
     disconnect() {
         if (this.socket) {
             this.socket.close();
@@ -320,37 +326,37 @@ const useHabittoWebSocket = (userId, token) => {
     const [socket, setSocket] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
-    
+
     useEffect(() => {
         if (!userId || !token) return;
-        
+
         const ws = new WebSocket(`ws://localhost:8000/ws/property-notifications/${userId}/?token=${token}`);
-        
+
         ws.onopen = () => {
             setIsConnected(true);
         };
-        
+
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
-            if (data.type === 'property_like' || 
-                data.type === 'match_accepted' || 
+
+            if (data.type === 'property_like' ||
+                data.type === 'match_accepted' ||
                 data.type === 'match_accepted_by_owner') {
                 setNotifications(prev => [...prev, data]);
             }
         };
-        
+
         ws.onclose = () => {
             setIsConnected(false);
         };
-        
+
         setSocket(ws);
-        
+
         return () => {
             ws.close();
         };
     }, [userId, token]);
-    
+
     const markAsRead = (notificationId) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
@@ -359,7 +365,7 @@ const useHabittoWebSocket = (userId, token) => {
             }));
         }
     };
-    
+
     return { notifications, isConnected, markAsRead };
 };
 

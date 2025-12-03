@@ -52,6 +52,10 @@ class UserProfile(models.Model):
     id_card_back = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
     selfie = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
+    # Eliminación diferida de cuenta
+    deletion_pending = models.BooleanField(default=False)
+    deletion_requested_at = models.DateTimeField(blank=True, null=True)
+    deletion_scheduled_for = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

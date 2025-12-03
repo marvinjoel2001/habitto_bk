@@ -2858,6 +2858,82 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
   - `POST /api/matches/{id}/accept/`: Acepta un match y crea notificación/mensaje.
   - `POST /api/matches/{id}/reject/`: Rechaza un match y almacena feedback opcional.
 
+### Aprobar Match (Inquilino)
+- **Endpoint**: `POST /api/matches/{id}/accept/`
+- **Autenticación**: Requerida (JWT)
+- **Body**: vacío (no requiere payload)
+- **Ejemplo (curl)**:
+```bash
+curl -X POST http://localhost:8000/api/matches/123/accept/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+- **Respuesta (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Match aceptado exitosamente",
+  "data": {
+    "status": "accepted",
+    "match": {
+      "id": 123,
+      "match_type": "property",
+      "subject_id": 45,
+      "target_user": 7,
+      "score": 85.0,
+      "status": "accepted",
+      "metadata": { "details": { /* opcional */ } },
+      "created_at": "2025-11-05T12:00:00Z",
+      "updated_at": "2025-11-29T14:20:00Z"
+    }
+  }
+}
+```
+- **Efectos**:
+  - Marca el `Match` como `accepted`.
+  - Crea una `Notification` para el inquilino.
+  - Si el match es de tipo `property`, crea un `Message` al propietario indicando interés.
+
+### Aprobar Match (Propietario/Agente)
+- **Endpoint**: `POST /api/matches/{id}/owner_accept/`
+- **Autenticación**: Requerida (JWT; solo propietario o agente de la propiedad puede aprobar)
+- **Body**: vacío (no requiere payload)
+- **Ejemplo (curl)**:
+```bash
+curl -X POST http://localhost:8000/api/matches/123/owner_accept/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+- **Respuesta (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Match aceptado por propietario/agente",
+  "data": {
+    "status": "accepted",
+    "match": {
+      "id": 123,
+      "match_type": "property",
+      "subject_id": 45,
+      "target_user": 7,
+      "score": 85.0,
+      "status": "accepted",
+      "metadata": { /* opcional */ },
+      "created_at": "2025-11-05T12:00:00Z",
+      "updated_at": "2025-11-29T14:20:00Z"
+    }
+  }
+}
+```
+- **Efectos**:
+  - Marca el `Match` como `accepted`.
+  - Envía `Notification` al inquilino y al propietario.
+  - Emite notificación WebSocket de `match_accepted`.
+  - Si la propiedad permite roomies y el inquilino busca roomie, convierte la propiedad en “roomie listing” y notifica.
+
+### Errores comunes (aprobar match)
+- **401 Unauthorized**: falta o token inválido.
+- **403 Forbidden**: el match no pertenece al usuario (inquilino) o el usuario no es propietario/agente de la propiedad en `owner_accept`.
+- **404 Not Found**: match o propiedad no existen.
+
 ### `GET /api/matches/my/?type=property|roommate|agent&status=pending|accepted|rejected`
 - **Descripción**: Lista los matches del usuario autenticado directamente por token (sin necesidad de `search_profile_id`).
 - **Autenticación**: Requerida.
@@ -3393,3 +3469,44 @@ Sistema para reportar perfiles de usuarios (propietarios, agentes, inquilinos) y
   - Retorna `403` si existe bloqueo en cualquiera de los dos sentidos.
 - Matching/Recomendaciones:
   - Matches y recomendaciones excluyen usuarios bloqueados y propiedades de dueños bloqueados.
+### Eliminación diferida de cuenta
+- **Endpoint**: `POST /api/profiles/request_delete_account/`
+- **Autenticación**: Requerida (JWT)
+- **Descripción**: Agenda la eliminación definitiva de la cuenta en 30 días. El usuario recibirá una notificación; si vuelve a iniciar sesión antes de la fecha, se cancela la eliminación automáticamente.
+- **Response (200 OK)**:
+```json
+{
+  "success": true,
+  "message": "Eliminación programada",
+  "data": {
+    "status": "deletion_scheduled",
+    "scheduled_for": "2025-12-31T10:00:00Z"
+  }
+}
+```
+
+- **Cancelar eliminación**
+  - **Endpoint**: `POST /api/profiles/cancel_delete_account/`
+  - **Autenticación**: Requerida (JWT)
+  - **Descripción**: Cancela manualmente la eliminación programada. Nota: iniciar sesión mediante `POST /api/login/` también cancela la eliminación pendiente de manera automática.
+  - **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Eliminación cancelada",
+    "data": { "status": "deletion_cancelled" }
+  }
+  ```
+
+- **Login que cancela eliminación**
+  - **Endpoint**: `POST /api/login/`
+  - **Body**:
+    ```json
+    { "username": "usuario", "password": "secreto" }
+    ```
+  - **Efecto adicional**: si el perfil del usuario tiene `deletion_pending=true`, se restablece automáticamente (se borran los campos de eliminación).
+
+- **Eliminación definitiva**
+  - Proceso: tarea/command de backend ejecuta la eliminación definitiva cuando `deletion_scheduled_for <= now`.
+  - Command manual (ops): `python manage.py purge_soft_deleted_users`
+  - Efecto: se elimina el `User` y por cascada sus datos asociados.

@@ -7,9 +7,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
+from user.views import UserTokenObtainPairView
 
 def api_root(request):
     return JsonResponse({
@@ -51,7 +51,7 @@ def api_root(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='api-root'),
-    path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/login/', UserTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('user.urls')),
     path('api/', include('property.urls')),

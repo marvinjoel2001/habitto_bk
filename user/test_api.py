@@ -191,6 +191,39 @@ class UserProfileAPITestCase(APITestCase):
         results = resp.data.get('results') if isinstance(resp.data, dict) else resp.data
         for item in results:
             self.assertNotEqual(item.get('owner'), other.id)
+
+    def test_request_and_cancel_delete_account(self):
+        self.client.force_authenticate(user=self.user)
+        url_req = reverse('userprofile-request-delete-account')
+        resp = self.client.post(url_req)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        from user.models import UserProfile
+        prof = UserProfile.objects.get(user=self.user)
+        self.assertTrue(prof.deletion_pending)
+        self.assertIsNotNone(prof.deletion_scheduled_for)
+        # Cancelar
+        url_cancel = reverse('userprofile-cancel-delete-account')
+        resp2 = self.client.post(url_cancel)
+        self.assertEqual(resp2.status_code, status.HTTP_200_OK)
+        prof.refresh_from_db()
+        self.assertFalse(prof.deletion_pending)
+        self.assertIsNone(prof.deletion_scheduled_for)
+
+    def test_login_cancels_deletion(self):
+        # Marcar eliminación
+        from user.models import UserProfile
+        prof = UserProfile.objects.get(user=self.user)
+        from django.utils import timezone
+        prof.deletion_pending = True
+        prof.deletion_requested_at = timezone.now()
+        prof.deletion_scheduled_for = timezone.now()
+        prof.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
+        # Login
+        url = reverse('token_obtain_pair')
+        resp = self.client.post(url, {'username': 'testuser', 'password': 'testpass123'}, format='json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        prof.refresh_from_db()
+        self.assertFalse(prof.deletion_pending)
         
     def test_delete_user_profile(self):
         """Test eliminar perfil"""

@@ -11,7 +11,7 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
     """
     Consumer para notificaciones de propiedades (likes, matches aceptados)
     """
-    
+
     async def connect(self):
         self.user = self.scope.get('user')
         # Obtener user_id desde url_route o parsear del path
@@ -25,30 +25,30 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
             parts = [p for p in path.split('/') if p]
             if parts:
                 self.user_id = parts[-1]
-        
+
         # Verificar autenticación
         if not self.user or not self.user.is_authenticated:
             await self.close()
             return
-            
+
         # Verificar que el usuario solo pueda conectarse a su propio canal
         if str(self.user.id) != str(self.user_id):
             await self.close()
             return
-            
+
         self.group_name = f'property_notifications_{self.user_id}'
-        
+
         # Unirse al grupo de notificaciones
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
-        
+
         await self.accept()
-        
+
         # Registrar conexión
         log_websocket_connection(self.user, 'property_notifications')
-        
+
         # Enviar confirmación de conexión
         await self.send(text_data=json.dumps({
             'type': 'connection_established',
@@ -60,7 +60,7 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
         # Registrar desconexión
         if hasattr(self, 'user'):
             log_websocket_disconnection(self.user, 'property_notifications')
-        
+
         # Salir del grupo cuando se desconecta
         if hasattr(self, 'group_name'):
             await self.channel_layer.group_discard(
@@ -73,7 +73,7 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data or '{}')
             message_type = data.get('type')
-            
+
             if message_type == 'ping':
                 await self.send(text_data=json.dumps({
                     'type': 'pong',
@@ -83,7 +83,7 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
                 # Marcar notificación como leída
                 notification_id = data.get('notification_id')
                 await self.mark_notification_read(notification_id)
-                
+
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -99,7 +99,7 @@ class PropertyNotificationConsumer(AsyncWebsocketConsumer):
             notification_type='property_like',
             data=event
         )
-        
+
         await self.send(text_data=json.dumps({
             'type': 'property_like',
             'property_id': event['property_id'],
@@ -144,7 +144,7 @@ class TenantNotificationConsumer(AsyncWebsocketConsumer):
     """
     Consumer específico para notificaciones de inquilinos (match aceptados)
     """
-    
+
     async def connect(self):
         self.user = self.scope.get('user')
         try:
@@ -156,27 +156,27 @@ class TenantNotificationConsumer(AsyncWebsocketConsumer):
             parts = [p for p in path.split('/') if p]
             if parts:
                 self.user_id = parts[-1]
-        
+
         # Verificar autenticación
         if not self.user or not self.user.is_authenticated:
             await self.close()
             return
-            
+
         # Verificar que el usuario solo pueda conectarse a su propio canal
         if str(self.user.id) != str(self.user_id):
             await self.close()
             return
-            
+
         self.group_name = f'tenant_notifications_{self.user_id}'
-        
+
         # Unirse al grupo de notificaciones
         await self.channel_layer.group_add(
             self.group_name,
             self.channel_name
         )
-        
+
         await self.accept()
-        
+
         # Enviar confirmación de conexión
         await self.send(text_data=json.dumps({
             'type': 'connection_established',
@@ -197,13 +197,13 @@ class TenantNotificationConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data or '{}')
             message_type = data.get('type')
-            
+
             if message_type == 'ping':
                 await self.send(text_data=json.dumps({
                     'type': 'pong',
                     'timestamp': datetime.now().isoformat()
                 }))
-                
+
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -231,7 +231,7 @@ async def send_property_like_notification(channel_layer, property_owner_id, prop
     """Enviar notificación de like en propiedad"""
     from datetime import datetime
     import uuid
-    
+
     notification_data = {
         'type': 'property_like_notification',
         'property_id': property_id,
@@ -240,7 +240,7 @@ async def send_property_like_notification(channel_layer, property_owner_id, prop
         'timestamp': datetime.now().isoformat(),
         'notification_id': str(uuid.uuid4())
     }
-    
+
     # Registrar envío de notificación
     WebSocketInteractionLogger.log_notification_sent(
         sender_id=interested_user_data.get('id'),
@@ -248,18 +248,18 @@ async def send_property_like_notification(channel_layer, property_owner_id, prop
         notification_type='property_like',
         data=notification_data
     )
-    
+
     await channel_layer.group_send(
         f'property_notifications_{property_owner_id}',
         notification_data
     )
 
 
-async def send_match_accepted_notification(channel_layer, tenant_user_id, property_data, owner_data, match_data):
+async def send_match_accepted_notification(channel_layer, tenant_user_id, property_data, owner_data, match_data, tenant_data=None):
     """Enviar notificación de match aceptado"""
     from datetime import datetime
     import uuid
-    
+
     # Notificación para el propietario
     owner_notification = {
         'type': 'match_accepted_notification',
@@ -267,6 +267,7 @@ async def send_match_accepted_notification(channel_layer, tenant_user_id, proper
         'property_title': property_data['title'],
         'property_address': property_data['address'],
         'owner_contact': owner_data['contact'],
+        'tenant_user': tenant_data or {'id': tenant_user_id},
         'match_status': 'accepted',
         'next_steps': [
             'Contactar al inquilino para coordinar visita',
@@ -276,7 +277,7 @@ async def send_match_accepted_notification(channel_layer, tenant_user_id, proper
         'timestamp': datetime.now().isoformat(),
         'notification_id': str(uuid.uuid4())
     }
-    
+
     # Notificación específica para el inquilino
     tenant_notification = {
         'type': 'match_accepted_for_tenant',
@@ -294,13 +295,13 @@ async def send_match_accepted_notification(channel_layer, tenant_user_id, proper
         'timestamp': datetime.now().isoformat(),
         'notification_id': str(uuid.uuid4())
     }
-    
+
     # Enviar a ambos canales
     await channel_layer.group_send(
         f'property_notifications_{owner_data["id"]}',
         owner_notification
     )
-    
+
     await channel_layer.group_send(
         f'tenant_notifications_{tenant_user_id}',
         tenant_notification
