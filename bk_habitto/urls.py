@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from user.views import UserTokenObtainPairView
+from bk_habitto.social_login_views import GoogleLogin, FacebookLogin, AppleLogin
 
 def api_root(request):
     return JsonResponse({
@@ -67,6 +68,13 @@ urlpatterns = [
     path('api/', include('guarantee.urls')),
     path('api/', include('matching.urls')),
     path('api/', include('report.urls')),
+    # dj-rest-auth core & registration
+    path('dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    # Social login endpoints
+    path('dj-rest-auth/google/', GoogleLogin.as_view(), name='google_login'),
+    path('dj-rest-auth/facebook/', FacebookLogin.as_view(), name='facebook_login'),
+    path('dj-rest-auth/apple/', AppleLogin.as_view(), name='apple_login'),
     path('api-auth/', include('rest_framework.urls')),
 ]
 

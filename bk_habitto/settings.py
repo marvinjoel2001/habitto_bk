@@ -107,6 +107,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',  # Soporte GIS para PostGIS
     'channels',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_gis',  # Soporte GeoJSON para REST Framework
     'rest_framework_simplejwt',
     'django_filters',
@@ -125,6 +126,15 @@ INSTALLED_APPS = [
     'guarantee',
     'matching',
     'report',
+    'django.contrib.sites',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.apple',
     'django_extensions',
 ]
 
@@ -136,6 +146,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bk_habitto.middleware.APILoggingMiddleware',  # Middleware personalizado para logging de API
@@ -242,6 +253,53 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# Allauth / dj-rest-auth configuration
+SITE_ID = int(os.environ.get('SITE_ID', '1'))
+ACCOUNT_EMAIL_VERIFICATION = os.environ.get('ACCOUNT_EMAIL_VERIFICATION', 'optional')
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_REQUIRED = False
+SOCIALACCOUNT_ADAPTER = 'bk_habitto.social_adapter.CustomSocialAccountAdapter'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = os.environ.get('JWT_AUTH_COOKIE', None)
+DJ_REST_AUTH = {
+    'TOKEN_MODEL': None,
+}
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
+            'key': ''
+        },
+        'SCOPE': ['email', 'profile'],
+        'AUTH_PARAMS': {'access_type': 'offline'}
+    },
+    'facebook': {
+        'APP': {
+            'client_id': os.environ.get('FACEBOOK_APP_ID', ''),
+            'secret': os.environ.get('FACEBOOK_APP_SECRET', ''),
+            'key': ''
+        },
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'rerequest'}
+    },
+    'apple': {
+        'APP': {
+            'client_id': os.environ.get('APPLE_CLIENT_ID', ''),
+            'secret': os.environ.get('APPLE_CLIENT_SECRET', ''),
+            'key': ''
+        },
+        'SCOPE': ['email', 'name']
+    }
 }
 
 # Default primary key field type

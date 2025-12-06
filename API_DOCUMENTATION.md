@@ -115,6 +115,27 @@ curl -X GET http://localhost:8000/api/profiles/picture_history/ \
 - Las URLs de las imágenes incluyen el dominio completo en las respuestas
 - **Si no envías el token JWT, la API responde `401 Unauthorized`. Asegúrate de incluir `Authorization: Bearer <token>`.
 
+## Autenticación Social (Google, Facebook, Apple)
+- Dependencias: `django-allauth`, `dj-rest-auth`, `requests-oauthlib`.
+- Configuración en entorno:
+  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+  - `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`
+  - `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET`
+- Endpoints:
+  - `POST /dj-rest-auth/google/`
+    - Body: `{ "access_token": "<GOOGLE_ACCESS_TOKEN>" }`
+  - `POST /dj-rest-auth/facebook/`
+    - Body: `{ "access_token": "<FACEBOOK_ACCESS_TOKEN>" }`
+  - `POST /dj-rest-auth/apple/`
+    - Body: `{ "id_token": "<APPLE_ID_TOKEN>" }`
+- Respuesta (200 OK):
+```json
+{ "access": "<ACCESS_TOKEN>", "refresh": "<REFRESH_TOKEN>" }
+```
+- Comportamiento:
+  - Usuarios nuevos reciben `UserProfile` con `user_type: "inquilino"`.
+  - Autenticación basada en JWT (SimpleJWT) con el mismo formato que login normal.
+
 ### Envío de verificación automática
 - **Endpoint**: `POST /api/profiles/submit_verification/`
 - **Autenticación**: Requerida (JWT)
