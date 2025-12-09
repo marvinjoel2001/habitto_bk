@@ -136,6 +136,35 @@ curl -X GET http://localhost:8000/api/profiles/picture_history/ \
   - Usuarios nuevos reciben `UserProfile` con `user_type: "inquilino"`.
   - Autenticación basada en JWT (SimpleJWT) con el mismo formato que login normal.
 
+## Rastreo de Ubicación de Usuario
+- **Modelo**: `UserLocationPoint(user, location(PointField EPSG:4326), created_at)`
+- **Endpoints**:
+  - `POST /api/location_points/submit/`
+    - Autenticación: Requerida (JWT)
+    - Body (JSON): `{ "latitude": -17.7834, "longitude": -63.1821 }`
+    - Respuesta (201): punto creado con `id`, `latitude`, `longitude`, `created_at`.
+  - `GET /api/location_points/`
+    - Autenticación: Requerida (JWT)
+    - Query opcional: `from=YYYY-MM-DDTHH:MM:SS`, `to=YYYY-MM-DDTHH:MM:SS`
+    - Devuelve puntos del usuario autenticado en el rango.
+  - `GET /api/location_points/route/?period=day|week|month|year&date=YYYY-MM-DD`
+    - Autenticación: Requerida (JWT)
+    - Construye la ruta ordenada por tiempo dentro del período indicado
+    - Respuesta:
+      ```json
+      {
+        "period": "day",
+        "from": "2025-12-09T00:00:00Z",
+        "to": "2025-12-10T00:00:00Z",
+        "count": 12,
+        "points": [ { "id": 1, "latitude": -17.78, "longitude": -63.18, "created_at": "..." } ],
+        "geojson": { "type": "LineString", "coordinates": [[-63.18,-17.78], ...] }
+      }
+      ```
+- **Notas**:
+  - El backend obtiene el usuario por el token y registra el punto con la hora actual.
+  - `period` admite `day`, `week`, `month`, `year`. `date` ancla el periodo; si se omite, se usa “hoy”.
+  - Los datos pueden ser muchos por usuario; se indexa por `(user, created_at)` para consultas eficientes.
 ### Envío de verificación automática
 - **Endpoint**: `POST /api/profiles/submit_verification/`
 - **Autenticación**: Requerida (JWT)

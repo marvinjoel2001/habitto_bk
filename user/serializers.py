@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import UserProfile, ProfilePictureHistory
+from .models import UserProfile, ProfilePictureHistory, UserLocationPoint
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,6 +73,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at', 'favorites', 'picture_history'
         ]
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+class UserLocationPointSerializer(serializers.ModelSerializer):
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UserLocationPoint
+        fields = ['id', 'user', 'location', 'latitude', 'longitude', 'created_at']
+        read_only_fields = ['id', 'user', 'created_at']
+
+    def get_latitude(self, obj):
+        return obj.location.y if obj.location else None
+
+    def get_longitude(self, obj):
+        return obj.location.x if obj.location else None
 
     def create(self, validated_data):
         # Remover user_id si está presente, ya que se maneja en la vista

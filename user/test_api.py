@@ -224,6 +224,21 @@ class UserProfileAPITestCase(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         prof.refresh_from_db()
         self.assertFalse(prof.deletion_pending)
+
+    def test_location_submit_and_route(self):
+        from django.contrib.gis.geos import Point
+        from user.models import UserLocationPoint
+        self.client.force_authenticate(user=self.user)
+        # Enviar 3 puntos
+        url_submit = '/api/location_points/submit/'
+        self.client.post(url_submit, {'latitude': -17.7834, 'longitude': -63.1821}, format='json')
+        self.client.post(url_submit, {'latitude': -17.7840, 'longitude': -63.1830}, format='json')
+        self.client.post(url_submit, {'latitude': -17.7850, 'longitude': -63.1840}, format='json')
+        # Ruta diaria
+        url_route = '/api/location_points/route/?period=day'
+        resp = self.client.get(url_route)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(resp.data.get('count', 0), 3)
         
     def test_delete_user_profile(self):
         """Test eliminar perfil"""

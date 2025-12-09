@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point
 from django.db import models
 import uuid
 import os
@@ -102,3 +104,17 @@ class Block(models.Model):
 
     def __str__(self):
         return f"{self.blocker.username} bloqueó a {self.blocked.username}"
+
+
+class UserLocationPoint(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='location_points')
+    location = gis_models.PointField(srid=4326)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user_id}@{self.created_at} ({self.location.y},{self.location.x})"

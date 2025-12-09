@@ -8,7 +8,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import UserProfile, ProfilePictureHistory
 from .models import Block
-from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer, ProfilePictureHistorySerializer
+from .models import UserLocationPoint
+from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer, ProfilePictureHistorySerializer, UserLocationPointSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('id')
@@ -335,6 +336,81 @@ class UserTokenObtainPairView(TokenObtainPairView):
             except Exception:
                 pass
         return response
+
+
+class UserLocationPointViewSet(viewsets.ModelViewSet):
+    queryset = UserLocationPoint.objects.select_related('user').order_by('-created_at')
+    serializer_class = UserLocationPointSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset().filter(user=self.request.user)
+        start = self.request.query_params.get('from')
+        end = self.request.query_params.get('to')
+        try:
+            if start:
+                start_dt = timezone.datetime.fromisoformat(start)
+                qs = qs.filter(created_at__gte=start_dt)
+            if end:
+                end_dt = timezone.datetime.fromisoformat(end)
+                qs = qs.filter(created_at__lte=end_dt)
+        except Exception:
+            pass
+        return qs
+
+    @action(detail=False, methods=['post'])
+    def submit(self, request):
+        from django.contrib.gis.geos import Point
+        try:
+            lat = float(request.data.get('latitude'))
+            lng = float(request.data.get('longitude'))
+        except (TypeError, ValueError):
+            return Response({'detail': 'latitude y longitude son requeridos y deben ser numéricos'}, status=status.HTTP_400_BAD_REQUEST)
+        point = Point(lng, lat, srid=4326)
+        obj = UserLocationPoint.objects.create(user=request.user, location=point)
+        ser = self.get_serializer(obj)
+        return Response(ser.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def route(self, request):
+        from datetime import timedelta
+        period = (request.query_params.get('period') or 'day').lower()
+        date_str = request.query_params.get('date')
+        now = timezone.now()
+        if date_str:
+            try:
+                base_date = timezone.datetime.fromisoformat(date_str)
+            except Exception:
+                base_date = now
+        else:
+            base_date = now
+
+        start = base_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        if period == 'day':
+            end = start + timedelta(days=1)
+        elif period == 'week':
+            start = start - timedelta(days=start.weekday())
+            end = start + timedelta(days=7)
+        elif period == 'month':
+            start = start.replace(day=1)
+            if start.month == 12:
+                end = start.replace(year=start.year + 1, month=1)
+            else:
+                end = start.replace(month=start.month + 1)
+        elif period == 'year':
+            start = start.replace(month=1, day=1)
+            end = start.replace(year=start.year + 1)
+        else:
+            return Response({'detail': 'period inválido. Use day|week|month|year'}, status=status.HTTP_400_BAD_REQUEST)
+
+        points = UserLocationPoint.objects.filter(user=request.user, created_at__gte=start, created_at__lt=end).order_by('created_at')
+        coords = [[p.location.x, p.location.y] for p in points]
+        ser = self.get_serializer(points, many=True)
+        geojson = {
+            'type': 'LineString',
+            'coordinates': coords
+        }
+        return Response({'period': period, 'from': start, 'to': end, 'count': len(coords), 'points': ser.data, 'geojson': geojson})
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def add_favorite(self, request):
