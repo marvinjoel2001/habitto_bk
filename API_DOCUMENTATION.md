@@ -3560,3 +3560,39 @@ Sistema para reportar perfiles de usuarios (propietarios, agentes, inquilinos) y
   - Proceso: tarea/command de backend ejecuta la eliminación definitiva cuando `deletion_scheduled_for <= now`.
   - Command manual (ops): `python manage.py purge_soft_deleted_users`
   - Efecto: se elimina el `User` y por cascada sus datos asociados.
+
+## 17. Endpoints de Pagos BNB (`/api/bnb/`)
+
+Integración con BNB Pago QR Simple.
+
+### `POST /api/bnb/generate-qr`
+- **Descripción**: Genera un código QR para pago.
+- **Autenticación**: No requerida (o según configuración de vista).
+- **Body JSON**:
+  ```json
+  {
+    "amount": 50.00,
+    "description": "Pedido #123",
+    "single_use": true,
+    "expiration_minutes": 30,
+    "additional_data": "order_id:123"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "qr_id": "...",
+    "qr_base64": "..."
+  }
+  ```
+- **Errores**:
+  - `400 Bad Request`: Faltan datos (`amount`, `description`).
+  - `502 Bad Gateway`: Error al comunicar con BNB.
+
+### `POST /api/bnb/notify`
+- **Descripción**: Webhook para notificaciones de pago desde BNB.
+- **Body JSON**: Estructura definida por BNB (QRId, Gloss, etc.).
+- **Response**:
+  ```json
+  { "success": true, "message": "OK" }
+  ```

@@ -68,6 +68,7 @@ urlpatterns = [
     path('api/', include('guarantee.urls')),
     path('api/', include('matching.urls')),
     path('api/', include('report.urls')),
+    path('api/', include('payments.urls')),
     # dj-rest-auth core & registration
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),

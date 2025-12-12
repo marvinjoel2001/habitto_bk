@@ -126,6 +126,7 @@ INSTALLED_APPS = [
     'guarantee',
     'matching',
     'report',
+    'payments',
     'django.contrib.sites',
     'dj_rest_auth',
     'dj_rest_auth.registration',
@@ -392,3 +393,12 @@ else:
     }
 
 MATCH_MIN_SCORE = int(os.environ.get('MATCH_MIN_SCORE', '0'))
+
+# Configuración de Pagos BNB QR
+BNB_QR = {
+    'BASE_URL': os.environ.get('BNB_QR_URL', 'http://test.bnb.com.bo/'),
+    'ACCOUNT_ID': os.environ.get('BNB_QR_ACCOUNT_ID', 's9CG8FE7Id75ef2jeX9bUA=='),
+    'INITIAL_AUTH_ID': os.environ.get('BNB_QR_INITIAL_AUTH_ID', '713K7PvTlACs1gdmv9jGgA=='),
+    'CURRENT_AUTH_ID': os.environ.get('BNB_QR_CURRENT_AUTH_ID', 'TuClaveSegura15*'),
+    'DESTINATION_ACCOUNT_ID': os.environ.get('BNB_QR_DESTINATION_ACCOUNT_ID', '1'),
+}
