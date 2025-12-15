@@ -105,13 +105,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3kqk+6%34%qg8==fc$!#^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',  # Siempre déjalo
-    'localhost',  # Siempre déjalo
-    '192.168.1.7', # <--- ¡AGREGA ESTA LÍNEA!
-    '10.0.2.2',    # <--- ¡OPCIONAL! Añádelo si usas el emulador de Android
-    '*',           # (Opcional, SOLO para desarrollo: permite CUALQUIER IP)
-]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
