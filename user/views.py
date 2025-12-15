@@ -320,6 +320,8 @@ class UserTokenObtainPairView(TokenObtainPairView):
     """
     Login JWT que además cancela eliminación pendiente si el usuario inicia sesión.
     """
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
