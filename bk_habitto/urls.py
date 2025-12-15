@@ -12,6 +12,11 @@ from rest_framework_simplejwt.views import (
 from user.views import UserTokenObtainPairView
 from bk_habitto.social_login_views import GoogleLogin, FacebookLogin, AppleLogin
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def api_root(request):
     return JsonResponse({
         'message': 'Bienvenido a la API de Habitto',

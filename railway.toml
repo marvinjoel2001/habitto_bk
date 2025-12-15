@@ -5,6 +5,6 @@ builder = "nixpacks"
 # Ejecuta las migraciones antes de iniciar el servidor Daphne
 startCommand = "python manage.py migrate && daphne -b 0.0.0.0 -p $PORT bk_habitto.asgi:application"
 restartPolicyType = "on_failure"
-healthcheckPath = "/api/"
+healthcheckPath = "/"
 healthcheckTimeout = 100
 upstartDelaySeconds = 10
