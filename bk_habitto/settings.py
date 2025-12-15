@@ -77,6 +77,27 @@ if os.name == 'nt':
     if proj_path:
         os.environ['PROJ_LIB'] = proj_path
 
+# --- CONFIGURACIÓN GDAL PARA LINUX/NIXPACKS (RAILWAY) ---
+else:
+    # Intentar encontrar librerías automáticamente si no están seteadas
+    if not os.environ.get('GDAL_LIBRARY_PATH'):
+        import glob
+        # Patrón común en Nixpacks: /nix/store/<hash>-gdal-<ver>/lib/libgdal.so
+        libs = glob.glob('/nix/store/*-gdal-*/lib/libgdal.so*')
+        if libs:
+            # Ordenar para preferir la más corta (symlink principal) o la más reciente
+            libs.sort(key=len)
+            os.environ['GDAL_LIBRARY_PATH'] = libs[0]
+            GDAL_LIBRARY_PATH = libs[0]
+
+    if not os.environ.get('GEOS_LIBRARY_PATH'):
+        import glob
+        libs = glob.glob('/nix/store/*-geos-*/lib/libgeos_c.so*')
+        if libs:
+            libs.sort(key=len)
+            os.environ['GEOS_LIBRARY_PATH'] = libs[0]
+            GEOS_LIBRARY_PATH = libs[0]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

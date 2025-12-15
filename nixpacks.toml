@@ -1,13 +1,5 @@
 [phases.setup]
 nixPkgs = ["python3", "gdal", "geos", "proj", "postgresql"]
-cmds = [
-    "export GDAL_LIBRARY_PATH=$(find /nix/store -name 'libgdal.so' -print -quit)",
-    "export GEOS_LIBRARY_PATH=$(find /nix/store -name 'libgeos_c.so' -print -quit)",
-    "if [ -z \"$GDAL_LIBRARY_PATH\" ]; then export GDAL_LIBRARY_PATH=$(find /nix/store -name 'libgdal.so.*' -print -quit); fi",
-    "if [ -z \"$GEOS_LIBRARY_PATH\" ]; then export GEOS_LIBRARY_PATH=$(find /nix/store -name 'libgeos_c.so.*' -print -quit); fi",
-    "echo \"GDAL_LIBRARY_PATH=$GDAL_LIBRARY_PATH\" >> $NIXPACKS_ENV",
-    "echo \"GEOS_LIBRARY_PATH=$GEOS_LIBRARY_PATH\" >> $NIXPACKS_ENV"
-]
 
 [phases.build]
 cmds = ["python manage.py collectstatic --noinput"]
