@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 # --- CONFIGURACIÓN GDAL PARA WINDOWS (SOLUCIONA EL ERROR ImproperlyConfigured) ---
 import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -81,10 +82,10 @@ if os.name == 'nt':
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3kqk+6%34%qg8==fc$!#^-z76^eic84q0$o_%-an0cfea%7$b8'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3kqk+6%34%qg8==fc$!#^-z76^eic84q0$o_%-an0cfea%7$b8')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     '127.0.0.1',  # Siempre déjalo
@@ -137,13 +138,16 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.apple',
     'django_extensions',
+    'corsheaders',
 ]
 
 # Eliminar esta línea: AUTH_USER_MODEL = 'user.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -181,19 +185,14 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': os.environ.get('DB_ENGINE', 'django.contrib.gis.db.backends.postgis'),
-        'NAME': os.environ.get('DB_NAME', 'habito_db'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'sistemas123'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
-        'CONN_MAX_AGE': int(os.environ.get('DB_CONN_MAX_AGE', '60')),
-        'OPTIONS': {
-            'sslmode': os.environ.get('DB_SSLMODE', 'disable')
-        },
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL', 'postgis://postgres:sistemas123@localhost:5432/habito_db'),
+        conn_max_age=600,
+        ssl_require=False  # Se puede ajustar según entorno
+    )
 }
+# Asegurar el motor postgis
+DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 
 # Password validation
@@ -310,6 +309,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# CORS Settings
+CORS_ALLOW_ALL_ORIGINS = True  # Para facilitar desarrollo, ajustar en producción
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'http://localhost:3000']
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 

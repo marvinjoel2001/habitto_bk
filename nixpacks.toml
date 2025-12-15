@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ["python3", "gdal", "geos", "proj", "postgresql"]
+
+[phases.build]
+cmds = ["python manage.py collectstatic --noinput"]
