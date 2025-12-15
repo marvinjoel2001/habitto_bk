@@ -79,13 +79,10 @@ if os.name == 'nt':
 
 # --- CONFIGURACIÓN GDAL PARA LINUX/NIXPACKS (RAILWAY) ---
 else:
-    # Intentar encontrar librerías automáticamente si no están seteadas
     if not os.environ.get('GDAL_LIBRARY_PATH'):
         import glob
-        # Patrón común en Nixpacks: /nix/store/<hash>-gdal-<ver>/lib/libgdal.so
         libs = glob.glob('/nix/store/*-gdal-*/lib/libgdal.so*')
         if libs:
-            # Ordenar para preferir la más corta (symlink principal) o la más reciente
             libs.sort(key=len)
             os.environ['GDAL_LIBRARY_PATH'] = libs[0]
             GDAL_LIBRARY_PATH = libs[0]
@@ -159,16 +156,13 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.apple',
     'django_extensions',
-    'corsheaders',
 ]
 
 # Eliminar esta línea: AUTH_USER_MODEL = 'user.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -209,10 +203,9 @@ DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', 'postgis://postgres:sistemas123@localhost:5432/habito_db'),
         conn_max_age=600,
-        ssl_require=False  # Se puede ajustar según entorno
+        ssl_require=False
     )
 }
-# Asegurar el motor postgis
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
 
@@ -333,8 +326,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True  # Para facilitar desarrollo, ajustar en producción
+CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'http://localhost:3000']
 
 MEDIA_URL = '/media/'
