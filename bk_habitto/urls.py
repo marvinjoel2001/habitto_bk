@@ -12,10 +12,11 @@ from rest_framework_simplejwt.views import (
 from user.views import UserTokenObtainPairView
 from bk_habitto.social_login_views import GoogleLogin, FacebookLogin, AppleLogin
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def api_root(request):
     return JsonResponse({
@@ -57,6 +58,7 @@ def api_root(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='api-root'),
+    path('api/', api_root),  # Explicitly handle /api/ with the public api_root view
     path('api/login/', UserTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('user.urls')),

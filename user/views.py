@@ -21,6 +21,25 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserCreateSerializer
         return UserSerializer
 
+    def initialize_request(self, request, *args, **kwargs):
+        """
+        Set action early so get_authenticators can use it.
+        """
+        method = request.method.lower()
+        if method == 'options':
+            self.action = 'metadata'
+        else:
+            self.action = self.action_map.get(method)
+        return super().initialize_request(request, *args, **kwargs)
+
+    def get_authenticators(self):
+        """
+        No requerir autenticación para registro (create)
+        """
+        if self.action == 'create':
+            return []
+        return super().get_authenticators()
+
     def get_permissions(self):
         """
         Permitir registro público pero requerir autenticación para otras acciones
@@ -321,6 +340,7 @@ class UserTokenObtainPairView(TokenObtainPairView):
     Login JWT que además cancela eliminación pendiente si el usuario inicia sesión.
     """
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
