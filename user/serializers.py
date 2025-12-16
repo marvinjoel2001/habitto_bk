@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfilePictureHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfilePictureHistory
-        fields = ['id', 'image', 'original_filename', 'uploaded_at', 'is_current']
+        fields = ['id', 'image', 'image_url', 'original_filename', 'uploaded_at', 'is_current']
         read_only_fields = ['id', 'uploaded_at']
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -24,16 +24,18 @@ class UserCreateSerializer(serializers.ModelSerializer):
     )
     phone = serializers.CharField(write_only=True, required=False, default='')
     profile_picture = serializers.ImageField(write_only=True, required=False)
+    profile_picture_url = serializers.URLField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'user_type', 'phone', 'profile_picture']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'user_type', 'phone', 'profile_picture', 'profile_picture_url']
 
     def create(self, validated_data):
         # Extraer datos del perfil
         user_type = validated_data.pop('user_type', 'inquilino')
         phone = validated_data.pop('phone', '')
         profile_picture = validated_data.pop('profile_picture', None)
+        profile_picture_url = validated_data.pop('profile_picture_url', None)
 
         # Crear usuario
         password = validated_data.pop('password')
@@ -46,15 +48,17 @@ class UserCreateSerializer(serializers.ModelSerializer):
             user=user,
             user_type=user_type,
             phone=phone,
-            profile_picture=profile_picture
+            profile_picture=profile_picture,
+            profile_picture_url=profile_picture_url
         )
 
-        # Si se subió una foto, crear entrada en el historial
-        if profile_picture:
+        # Si se subió una foto (archivo o URL), crear entrada en el historial
+        if profile_picture or profile_picture_url:
             ProfilePictureHistory.objects.create(
                 user_profile=profile,
                 image=profile_picture,
-                original_filename=profile_picture.name,
+                image_url=profile_picture_url,
+                original_filename=profile_picture.name if profile_picture else 'cloudinary_upload',
                 is_current=True
             )
 
@@ -68,11 +72,39 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
-            'id', 'user', 'user_id', 'user_type', 'phone', 'profile_picture', 'is_verified',
-            'id_card_front', 'id_card_back', 'selfie', 'document_number',
+            'id', 'user', 'user_id', 'user_type', 'phone', 
+            'profile_picture', 'profile_picture_url',
+            'is_verified',
+            'id_card_front', 'id_card_front_url',
+            'id_card_back', 'id_card_back_url', 
+            'selfie', 'selfie_url',
+            'document_number',
             'created_at', 'updated_at', 'favorites', 'picture_history'
         ]
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
+    def update(self, instance, validated_data):
+        # Manejar historial si cambia la foto
+        new_picture = validated_data.get('profile_picture')
+        new_picture_url = validated_data.get('profile_picture_url')
+        
+        if new_picture or new_picture_url:
+            # Marcar anteriores como no actuales
+            ProfilePictureHistory.objects.filter(
+                user_profile=instance,
+                is_current=True
+            ).update(is_current=False)
+            
+            # Crear nueva entrada
+            ProfilePictureHistory.objects.create(
+                user_profile=instance,
+                image=new_picture,
+                image_url=new_picture_url,
+                original_filename=new_picture.name if new_picture else 'cloudinary_upload',
+                is_current=True
+            )
+            
+        return super().update(instance, validated_data)
 
 class UserLocationPointSerializer(serializers.ModelSerializer):
     latitude = serializers.SerializerMethodField()

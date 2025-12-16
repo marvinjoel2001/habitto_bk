@@ -48,11 +48,15 @@ class UserProfile(models.Model):
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='inquilino')
     phone = models.CharField(max_length=20, blank=True, null=True)
     profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
+    profile_picture_url = models.URLField(max_length=500, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     # Campos de verificación automática
     id_card_front = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    id_card_front_url = models.URLField(max_length=500, blank=True, null=True)
     id_card_back = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    id_card_back_url = models.URLField(max_length=500, blank=True, null=True)
     selfie = models.ImageField(upload_to=verification_document_path, blank=True, null=True)
+    selfie_url = models.URLField(max_length=500, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
     # Eliminación diferida de cuenta
     deletion_pending = models.BooleanField(default=False)
@@ -77,6 +81,7 @@ class ProfilePictureHistory(models.Model):
     """
     user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='picture_history')
     image = models.ImageField(upload_to=user_profile_picture_path)
+    image_url = models.URLField(max_length=500, blank=True, null=True)
     original_filename = models.CharField(max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_current = models.BooleanField(default=False)

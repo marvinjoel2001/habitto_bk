@@ -19,7 +19,7 @@ class PropertySerializer(serializers.ModelSerializer):
     amenities = AmenityFlexibleField(required=False)
     is_roomie_listing = serializers.SerializerMethodField()
     roomie_seeker_info = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Property
         fields = '__all__'
@@ -38,58 +38,98 @@ class PropertySerializer(serializers.ModelSerializer):
         # Validar que el precio sea positivo
         if data.get('price', 0) <= 0:
             raise serializers.ValidationError("El precio debe ser mayor a 0.")
-        
+
         # Validar coordenadas si están presentes
         latitude = data.get('latitude')
         longitude = data.get('longitude')
-        
+
         if latitude is not None and longitude is not None:
             if not (-90 <= latitude <= 90):
                 raise serializers.ValidationError("La latitud debe estar entre -90 y 90.")
             if not (-180 <= longitude <= 180):
                 raise serializers.ValidationError("La longitud debe estar entre -180 y 180.")
-        
+
         return data
+
+    def create(self, validated_data):
+        amenities_data = validated_data.pop('amenities', None)
+        photos_urls = validated_data.get('photos_urls', [])
+
+        instance = super().create(validated_data)
+
+        if amenities_data is not None:
+            instance.amenities.set(amenities_data)
+
+        # Sync Photo objects from photos_urls
+        if photos_urls:
+            from photo.models import Photo
+            for url in photos_urls:
+                Photo.objects.create(property=instance, image_url=url)
+
+        return instance
 
     def update(self, instance, validated_data):
         amenities_data = validated_data.pop('amenities', None)
+        photos_urls = validated_data.get('photos_urls', None)
+
         instance = super().update(instance, validated_data)
+
         if amenities_data is not None:
             instance.amenities.set(amenities_data)
+
+        # If photos_urls is explicitly provided, we sync Photo objects
+        # Strategy: Add new ones. Deleting old ones is risky without ID mapping.
+        if photos_urls is not None:
+            from photo.models import Photo
+            existing_urls = set(instance.photos.filter(image_url__isnull=False).values_list('image_url', flat=True))
+            for url in photos_urls:
+                if url not in existing_urls:
+                    Photo.objects.create(property=instance, image_url=url)
+
         return instance
 
     def get_main_photo(self, obj):
         """
         Retorna la URL absoluta de la primera foto de la propiedad si existe.
+        Prioriza image_url de Cloudinary, luego image local, luego photos_urls.
         """
+        # 1. Try Photo model
         photo = obj.photos.order_by('created_at').first()
-        if not photo or not photo.image:
-            return None
-        try:
-            url = photo.image.url
-            request = self.context.get('request') if hasattr(self, 'context') else None
-            return request.build_absolute_uri(url) if request else url
-        except Exception:
-            return None
-    
+        if photo:
+            if photo.image_url:
+                return photo.image_url
+            if photo.image:
+                try:
+                    url = photo.image.url
+                    request = self.context.get('request') if hasattr(self, 'context') else None
+                    return request.build_absolute_uri(url) if request else url
+                except Exception:
+                    pass
+
+        # 2. Try photos_urls JSONField
+        if obj.photos_urls and len(obj.photos_urls) > 0:
+            return obj.photos_urls[0]
+
+        return None
+
     def get_is_roomie_listing(self, obj):
         """
         Indica si esta propiedad es una publicación de búsqueda de roomie.
         """
         return getattr(obj, 'is_roomie_listing', False)
-    
+
     def get_roomie_seeker_info(self, obj):
         """
         Retorna información del usuario que busca roomie si aplica.
         """
         if not getattr(obj, 'is_roomie_listing', False):
             return None
-        
+
         # Obtener el SearchProfile asociado
         roomie_profile = getattr(obj, 'roomie_profile', None)
         if not roomie_profile:
             return None
-        
+
         from matching.serializers import SearchProfileSerializer
         serializer = SearchProfileSerializer(roomie_profile, context=self.context)
         return serializer.data
@@ -119,17 +159,17 @@ class RoomieSeekerPropertySerializer(serializers.Serializer):
     amenities = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     updated_at = serializers.SerializerMethodField()
-    
+
     def get_type(self, obj):
         return 'roomie_seeker'
-    
+
     def get_address(self, obj):
         # Use preferred zones as address
         zones = obj.preferred_zones.all()
         if zones:
             return f"Buscando en: {', '.join(zone.name for zone in zones)}"
         return "Zona no especificada"
-    
+
     def get_description(self, obj):
         prefs = obj.roommate_preferences or {}
         vibes = obj.vibes or []
@@ -139,58 +179,58 @@ class RoomieSeekerPropertySerializer(serializers.Serializer):
         if prefs.get('gender') and prefs['gender'] != 'any':
             description += f" | Prefiere: {prefs['gender']}"
         return description
-    
+
     def get_price(self, obj):
         # Use budget range as price
         return obj.budget_max or obj.budget_min or 0
-    
+
     def get_bedrooms(self, obj):
         return obj.bedrooms_min or 1
-    
+
     def get_bathrooms(self, obj):
         return 1  # Default for roomie seekers
-    
+
     def get_size(self, obj):
         return 0  # Not applicable for roomie seekers
-    
+
     def get_zone_id(self, obj):
         zones = obj.preferred_zones.all()
         return zones.first().id if zones else None
-    
+
     def get_zone_name(self, obj):
         zones = obj.preferred_zones.all()
         return zones.first().name if zones else None
-    
+
     def get_latitude(self, obj):
         return obj.location.y if obj.location else None
-    
+
     def get_longitude(self, obj):
         return obj.location.x if obj.location else None
-    
+
     def get_is_active(self, obj):
         return obj.roommate_preference in ['looking', 'open']
-    
+
     def get_is_roomie_listing(self, obj):
         return True
-    
+
     def get_roomie_seeker_info(self, obj):
         # Return the search profile data
         serializer = SearchProfileSerializer(obj, context=self.context)
         return serializer.data
-    
+
     def get_main_photo(self, obj):
         # Return default avatar or user profile photo
         return None  # Can be enhanced to use user profile photo
-    
+
     def get_nearby_properties_count(self, obj):
         return 0  # Not applicable for roomie seekers
-    
+
     def get_amenities(self, obj):
         return []  # Not applicable for roomie seekers
-    
+
     def get_created_at(self, obj):
         return obj.created_at
-    
+
     def get_updated_at(self, obj):
         return obj.updated_at
 
@@ -204,7 +244,7 @@ class PropertyGeoSerializer(GeoFeatureModelSerializer):
     zone_id = serializers.IntegerField(source='zone.id', read_only=True)
     latitude = serializers.ReadOnlyField()
     longitude = serializers.ReadOnlyField()
-    
+
     class Meta:
         model = Property
         geo_field = 'location'
@@ -223,7 +263,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
     amenities = AmenityFlexibleField(required=False)
-    
+
     class Meta:
         model = Property
         fields = [
@@ -231,7 +271,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             'owner', 'agent', 'type', 'address', 'latitude', 'longitude',
             'zone_id', 'price', 'guarantee', 'description', 'size',
             'bedrooms', 'bathrooms', 'amenities', 'availability_date',
-            'is_active', 'accepted_payment_methods',
+            'is_active', 'accepted_payment_methods', 'photos_urls',
             # Nuevos campos de matching
             'allows_roommates', 'max_occupancy', 'min_price_per_person',
             'is_furnished', 'tenant_requirements', 'tags', 'semantic_embedding',
@@ -247,17 +287,17 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         """
         # Validaciones básicas
         data = super().validate(data)
-        
+
         # Validar que tenga coordenadas o zona
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         zone_id = data.get('zone_id')
-        
+
         if not zone_id and (not latitude or not longitude):
             raise serializers.ValidationError(
                 "Debe proporcionar coordenadas (latitude/longitude) o zone_id."
             )
-        
+
         return data
 
     def create(self, validated_data):
@@ -267,11 +307,12 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         zone_id = validated_data.pop('zone_id', None)
         latitude = validated_data.pop('latitude', None)
         longitude = validated_data.pop('longitude', None)
-        
+        photos_urls = validated_data.get('photos_urls', [])
+
         # Crear Point desde coordenadas si están disponibles
         if latitude is not None and longitude is not None:
             validated_data['location'] = Point(float(longitude), float(latitude))
-        
+
         # Si se proporciona zone_id, asignarlo
         if zone_id:
             from zone.models import Zone
@@ -280,11 +321,19 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
                 validated_data['zone'] = zone
             except Zone.DoesNotExist:
                 raise serializers.ValidationError(f"Zona con ID {zone_id} no existe.")
-        
+
         amenities_data = validated_data.pop('amenities', None)
         obj = super().create(validated_data)
+
         if amenities_data is not None:
             obj.amenities.set(amenities_data)
+
+        # Sync Photo objects from photos_urls
+        if photos_urls:
+            from photo.models import Photo
+            for url in photos_urls:
+                Photo.objects.create(property=obj, image_url=url)
+
         return obj
 
 
@@ -303,7 +352,7 @@ class PropertyMapSerializer(serializers.ModelSerializer):
     latitude = serializers.ReadOnlyField()
     longitude = serializers.ReadOnlyField()
     main_photo = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Property
         fields = [
@@ -312,15 +361,24 @@ class PropertyMapSerializer(serializers.ModelSerializer):
         ]
 
     def get_main_photo(self, obj):
+        # 1. Try Photo model
         photo = obj.photos.order_by('created_at').first()
-        if not photo or not photo.image:
-            return None
-        try:
-            url = photo.image.url
-            request = self.context.get('request') if hasattr(self, 'context') else None
-            return request.build_absolute_uri(url) if request else url
-        except Exception:
-            return None
+        if photo:
+            if photo.image_url:
+                return photo.image_url
+            if photo.image:
+                try:
+                    url = photo.image.url
+                    request = self.context.get('request') if hasattr(self, 'context') else None
+                    return request.build_absolute_uri(url) if request else url
+                except Exception:
+                    pass
+
+        # 2. Try photos_urls JSONField
+        if obj.photos_urls and len(obj.photos_urls) > 0:
+            return obj.photos_urls[0]
+
+        return None
 
 
 class PropertySearchSerializer(serializers.Serializer):
@@ -345,22 +403,22 @@ class PropertySearchSerializer(serializers.Serializer):
         # Si se proporcionan coordenadas, validar que ambas estén presentes
         latitude = data.get('latitude')
         longitude = data.get('longitude')
-        
+
         if (latitude is not None and longitude is None) or (longitude is not None and latitude is None):
             raise serializers.ValidationError(
                 "Si proporciona coordenadas, debe incluir tanto latitude como longitude."
             )
-        
+
         # Validar rangos de coordenadas
         if latitude is not None and not (-90 <= latitude <= 90):
             raise serializers.ValidationError("La latitud debe estar entre -90 y 90.")
         if longitude is not None and not (-180 <= longitude <= 180):
             raise serializers.ValidationError("La longitud debe estar entre -180 y 180.")
-        
+
         # Validar precios
         min_price = data.get('min_price')
         max_price = data.get('max_price')
         if min_price is not None and max_price is not None and min_price > max_price:
             raise serializers.ValidationError("El precio mínimo no puede ser mayor al precio máximo.")
-        
+
         return data

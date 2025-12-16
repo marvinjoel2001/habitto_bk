@@ -1,3 +1,32 @@
+# Documentación de la API
+
+## Manejo de Imágenes (Cloudinary)
+La aplicación utiliza Cloudinary para el almacenamiento optimizado de imágenes. El flujo recomendado es:
+1. Subir la imagen al endpoint dedicado de subida.
+2. Obtener la URL segura de la respuesta.
+3. Usar esa URL en los endpoints de creación/edición de recursos (Usuarios, Propiedades).
+
+### `POST /api/upload/image/`
+- **Descripción**: Sube una imagen a Cloudinary y retorna su URL optimizada.
+- **Autenticación**: Requerida.
+- **Content-Type**: `multipart/form-data`
+- **Parámetros**:
+  - `file` (Required): El archivo de imagen.
+  - `folder` (Optional): Carpeta de destino (default: `habitto/uploads`).
+- **Respuesta Exitosa (201 Created)**:
+  ```json
+  {
+    "url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/f_auto,q_auto/v1/habitto/uploads/imagen.jpg",
+    "filename": "imagen.jpg"
+  }
+  ```
+- **Errores**:
+  - `400 Bad Request`: Archivo no proporcionado, formato inválido o tamaño excedido (>10MB).
+
+---
+
+## Autenticación y Usuarios
+
 # Registro con imagen usando curl
 curl -X POST http://localhost:8000/api/users/ \
   -H "Content-Type: multipart/form-data" \
@@ -17,7 +46,17 @@ curl -X POST http://localhost:8000/api/users/ \
 - **Content-Type**: `multipart/form-data`
 - **Campos**:
   - `profile_picture` (archivo, obligatorio): Imagen nueva
-- **Ejemplo**:
+  - `profile_picture_url` (URL, opcional): URL de Cloudinary (si ya se subió previamente)
+- **Ejemplo con URL**:
+```bash
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "profile_picture_url": "https://res.cloudinary.com/..."
+  }'
+```
+- **Ejemplo con archivo**:
 ```bash
 curl -X POST http://localhost:8000/api/profiles/upload_profile_picture/ \
   -H "Authorization: Bearer TU_TOKEN_JWT" \
@@ -329,6 +368,7 @@ Gestiona las propiedades inmobiliarias del sistema.
   - `amenities`: Array de IDs de amenidades
   - `availability_date`: Fecha de disponibilidad
   - `accepted_payment_methods`: Array de IDs de métodos de pago aceptados
+  - `photos_urls`: Array de URLs de imágenes en Cloudinary (Recomendado)
   - `zone_id`: ID de la zona (se asigna automáticamente si no se especifica)
   - `allows_roommates`: Si la propiedad permite roomies
   - `max_occupancy`: Ocupantes máximos recomendados

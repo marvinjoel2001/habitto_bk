@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import (
 )
 from user.views import UserTokenObtainPairView
 from bk_habitto.social_login_views import GoogleLogin, FacebookLogin, AppleLogin
+from bk_habitto.upload_views import ImageUploadView
 
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import AllowAny
@@ -59,6 +60,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', api_root, name='api-root'),
     path('api/', api_root),  # Explicitly handle /api/ with the public api_root view
+    path('api/upload/image/', ImageUploadView.as_view(), name='image-upload'),
     path('api/login/', UserTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('user.urls')),
