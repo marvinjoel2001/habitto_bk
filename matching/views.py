@@ -24,14 +24,12 @@ def _absolute_profile_pic(user, request):
     pic_url = None
     try:
         up = getattr(user, 'profile', None)
-        if up and getattr(up, 'profile_picture', None):
-            url = up.profile_picture.url
-            pic_url = request.build_absolute_uri(url) if request else url
+        if up and getattr(up, 'profile_picture_url', None):
+            pic_url = up.profile_picture_url
         elif up:
             current = up.picture_history.filter(is_current=True).first()
-            if current and getattr(current, 'image', None):
-                url = current.image.url
-                pic_url = request.build_absolute_uri(url) if request else url
+            if current and getattr(current, 'image_url', None):
+                pic_url = current.image_url
     except Exception:
         pass
     return pic_url

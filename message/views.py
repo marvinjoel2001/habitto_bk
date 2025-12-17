@@ -62,11 +62,8 @@ class MessageViewSet(MessageConfigMixin, viewsets.ModelViewSet):
                     profile = None
                 full_name = ((other.first_name or '').strip() + ' ' + (other.last_name or '').strip()).strip() or other.username
                 picture_url = None
-                if profile and profile.profile_picture:
-                    try:
-                        picture_url = request.build_absolute_uri(profile.profile_picture.url)
-                    except Exception:
-                        picture_url = profile.profile_picture.url
+                if profile and profile.profile_picture_url:
+                    picture_url = profile.profile_picture_url
                 last_msg = {
                     'id': m.id,
                     'content': m.content,
