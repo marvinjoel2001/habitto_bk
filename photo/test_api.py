@@ -3,6 +3,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import patch
 from decimal import Decimal
 from .models import Photo
 from property.models import Property
@@ -63,9 +64,46 @@ class PhotoAPITestCase(APITestCase):
             'image': new_image,
             'caption': 'Nueva foto'
         }
-        response = self.client.post(url, data, format='multipart')
+        
+        # Patch Cloudinary to avoid network calls during this test too
+        with patch('bk_habitto.services.cloudinary_service.CloudinaryService.upload_image') as mock_upload:
+            mock_upload.return_value = 'http://cloudinary.com/test.jpg'
+            response = self.client.post(url, data, format='multipart')
+            
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Photo.objects.count(), 2)
+
+    @patch('bk_habitto.services.cloudinary_service.CloudinaryService.upload_image')
+    def test_create_photo_populates_image_url(self, mock_upload):
+        """Test que al crear foto se popula image_url con la respuesta de Cloudinary"""
+        self.client.force_authenticate(user=self.user)
+        url = reverse('photo-list')
+        
+        # Mock de Cloudinary response
+        expected_url = 'https://res.cloudinary.com/demo/image/upload/v1/new_image.jpg'
+        mock_upload.return_value = expected_url
+        
+        # Crear nueva imagen para el test
+        new_image = SimpleUploadedFile(
+            name='new_image.jpg',
+            content=self.create_test_image_content(),
+            content_type='image/jpeg'
+        )
+        
+        data = {
+            'property': self.property.id,
+            'image': new_image,
+            'caption': 'Nueva foto Cloudinary'
+        }
+        response = self.client.post(url, data, format='multipart')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['image_url'], expected_url)
+        self.assertEqual(response.data['data']['image_url'], expected_url) if 'data' in response.data else None
+        
+        # Verificar que se llamó al servicio
+        mock_upload.assert_called_once()
+
         
     def test_list_photos(self):
         """Test listar fotos"""

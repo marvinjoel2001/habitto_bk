@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from unittest.mock import patch
+import os
 
 class ImageUploadTest(APITestCase):
     def setUp(self):
@@ -32,6 +33,20 @@ class ImageUploadTest(APITestCase):
         self.assertIn('url', response.data)
         # Check that it returns optimized url
         self.assertEqual(response.data['url'], 'https://res.cloudinary.com/demo/image/upload/f_auto,q_auto/v1/sample.jpg')
+
+    def test_real_upload_casa2_jpg(self):
+        image_content = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x01\x01\x11\x00\x02\x11\x01\x03\x11\x01\xff\xc4\x00\x14\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00\x3f\x00\xaa\xff\xd9'
+        image = SimpleUploadedFile('casa2.jpg', image_content, content_type='image/jpeg')
+        data = {'file': image}
+        response = self.client.post(self.upload_url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn('url', response.data)
+        url = response.data['url']
+        self.assertIn('res.cloudinary.com', url)
+        self.assertIn('f_auto,q_auto', url)
+        cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+        if cloud_name:
+            self.assertIn(cloud_name, url)
 
 class PropertyCloudinaryTest(APITestCase):
     def setUp(self):
