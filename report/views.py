@@ -7,6 +7,7 @@ from datetime import timedelta
 from .models import Report, ReportCategory, ReportAttachment
 from .serializers import ReportSerializer, ReportCategorySerializer, ReportAttachmentSerializer
 from bk_habitto.mixins import MessageConfigMixin
+from bk_habitto.services.cloudinary_service import CloudinaryService
 
 
 class ReportCategoryViewSet(MessageConfigMixin, viewsets.ReadOnlyModelViewSet):
@@ -83,11 +84,16 @@ class ReportViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         file = request.FILES.get('file')
         if not file:
             return Response({'detail': 'Archivo requerido'}, status=status.HTTP_400_BAD_REQUEST)
-        att = ReportAttachment.objects.create(report=report, file=file)
-        serializer = ReportAttachmentSerializer(att)
-        resp = Response(serializer.data)
-        self.set_response_message(resp, 'Adjunto agregado exitosamente')
-        return resp
+
+        try:
+            url = CloudinaryService.upload_image(file, folder="habitto/reports", optimize=False)
+            att = ReportAttachment.objects.create(report=report, file_url=url)
+            serializer = ReportAttachmentSerializer(att)
+            resp = Response(serializer.data)
+            self.set_response_message(resp, 'Adjunto agregado exitosamente')
+            return resp
+        except Exception as e:
+            return Response({'detail': f'Error al subir adjunto: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'], url_path='update_status')
     def update_status(self, request, pk=None):

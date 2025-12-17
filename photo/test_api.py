@@ -38,7 +38,7 @@ class PhotoAPITestCase(APITestCase):
 
         self.photo = Photo.objects.create(
             property=self.property,
-            image=self.test_image,
+            image_url='http://test.com/image.jpg',
             caption='Foto de prueba'
         )
 

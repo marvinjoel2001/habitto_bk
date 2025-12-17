@@ -54,7 +54,7 @@ class Report(models.Model):
 
 class ReportAttachment(models.Model):
     report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='attachments')
-    file = models.FileField(upload_to='report_attachments')
+    file_url = models.URLField(max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

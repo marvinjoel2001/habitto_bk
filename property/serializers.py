@@ -91,20 +91,13 @@ class PropertySerializer(serializers.ModelSerializer):
     def get_main_photo(self, obj):
         """
         Retorna la URL absoluta de la primera foto de la propiedad si existe.
-        Prioriza image_url de Cloudinary, luego image local, luego photos_urls.
+        Prioriza image_url de Cloudinary.
         """
         # 1. Try Photo model
         photo = obj.photos.order_by('created_at').first()
         if photo:
             if photo.image_url:
                 return photo.image_url
-            if photo.image:
-                try:
-                    url = photo.image.url
-                    request = self.context.get('request') if hasattr(self, 'context') else None
-                    return request.build_absolute_uri(url) if request else url
-                except Exception:
-                    pass
 
         # 2. Try photos_urls JSONField
         if obj.photos_urls and len(obj.photos_urls) > 0:
@@ -366,13 +359,6 @@ class PropertyMapSerializer(serializers.ModelSerializer):
         if photo:
             if photo.image_url:
                 return photo.image_url
-            if photo.image:
-                try:
-                    url = photo.image.url
-                    request = self.context.get('request') if hasattr(self, 'context') else None
-                    return request.build_absolute_uri(url) if request else url
-                except Exception:
-                    pass
 
         # 2. Try photos_urls JSONField
         if obj.photos_urls and len(obj.photos_urls) > 0:

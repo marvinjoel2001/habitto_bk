@@ -10,6 +10,7 @@ from .models import UserProfile, ProfilePictureHistory
 from .models import Block
 from .models import UserLocationPoint
 from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer, ProfilePictureHistorySerializer, UserLocationPointSerializer
+from bk_habitto.services.cloudinary_service import CloudinaryService
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('id')
@@ -123,16 +124,22 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
             # Actualizar la foto de perfil
             new_picture = request.FILES['profile_picture']
-            profile.profile_picture = new_picture
-            profile.save()
 
-            # Crear nueva entrada en el historial
-            ProfilePictureHistory.objects.create(
-                user_profile=profile,
-                image=new_picture,
-                original_filename=new_picture.name,
-                is_current=True
-            )
+            try:
+                # Upload to Cloudinary
+                url = CloudinaryService.upload_image(new_picture, folder="habitto/profiles")
+                profile.profile_picture_url = url
+                profile.save()
+
+                # Crear nueva entrada en el historial
+                ProfilePictureHistory.objects.create(
+                    user_profile=profile,
+                    image_url=url,
+                    original_filename=new_picture.name,
+                    is_current=True
+                )
+            except Exception as e:
+                 return Response({'detail': f'Error al subir imagen: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
             serializer = self.get_serializer(profile)
             return Response(serializer.data)
@@ -189,15 +196,25 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         document_number = request.data.get('document_number')
 
         updated_fields = []
-        if id_front is not None:
-            profile.id_card_front = id_front
-            updated_fields.append('id_card_front')
-        if id_back is not None:
-            profile.id_card_back = id_back
-            updated_fields.append('id_card_back')
-        if selfie is not None:
-            profile.selfie = selfie
-            updated_fields.append('selfie')
+
+        try:
+            if id_front is not None:
+                url = CloudinaryService.upload_image(id_front, folder="habitto/verification/id_front")
+                profile.id_card_front_url = url
+                updated_fields.append('id_card_front_url')
+
+            if id_back is not None:
+                url = CloudinaryService.upload_image(id_back, folder="habitto/verification/id_back")
+                profile.id_card_back_url = url
+                updated_fields.append('id_card_back_url')
+
+            if selfie is not None:
+                url = CloudinaryService.upload_image(selfie, folder="habitto/verification/selfie")
+                profile.selfie_url = url
+                updated_fields.append('selfie_url')
+        except Exception as e:
+            return Response({'detail': f'Error al subir documentos: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
         if document_number:
             profile.document_number = document_number
             updated_fields.append('document_number')
@@ -230,12 +247,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'Perfil no encontrado'}, status=status.HTTP_404_NOT_FOUND)
 
         full_name = ((user_obj.first_name or '').strip() + ' ' + (user_obj.last_name or '').strip()).strip() or user_obj.username
-        picture_url = None
-        if profile.profile_picture:
-            try:
-                picture_url = request.build_absolute_uri(profile.profile_picture.url)
-            except Exception:
-                picture_url = profile.profile_picture.url
+        picture_url = profile.profile_picture_url
 
         data = {
             'profile_id': profile.id,

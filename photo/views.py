@@ -20,18 +20,13 @@ class PhotoViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     }
 
     def perform_create(self, serializer):
-        image = serializer.validated_data.get('image')
+        image = serializer.validated_data.pop('image', None)
         image_url = None
         if image:
             try:
                 # Subir a Cloudinary
                 image_url = CloudinaryService.upload_image(image, folder="habitto/properties")
-                # Restaurar el puntero del archivo para que Django pueda guardarlo localmente también
-                if hasattr(image, 'seek'):
-                    image.seek(0)
             except Exception:
-                # Si falla Cloudinary, permitimos que continúe y se guarde localmente
-                # aunque image_url será None
                 pass
-        
+
         serializer.save(image_url=image_url)

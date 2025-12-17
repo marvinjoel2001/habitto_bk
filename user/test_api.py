@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import UserProfile
 from .models import Block
+import unittest
 
 
 class UserAPITestCase(APITestCase):
@@ -22,7 +23,7 @@ class UserAPITestCase(APITestCase):
             email='admin@example.com',
             password='adminpass123'
         )
-        
+
     def test_create_user(self):
         """Test crear usuario - debe ser público"""
         url = reverse('user-list')
@@ -37,14 +38,14 @@ class UserAPITestCase(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(User.objects.count(), 3)
-        
+
     def test_list_users(self):
         """Test listar usuarios"""
         self.client.force_authenticate(user=self.admin_user)
         url = reverse('user-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
     def test_retrieve_user(self):
         """Test obtener usuario específico"""
         self.client.force_authenticate(user=self.user)
@@ -52,7 +53,7 @@ class UserAPITestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['username'], 'testuser')
-        
+
     def test_update_user(self):
         """Test actualizar usuario"""
         self.client.force_authenticate(user=self.user)
@@ -65,7 +66,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'Updated')
-        
+
     def test_delete_user(self):
         """Test eliminar usuario"""
         self.client.force_authenticate(user=self.admin_user)
@@ -89,7 +90,7 @@ class UserProfileAPITestCase(APITestCase):
             phone='12345678',
             is_verified=False
         )
-        
+
     def test_create_user_profile(self):
         """Test crear perfil de usuario"""
         new_user = User.objects.create_user(
@@ -107,14 +108,14 @@ class UserProfileAPITestCase(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(UserProfile.objects.count(), 2)
-        
+
     def test_list_user_profiles(self):
         """Test listar perfiles de usuario"""
         self.client.force_authenticate(user=self.user)
         url = reverse('userprofile-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
     def test_retrieve_user_profile(self):
         """Test obtener perfil específico"""
         self.client.force_authenticate(user=self.user)
@@ -122,7 +123,7 @@ class UserProfileAPITestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['user_type'], 'inquilino')
-        
+
     def test_update_user_profile(self):
         """Test actualizar perfil"""
         self.client.force_authenticate(user=self.user)
@@ -132,7 +133,7 @@ class UserProfileAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.profile.refresh_from_db()
         self.assertEqual(self.profile.phone, '99999999')
-        
+
     def test_verify_user_profile(self):
         """Test verificar perfil de usuario"""
         self.client.force_authenticate(user=self.user)
@@ -142,8 +143,10 @@ class UserProfileAPITestCase(APITestCase):
         self.profile.refresh_from_db()
         self.assertTrue(self.profile.is_verified)
 
-    def test_submit_verification_marks_verified(self):
+    @unittest.mock.patch('bk_habitto.services.cloudinary_service.CloudinaryService.upload_image')
+    def test_submit_verification_marks_verified(self, mock_upload):
         """Test verificación automática con documentos y selfie"""
+        mock_upload.return_value = 'http://cloudinary.com/test.jpg'
         self.client.force_authenticate(user=self.user)
         url = reverse('userprofile-submit-verification')
         front = SimpleUploadedFile('front.jpg', b'front', content_type='image/jpeg')
@@ -158,6 +161,7 @@ class UserProfileAPITestCase(APITestCase):
         response = self.client.post(url, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('is_verified'))
+
 
     def test_block_user_prevents_profile_access_and_messages(self):
         other = User.objects.create_user(username='other', email='o@example.com', password='x')
@@ -239,7 +243,7 @@ class UserProfileAPITestCase(APITestCase):
         resp = self.client.get(url_route)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(resp.data.get('count', 0), 3)
-        
+
     def test_delete_user_profile(self):
         """Test eliminar perfil"""
         self.client.force_authenticate(user=self.user)

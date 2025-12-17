@@ -16,13 +16,13 @@ cloudinary.config(
 )
 
 class CloudinaryService:
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'pdf', 'doc', 'docx'}
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
     @staticmethod
-    def validate_image(file):
+    def validate_file(file):
         """
-        Valida el formato y tamaño de la imagen.
+        Valida el formato y tamaño del archivo.
         """
         # Validar tamaño
         if file.size > CloudinaryService.MAX_FILE_SIZE:
@@ -36,21 +36,23 @@ class CloudinaryService:
     @staticmethod
     def upload_image(file, folder="habitto", optimize=True):
         """
-        Sube una imagen a Cloudinary y retorna la URL (optimizada por defecto).
+        Sube un archivo a Cloudinary y retorna la URL.
+        Si es imagen y optimize=True, retorna URL optimizada.
         """
-        CloudinaryService.validate_image(file)
+        CloudinaryService.validate_file(file)
 
         try:
-            # Subir la imagen
+            # Subir el archivo
             upload_result = cloudinary.uploader.upload(
                 file,
                 folder=folder,
-                resource_type="image"
+                resource_type="auto"
             )
 
             public_id = upload_result.get('public_id')
+            resource_type = upload_result.get('resource_type')
 
-            if optimize:
+            if optimize and resource_type == 'image':
                 # Generar URL optimizada (f_auto, q_auto)
                 optimized_url, _ = cloudinary_url(
                     public_id,
@@ -63,7 +65,7 @@ class CloudinaryService:
             return upload_result.get('secure_url')
 
         except Exception as e:
-            raise ValidationError(f"Error al subir la imagen a Cloudinary: {str(e)}")
+            raise ValidationError(f"Error al subir archivo a Cloudinary: {str(e)}")
 
     @staticmethod
     def get_optimized_url(public_id, width=None, height=None, crop="fill"):

@@ -3,10 +3,12 @@ from .models import Report, ReportCategory, ReportAttachment
 
 
 class ReportAttachmentSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+
     class Meta:
         model = ReportAttachment
-        fields = ['id', 'file', 'uploaded_at']
-        read_only_fields = ['id', 'uploaded_at']
+        fields = ['id', 'file', 'file_url', 'uploaded_at']
+        read_only_fields = ['id', 'file_url', 'uploaded_at']
 
 
 class ReportCategorySerializer(serializers.ModelSerializer):
