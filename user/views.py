@@ -2,8 +2,12 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from datetime import timedelta
+import logging
+
+logger = logging.getLogger('api_logger')
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import UserProfile, ProfilePictureHistory
@@ -370,6 +374,48 @@ class UserTokenObtainPairView(TokenObtainPairView):
             except Exception:
                 pass
         return response
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """
+    Vista personalizada para refrescar el token con logs detallados.
+    """
+    def post(self, request, *args, **kwargs):
+        ip = request.META.get('REMOTE_ADDR')
+        logger.info(f"Token refresh attempt from IP: {ip}")
+        try:
+            response = super().post(request, *args, **kwargs)
+            if response.status_code == 200:
+                logger.info(f"Token refresh successful for IP: {ip}")
+            else:
+                logger.warning(f"Token refresh failed with status {response.status_code} for IP {ip}: {response.data}")
+            return response
+        except (InvalidToken, TokenError) as e:
+            logger.error(f"Token refresh failed (InvalidToken/TokenError) for IP {ip}: {str(e)}")
+            return Response({'detail': str(e), 'code': 'token_not_valid'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            logger.error(f"Unexpected error during token refresh for IP {ip}: {str(e)}")
+            raise e
+
+
+class CustomTokenVerifyView(TokenVerifyView):
+    """
+    Vista personalizada para verificar el token con logs detallados.
+    """
+    def post(self, request, *args, **kwargs):
+        ip = request.META.get('REMOTE_ADDR')
+        logger.info(f"Token verification attempt from IP: {ip}")
+        try:
+            response = super().post(request, *args, **kwargs)
+            if response.status_code == 200:
+                logger.info(f"Token verification successful for IP: {ip}")
+            else:
+                logger.warning(f"Token verification failed with status {response.status_code} for IP {ip}: {response.data}")
+            return response
+        except Exception as e:
+            logger.error(f"Token verification failed for IP {ip}: {str(e)}")
+            raise e
+
 
 
 class UserLocationPointViewSet(viewsets.ModelViewSet):
