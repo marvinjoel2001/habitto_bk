@@ -123,7 +123,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_gis',  # Soporte GeoJSON para REST Framework
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
     'django_filters',
     'habittoapp',
     'user',
@@ -259,7 +258,7 @@ from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }

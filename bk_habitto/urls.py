@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
-from user.views import UserTokenObtainPairView, CustomTokenRefreshView, CustomTokenVerifyView
+from user.views import UserTokenObtainPairView
 from bk_habitto.social_login_views import GoogleLogin, FacebookLogin, AppleLogin
 from bk_habitto.upload_views import ImageUploadView
 
@@ -26,7 +26,6 @@ def api_root(request):
             'admin': '/admin/',
             'login': '/api/login/',
             'refresh': '/api/refresh/',
-            'verify': '/api/verify/',
             'users': '/api/users/',
             'profiles': '/api/profiles/',
             'properties': '/api/properties/',
@@ -63,8 +62,7 @@ urlpatterns = [
     path('api/', api_root),  # Explicitly handle /api/ with the public api_root view
     path('api/upload/image/', ImageUploadView.as_view(), name='image-upload'),
     path('api/login/', UserTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
-    path('api/verify/', CustomTokenVerifyView.as_view(), name='token_verify'),
+    path('api/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include('user.urls')),
     path('api/', include('property.urls')),
     path('api/', include('zone.urls')),
