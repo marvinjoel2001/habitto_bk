@@ -234,6 +234,7 @@ sequenceDiagram
 ### Detalle y ejemplos
 - `GET /api/properties/?match_score=80&order_by_match=true`
   - 200 OK: lista paginada con `_match_score` y orden por compatibilidad
+  - **Nota**: Si el usuario es inquilino (`user_type='inquilino'`), se excluyen automáticamente las propiedades con las que ya ha interactuado (Like/Dislike explícito).
   - 401 Unauthorized si no hay usuario para cálculo de score
 
 - `POST /api/matches/{id}/like/`

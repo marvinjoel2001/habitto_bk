@@ -76,6 +76,17 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
         if user_type == 'inquilino':
             # Inquilinos solo ven propiedades activas
             queryset = queryset.filter(is_active=True)
+            
+            # Excluir propiedades a las que ya se les dio like
+            # (Las rechazadas siguen apareciendo según requerimiento)
+            from matching.models import MatchFeedback
+            liked_ids = MatchFeedback.objects.filter(
+                user=self.request.user,
+                match__match_type='property',
+                feedback_type='like'
+            ).values_list('match__subject_id', flat=True)
+            if liked_ids:
+                queryset = queryset.exclude(id__in=liked_ids)
         elif user_type == 'propietario':
             # Propietarios ven sus propiedades + activas de otros
             queryset = queryset.filter(
