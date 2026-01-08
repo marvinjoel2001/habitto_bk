@@ -8,8 +8,8 @@ import os
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = os.environ.get('GOOGLE_CALLBACK_URL', 'http://localhost:8000/')
-    client_class = OAuth2Client
+    # callback_url = os.environ.get('GOOGLE_CALLBACK_URL', 'http://localhost:8000/')
+    # client_class = OAuth2Client
 
 
 class FacebookLogin(SocialLoginView):
