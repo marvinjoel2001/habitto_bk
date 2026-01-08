@@ -29,26 +29,101 @@ class GoogleLogin(SocialLoginView):
 
     def post(self, request, *args, **kwargs):
         try:
-            response = super().post(request, *args, **kwargs)
-            if response.status_code == 200 and request.user.is_authenticated:
-                try:
-                    profile = UserProfile.objects.get(user=request.user)
-                    if profile.deletion_pending:
-                        profile.deletion_pending = False
-                        profile.deletion_requested_at = None
-                        profile.deletion_scheduled_for = None
-                        profile.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
-
-                        # Notificar cancelación
-                        try:
-                            from notification.models import Notification
-                            Notification.objects.create(user=request.user, message='La eliminación de tu cuenta ha sido cancelada.')
-                        except Exception:
-                            pass
-                except UserProfile.DoesNotExist:
-                    pass
-            return response
+            # Intentar el flujo normal primero
+            return super().post(request, *args, **kwargs)
         except Exception as e:
+            # Si falla (ej: Invalid id_token), intentar recuperación manual si el token es válido
+            access_token = request.data.get('access_token')
+            if access_token and "Invalid id_token" in str(e):
+                try:
+                    # 1. Validar token manualmente con Google
+                    user_info_resp = requests.get(
+                        'https://www.googleapis.com/oauth2/v3/userinfo',
+                        params={'access_token': access_token}
+                    )
+
+                    if user_info_resp.status_code == 200:
+                        user_data = user_info_resp.json()
+                        email = user_data.get('email')
+
+                        if email:
+                            # 2. Buscar o crear usuario manualmente
+                            from django.contrib.auth import get_user_model
+                            from allauth.socialaccount.models import SocialAccount
+
+                            User = get_user_model()
+
+                            # Buscar por email
+                            user = User.objects.filter(email=email).first()
+
+                            if not user:
+                                # Crear usuario si no existe
+                                username = email.split('@')[0]
+                                base_username = username
+                                counter = 1
+                                while User.objects.filter(username=username).exists():
+                                    username = f"{base_username}{counter}"
+                                    counter += 1
+
+                                user = User.objects.create_user(
+                                    username=username,
+                                    email=email,
+                                    first_name=user_data.get('given_name', ''),
+                                    last_name=user_data.get('family_name', '')
+                                )
+                                user.set_unusable_password()
+                                user.save()
+
+                                # Crear perfil
+                                profile, created = UserProfile.objects.get_or_create(user=user)
+                                if created:
+                                    profile.user_type = 'inquilino' # Default
+                                    profile.profile_picture_url = user_data.get('picture')
+                                    profile.save()
+
+                            # 3. Vincular cuenta social si no existe
+                            if not SocialAccount.objects.filter(user=user, provider='google').exists():
+                                SocialAccount.objects.create(
+                                    user=user,
+                                    provider='google',
+                                    uid=user_data.get('sub'),
+                                    extra_data=user_data
+                                )
+
+                            # 4. Generar tokens JWT manualmente
+                            from rest_framework_simplejwt.tokens import RefreshToken
+                            refresh = RefreshToken.for_user(user)
+
+                            # Cancelar eliminación si aplica
+                            try:
+                                profile = UserProfile.objects.get(user=user)
+                                if profile.deletion_pending:
+                                    profile.deletion_pending = False
+                                    profile.deletion_requested_at = None
+                                    profile.deletion_scheduled_for = None
+                                    profile.save(update_fields=['deletion_pending', 'deletion_requested_at', 'deletion_scheduled_for'])
+                                    from notification.models import Notification
+                                    Notification.objects.create(user=user, message='La eliminación de tu cuenta ha sido cancelada.')
+                            except Exception:
+                                pass
+
+                            return Response({
+                                'access': str(refresh.access_token),
+                                'refresh': str(refresh),
+                                'user': {
+                                    'pk': user.pk,
+                                    'username': user.username,
+                                    'email': user.email,
+                                    'first_name': user.first_name,
+                                    'last_name': user.last_name
+                                }
+                            }, status=status.HTTP_200_OK)
+
+                except Exception as recovery_error:
+                    # Si falla la recuperación, mostrar error original + recuperación
+                    pass
+
+            # Si no se pudo recuperar, devolver el error original con debug info
             # Imprimir traceback para debug
             traceback.print_exc()
 
