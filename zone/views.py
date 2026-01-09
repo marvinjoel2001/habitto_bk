@@ -15,6 +15,26 @@ from bk_habitto.mixins import MessageConfigMixin
 from matching.models import Match, RoommateRequest
 
 
+from .services import HexagonGridService
+from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
+class SmartZoneViewSet(viewsets.ViewSet):
+    """
+    ViewSet para Zonas Inteligentes (Hexagonal Binning).
+    Endpoint: /api/map/zones/
+    """
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        """
+        Retorna la grilla hexagonal con estadísticas agregadas.
+        """
+        geojson_data = HexagonGridService.get_hex_grid_with_stats(user=request.user)
+        return Response(geojson_data)
+
+
 class ZoneViewSet(MessageConfigMixin, viewsets.ModelViewSet):
     """
     ViewSet para gestión de zonas con funcionalidades GIS y estadísticas.
