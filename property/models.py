@@ -15,20 +15,20 @@ class Property(models.Model):
     agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_properties')
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     address = models.CharField(max_length=255)
-    
+
     # Campo de ubicación GIS - único campo necesario para coordenadas
     location = gis_models.PointField(null=True, blank=True, help_text="Ubicación geográfica de la propiedad")
-    
+
     # Nueva relación con Zone
     zone = models.ForeignKey(
-        'zone.Zone', 
-        on_delete=models.SET_NULL, 
-        null=True, 
+        'zone.Zone',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
         related_name='properties',
         help_text="Zona geográfica donde se encuentra la propiedad"
     )
-    
+
     price = models.DecimalField(max_digits=10, decimal_places=2)
     guarantee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     description = models.TextField()
@@ -49,7 +49,23 @@ class Property(models.Model):
     max_occupancy = models.IntegerField(null=True, blank=True)
     min_price_per_person = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     is_furnished = models.BooleanField(default=False)
-    
+
+    # Relación para unidades (Sub-propiedades)
+    parent_property = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='units',
+        help_text="Propiedad padre a la que pertenece esta unidad (ej: Edificio para un Depto)"
+    )
+    unit_number = models.CharField(
+        max_length=50,
+        null=True,
+        blank=True,
+        help_text="Número o identificador de la unidad (ej: 2B, 101)"
+    )
+
     # Campos para roomie listings
     is_roomie_listing = models.BooleanField(default=False, help_text="Indica si esta propiedad es una publicación de búsqueda de roomie")
     roomie_profile = models.ForeignKey('matching.SearchProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='roomie_properties', help_text="Perfil del inquilino que busca roomie")
@@ -79,7 +95,7 @@ class Property(models.Model):
         Propiedad calculada para obtener latitud desde el PointField.
         """
         return self.location.y if self.location else None
-    
+
     @property
     def longitude(self):
         """
@@ -89,12 +105,16 @@ class Property(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Override del método save para auto-asignar zona.
+        Override del método save para auto-asignar zona y heredar ubicación del padre.
         """
+        # Heredar ubicación del padre si no tiene una propia
+        if not self.location and self.parent_property and self.parent_property.location:
+            self.location = self.parent_property.location
+
         # Auto-asignar zona si no está asignada pero tenemos ubicación
         if not self.zone and self.location:
             self.zone = self._detect_zone()
-        
+
         super().save(*args, **kwargs)
 
     def _detect_zone(self):
@@ -103,9 +123,9 @@ class Property(models.Model):
         """
         if not self.location:
             return None
-            
+
         from zone.models import Zone
-        
+
         # Buscar zona que contenga este punto
         try:
             zone = Zone.objects.filter(bounds__contains=self.location).first()
@@ -127,9 +147,9 @@ class Property(models.Model):
         """
         if not self.location:
             return Property.objects.none()
-            
+
         from django.contrib.gis.measure import Distance
-        
+
         return Property.objects.filter(
             location__distance_lte=(self.location, Distance(km=distance_km)),
             is_active=True

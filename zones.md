@@ -1,6 +1,7 @@
 # Documentación de Zonas Inteligentes (Smart Zones)
 
 ## Descripción General
+
 El sistema de "Zonas Inteligentes" utiliza Spatial Binning (Hexagonal) para agrupar propiedades en el mapa. Esto permite visualizar la densidad, precios y tipos de propiedades sin revelar la ubicación exacta de cada inmueble hasta que sea necesario.
 
 ## Endpoint
@@ -52,12 +53,12 @@ Retorna una colección de polígonos hexagonales en formato GeoJSON, donde cada 
 
 1.  **Generación de Grilla:** Se utiliza `ST_HexagonGrid` de PostGIS para generar hexágonos de aproximadamente 500 metros sobre el área donde existen propiedades activas.
 2.  **Agregación:**
-    *   **count:** Número total de propiedades activas en el hexágono.
-    *   **price_avg:** Promedio del precio de alquiler.
-    *   **dominant_type:** El tipo de propiedad más común (moda).
-    *   **pet_friendly_count:** Cantidad de propiedades que aceptan mascotas.
-    *   **demand_level:** Clasificación basada en la cantidad de propiedades (`low`, `medium`, `high`).
-    *   **price_category:** Clasificación del precio promedio (`Barata`, `Promedio`, `Cara`).
+    - **count:** Número total de propiedades activas en el hexágono.
+    - **price_avg:** Promedio del precio de alquiler.
+    - **dominant_type:** El tipo de propiedad más común (moda).
+    - **pet_friendly_count:** Cantidad de propiedades que aceptan mascotas.
+    - **demand_level:** Clasificación basada en la cantidad de propiedades (`low`, `medium`, `high`).
+    - **price_category:** Clasificación del precio promedio (`Barata`, `Promedio`, `Cara`).
 
 ## Integración con Frontend (Mapbox)
 
@@ -66,26 +67,35 @@ El GeoJSON retornado puede ser consumido directamente por Mapbox GL JS como una 
 ### Ejemplo de uso en Mapbox
 
 ```javascript
-map.addSource('smart-zones', {
-    type: 'geojson',
-    data: 'https://api.habitto.com/api/map/zones/',
-    promoteId: 'id' // Si se incluye ID
+map.addSource("smart-zones", {
+  type: "geojson",
+  data: "https://api.habitto.com/api/map/zones/",
+  promoteId: "id", // Si se incluye ID
 });
 
 map.addLayer({
-    'id': 'zones-fill',
-    'type': 'fill',
-    'source': 'smart-zones',
-    'paint': {
-        'fill-color': [
-            'match',
-            ['get', 'price_category'],
-            'Barata', '#00ff00',
-            'Promedio', '#ffff00',
-            'Cara', '#ff0000',
-            '#cccccc'
-        ],
-        'fill-opacity': 0.5
-    }
+  id: "zones-fill",
+  type: "fill",
+  source: "smart-zones",
+  paint: {
+    "fill-color": [
+      "match",
+      ["get", "price_category"],
+      "Barata",
+      "#00ff00",
+      "Promedio",
+      "#ffff00",
+      "Cara",
+      "#ff0000",
+      "#cccccc",
+    ],
+    "fill-opacity": 0.5,
+  },
 });
 ```
+
+## Notas Importantes
+
+- **Filtrado:** Solo se incluyen propiedades con `is_active=True` y `is_available=True`.
+- **Unidades:** Las unidades dentro de un edificio/propiedad padre se cuentan individualmente si están activas y disponibles.
+- **Geometría:** Se usa una grilla hexagonal de ~500m de lado (ajustable en `HexagonGridService`).

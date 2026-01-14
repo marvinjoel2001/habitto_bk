@@ -19,11 +19,30 @@ class PropertySerializer(serializers.ModelSerializer):
     amenities = AmenityFlexibleField(required=False)
     is_roomie_listing = serializers.SerializerMethodField()
     roomie_seeker_info = serializers.SerializerMethodField()
+    
+    # Campos para unidades
+    units = serializers.SerializerMethodField()
+    parent_property_id = serializers.PrimaryKeyRelatedField(
+        queryset=Property.objects.all(), 
+        source='parent_property', 
+        required=False, 
+        allow_null=True
+    )
 
     class Meta:
         model = Property
         fields = '__all__'
-        read_only_fields = ['id', 'location', 'zone', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'location', 'zone', 'created_at', 'updated_at', 'units']
+
+    def get_units(self, obj):
+        """
+        Retorna las unidades asociadas a esta propiedad si es un padre.
+        """
+        if obj.units.exists():
+            # Serializar unidades básicas para evitar recursión infinita profunda
+            units = obj.units.all()
+            return PropertySerializer(units, many=True, context=self.context).data
+        return []
 
     def get_nearby_properties_count(self, obj):
         """
