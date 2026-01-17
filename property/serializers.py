@@ -19,30 +19,13 @@ class PropertySerializer(serializers.ModelSerializer):
     amenities = AmenityFlexibleField(required=False)
     is_roomie_listing = serializers.SerializerMethodField()
     roomie_seeker_info = serializers.SerializerMethodField()
-    
-    # Campos para unidades
-    units = serializers.SerializerMethodField()
-    parent_property_id = serializers.PrimaryKeyRelatedField(
-        queryset=Property.objects.all(), 
-        source='parent_property', 
-        required=False, 
-        allow_null=True
-    )
+    units_count = serializers.SerializerMethodField()
+    parent_property_info = serializers.SerializerMethodField()
 
     class Meta:
         model = Property
         fields = '__all__'
-        read_only_fields = ['id', 'location', 'zone', 'created_at', 'updated_at', 'units']
-
-    def get_units(self, obj):
-        """
-        Retorna las unidades asociadas a esta propiedad si es un padre.
-        """
-        if obj.units.exists():
-            # Serializar unidades básicas para evitar recursión infinita profunda
-            units = obj.units.all()
-            return PropertySerializer(units, many=True, context=self.context).data
-        return []
+        read_only_fields = ['id', 'location', 'zone', 'created_at', 'updated_at']
 
     def get_nearby_properties_count(self, obj):
         """
@@ -145,6 +128,25 @@ class PropertySerializer(serializers.ModelSerializer):
         from matching.serializers import SearchProfileSerializer
         serializer = SearchProfileSerializer(roomie_profile, context=self.context)
         return serializer.data
+
+    def get_units_count(self, obj):
+        """
+        Retorna el número de unidades de esta propiedad.
+        """
+        return obj.units.filter(is_active=True).count()
+
+    def get_parent_property_info(self, obj):
+        """
+        Retorna información de la propiedad padre si existe.
+        """
+        if not obj.parent_property:
+            return None
+        
+        return {
+            'id': obj.parent_property.id,
+            'address': obj.parent_property.address,
+            'type': obj.parent_property.type
+        }
 
 
 class RoomieSeekerPropertySerializer(serializers.Serializer):
@@ -275,6 +277,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
     latitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
     longitude = serializers.DecimalField(max_digits=9, decimal_places=6, required=False, write_only=True)
     amenities = AmenityFlexibleField(required=False)
+    parent_property = serializers.IntegerField(required=False, allow_null=True, write_only=True)
 
     class Meta:
         model = Property
@@ -284,6 +287,8 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
             'zone_id', 'price', 'guarantee', 'description', 'size',
             'bedrooms', 'bathrooms', 'amenities', 'availability_date',
             'is_active', 'accepted_payment_methods', 'photos_urls',
+            # Campos de unidades
+            'parent_property', 'unit_number',
             # Nuevos campos de matching
             'allows_roommates', 'max_occupancy', 'min_price_per_person',
             'is_furnished', 'tenant_requirements', 'tags', 'semantic_embedding',
@@ -304,11 +309,19 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         latitude = data.get('latitude')
         longitude = data.get('longitude')
         zone_id = data.get('zone_id')
+        parent_property_id = data.get('parent_property')
 
-        if not zone_id and (not latitude or not longitude):
+        if not zone_id and (not latitude or not longitude) and not parent_property_id:
             raise serializers.ValidationError(
-                "Debe proporcionar coordenadas (latitude/longitude) o zone_id."
+                "Debe proporcionar coordenadas (latitude/longitude), zone_id o parent_property."
             )
+
+        # Validar que parent_property no sea la misma propiedad
+        if parent_property_id and hasattr(self, 'instance') and self.instance:
+            if parent_property_id == self.instance.id:
+                raise serializers.ValidationError(
+                    "Una propiedad no puede ser padre de sí misma."
+                )
 
         return data
 
@@ -319,6 +332,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         zone_id = validated_data.pop('zone_id', None)
         latitude = validated_data.pop('latitude', None)
         longitude = validated_data.pop('longitude', None)
+        parent_property_id = validated_data.pop('parent_property', None)
         photos_urls = validated_data.get('photos_urls', [])
 
         # Crear Point desde coordenadas si están disponibles
@@ -333,6 +347,14 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
                 validated_data['zone'] = zone
             except Zone.DoesNotExist:
                 raise serializers.ValidationError(f"Zona con ID {zone_id} no existe.")
+
+        # Si se proporciona parent_property, asignarlo
+        if parent_property_id:
+            try:
+                parent_prop = Property.objects.get(id=parent_property_id)
+                validated_data['parent_property'] = parent_prop
+            except Property.DoesNotExist:
+                raise serializers.ValidationError(f"Propiedad padre con ID {parent_property_id} no existe.")
 
         amenities_data = validated_data.pop('amenities', None)
         obj = super().create(validated_data)

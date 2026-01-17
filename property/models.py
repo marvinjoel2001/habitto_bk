@@ -50,7 +50,15 @@ class Property(models.Model):
     min_price_per_person = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     is_furnished = models.BooleanField(default=False)
 
-    # Relación para unidades (Sub-propiedades)
+    # Campos para roomie listings
+    is_roomie_listing = models.BooleanField(default=False, help_text="Indica si esta propiedad es una publicación de búsqueda de roomie")
+    roomie_profile = models.ForeignKey('matching.SearchProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='roomie_properties', help_text="Perfil del inquilino que busca roomie")
+    tenant_requirements = models.JSONField(default=dict, blank=True)
+    photos_urls = models.JSONField(default=list, blank=True, help_text="Lista de URLs de imágenes en Cloudinary")
+    tags = models.JSONField(default=list, blank=True)
+    semantic_embedding = models.TextField(null=True, blank=True)
+
+    # Campos para gestión de unidades (sub-propiedades)
     parent_property = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
@@ -65,14 +73,6 @@ class Property(models.Model):
         blank=True,
         help_text="Número o identificador de la unidad (ej: 2B, 101)"
     )
-
-    # Campos para roomie listings
-    is_roomie_listing = models.BooleanField(default=False, help_text="Indica si esta propiedad es una publicación de búsqueda de roomie")
-    roomie_profile = models.ForeignKey('matching.SearchProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='roomie_properties', help_text="Perfil del inquilino que busca roomie")
-    tenant_requirements = models.JSONField(default=dict, blank=True)
-    photos_urls = models.JSONField(default=list, blank=True, help_text="Lista de URLs de imágenes en Cloudinary")
-    tags = models.JSONField(default=list, blank=True)
-    semantic_embedding = models.TextField(null=True, blank=True)
 
     # Preferencias del propietario para el inquilino
     preferred_tenant_gender = models.CharField(
@@ -105,12 +105,12 @@ class Property(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Override del método save para auto-asignar zona y heredar ubicación del padre.
+        Override del método save para auto-asignar zona y manejar herencia de ubicación.
         """
-        # Heredar ubicación del padre si no tiene una propia
-        if not self.location and self.parent_property and self.parent_property.location:
+        # Si es una unidad y no tiene ubicación, heredar del padre
+        if self.parent_property and not self.location:
             self.location = self.parent_property.location
-
+            
         # Auto-asignar zona si no está asignada pero tenemos ubicación
         if not self.zone and self.location:
             self.zone = self._detect_zone()

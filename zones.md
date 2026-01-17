@@ -89,11 +89,6 @@ map.addLayer({
       "#ff0000",
       "#cccccc",
     ],
-    "fill-opacity": 0.5,
-  },
-});
-```
-
 ## Notas Importantes
 
 - **Filtrado:** Solo se incluyen propiedades con `is_active=True` y `is_available=True`.

@@ -758,3 +758,50 @@ class PropertyViewSet(MessageConfigMixin, viewsets.ModelViewSet):
             },
             'by_property': results
         })
+
+    @action(detail=True, methods=['get'], url_path='units', permission_classes=[IsAuthenticatedOrReadOnly])
+    def units(self, request, pk=None):
+        """
+        Lista todas las unidades (sub-propiedades) de una propiedad padre.
+        
+        Ejemplo:
+        GET /api/properties/1/units/
+        """
+        parent_property = self.get_object()
+        units = parent_property.units.filter(is_active=True).order_by('unit_number', 'created_at')
+        
+        # Si el usuario no está autenticado, solo mostrar unidades activas
+        if not request.user.is_authenticated:
+            units = units.filter(is_active=True)
+        
+        serializer = self.get_serializer(units, many=True)
+        resp = Response({
+            'count': units.count(),
+            'results': serializer.data,
+            'parent_property': {
+                'id': parent_property.id,
+                'address': parent_property.address,
+                'type': parent_property.type
+            }
+        })
+        self.set_response_message(resp, 'Unidades obtenidas exitosamente')
+        return resp
+
+    @action(detail=False, methods=['get'], url_path='unit-types')
+    def unit_types(self, request):
+        """
+        Lista los tipos de propiedades que pueden ser usadas como unidades.
+        
+        Ejemplo:
+        GET /api/properties/unit-types/
+        """
+        unit_types = [
+            {'value': 'departamento', 'label': 'Departamento'},
+            {'value': 'habitacion', 'label': 'Habitación'},
+            {'value': 'oficina', 'label': 'Oficina'},
+            {'value': 'local', 'label': 'Local Comercial'},
+            {'value': 'bodega', 'label': 'Bodega'}
+        ]
+        resp = Response({'unit_types': unit_types})
+        self.set_response_message(resp, 'Tipos de unidad obtenidos exitosamente')
+        return resp

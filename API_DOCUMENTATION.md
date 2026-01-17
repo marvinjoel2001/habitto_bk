@@ -1,281 +1,4109 @@
-# Documentación de la API de Habitto
+# Documentación de la API
 
-Esta documentación detalla los endpoints disponibles en la API REST de Habitto.
+## Manejo de Imágenes (Cloudinary)
 
-## Índice
+La aplicación utiliza Cloudinary para el almacenamiento optimizado de imágenes. El flujo recomendado es:
 
-1. [Autenticación y Sesiones](#1-autenticación-y-sesiones)
-2. [Gestión de Usuarios y Perfiles](#2-gestión-de-usuarios-y-perfiles)
-3. [Propiedades y Unidades](#3-propiedades-y-unidades)
-4. [Matching y Roommates](#4-matching-y-roommates)
-5. [Comunicación (Mensajes y Notificaciones)](#5-comunicación)
-6. [Finanzas (Pagos e Incentivos)](#6-finanzas)
-7. [Sistema y Utilidades (Uploads, Reportes)](#7-sistema-y-utilidades)
-8. [Mapas y Zonas](#8-mapas-y-zonas)
+1. Subir la imagen al endpoint dedicado de subida.
+2. Obtener la URL segura de la respuesta.
+3. Usar esa URL en los endpoints de creación/edición de recursos (Usuarios, Propiedades).
 
----
+### `POST /api/upload/image/`
 
-## 1. Autenticación y Sesiones
-
-### Autenticación JWT
-
-El sistema utiliza **Access Token** (60 min) y **Refresh Token** (7 días).
-Todas las peticiones protegidas requieren el header:
-`Authorization: Bearer <access_token>`
-
-#### Endpoints
-
-| Método | Endpoint                  | Descripción                               |
-| ------ | ------------------------- | ----------------------------------------- |
-| `POST` | `/api/login/`             | Iniciar sesión (Username/Password)        |
-| `POST` | `/api/refresh/`           | Renovar Access Token usando Refresh Token |
-| `POST` | `/dj-rest-auth/google/`   | Login Social con Google (Token Implícito) |
-| `POST` | `/dj-rest-auth/facebook/` | Login Social con Facebook                 |
-| `POST` | `/dj-rest-auth/apple/`    | Login Social con Apple                    |
-
-#### Login con Google (Móvil)
-
-Enviar el `access_token` obtenido del SDK de Google en el dispositivo.
-
-```json
-POST /dj-rest-auth/google/
-{
-  "access_token": "ya29.a0AfB_byD..."
-}
-```
+- **Descripción**: Sube una imagen a Cloudinary y retorna su URL optimizada.
+- **Autenticación**: Requerida.
+- **Content-Type**: `multipart/form-data`
+- **Parámetros**:
+  - `file` (Required): El archivo de imagen.
+  - `folder` (Optional): Carpeta de destino (default: `habitto/uploads`).
+- **Respuesta Exitosa (201 Created)**:
+  ```json
+  {
+    "url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/f_auto,q_auto/v1/habitto/uploads/imagen.jpg",
+    "filename": "imagen.jpg"
+  }
+  ```
+- **Errores**:
+  - `400 Bad Request`: Archivo no proporcionado, formato inválido o tamaño excedido (>10MB).
 
 ---
 
-## 2. Gestión de Usuarios y Perfiles
+## Autenticación y Usuarios
 
-### Usuarios
+# Registro con imagen usando curl
 
-| Método | Endpoint         | Descripción             |
-| ------ | ---------------- | ----------------------- |
-| `POST` | `/api/users/`    | Registrar nuevo usuario |
-| `GET`  | `/api/users/me/` | Obtener usuario actual  |
+```bash
+curl -X POST http://localhost:8000/api/users/ \
+  -H "Content-Type: multipart/form-data" \
+  -F "username=juan_perez" \
+  -F "email=juan@example.com" \
+  -F "password=mi_password_seguro" \
+  -F "first_name=Juan" \
+  -F "last_name=Pérez" \
+  -F "user_type=propietario" \
+  -F "phone=+59170123456" \
+  -F "profile_picture=@/ruta/a/mi_foto.jpg"
+```
 
-**Registro (Payload):**
+### Subir/actualizar la foto de perfil
+
+- **Endpoint**: `POST /api/profiles/upload_profile_picture/`
+- **Autenticación**: Requerida (JWT en `Authorization: Bearer <token>`)
+- **Content-Type**: `multipart/form-data`
+- **Campos**:
+  - `profile_picture` (archivo, obligatorio): Imagen nueva
+  - `profile_picture_url` (URL, opcional): URL de Cloudinary (si ya se subió previamente)
+- **Ejemplo con URL**:
+
+```bash
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "profile_picture_url": "https://res.cloudinary.com/..."
+  }'
+```
+
+- **Ejemplo con archivo**:
+
+```bash
+curl -X POST http://localhost:8000/api/profiles/upload_profile_picture/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: multipart/form-data" \
+  -F "profile_picture=@/ruta/a/nueva_foto.jpg"
+```
+
+- **Respuesta (200 OK)**: Devuelve el perfil actualizado, incluyendo `profile_picture_url` (URL)
+- **Errores comunes**:
+  - `401 Unauthorized`: Falta token o token inválido
+  - `400 Bad Request`: No se envió `profile_picture` o formato no soportado
+  - `404 Not Found`: El usuario no tiene perfil creado
+
+### Actualizar perfil completo (con o sin foto)
+
+- **Endpoint**: `PUT/PATCH /api/profiles/update_me/`
+- **Autenticación**: Requerida
+- **Opciones**:
+  - `multipart/form-data` si incluye `profile_picture`
+  - `application/json` si actualiza solo datos
+- **Ejemplos**:
+
+```bash
+# Con imagen
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: multipart/form-data" \
+  -F "phone=+59170987654" \
+  -F "user_type=agente" \
+  -F "profile_picture=@/ruta/a/foto_actualizada.jpg"
+
+# Solo datos (sin imagen)
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+59170555444",
+    "user_type": "inquilino"
+  }'
+```
+
+- **Respuesta (200 OK)**: Perfil actualizado
+
+### Actualizar solo datos (sin foto)
+
+```bash
+# Actualizar solo datos usando JSON
+curl -X PATCH http://localhost:8000/api/profiles/update_me/ \
+  -H "Authorization: Bearer tu_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+59170555444",
+    "user_type": "inquilino"
+  }'
+```
+
+### Ver historial de fotos de perfil
+
+- **Endpoint**: `GET /api/profiles/picture_history/`
+- **Autenticación**: Requerida
+- **Ejemplo**:
+
+```bash
+curl -X GET http://localhost:8000/api/profiles/picture_history/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+**Respuesta del historial:**
+
+[
+{
+"id": 3,
+"image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/profiles/user_1_abc.jpg",
+"original_filename": "nueva_foto.jpg",
+"uploaded_at": "2024-12-01T14:30:22.123456Z",
+"is_current": true
+},
+{
+"id": 2,
+"image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/profiles/user_1_xyz.jpg",
+"original_filename": "foto_anterior.jpg",
+"uploaded_at": "2024-11-30T09:15:45.987654Z",
+"is_current": false
+}
+]
+
+````
+
+**Notas importantes:**
+- Las imágenes se almacenan en Cloudinary.
+- Se mantiene un historial completo de todas las fotos subidas.
+- Solo una foto puede estar marcada como `is_current: true`.
+- Formatos soportados: JPG, PNG, GIF, WEBP.
+- Tamaño máximo recomendado: 10MB.
+- **Si no envías el token JWT, la API responde `401 Unauthorized`. Asegúrate de incluir `Authorization: Bearer <token>`.
+
+
+## Autenticación Social (Google, Facebook, Apple)
+- Dependencias: `django-allauth`, `dj-rest-auth`, `requests-oauthlib`.
+- Configuración en entorno:
+  - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+  - `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`
+  - `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET`
+- Endpoints:
+  - `POST /dj-rest-auth/google/`
+    - Body: `{ "access_token": "<GOOGLE_ACCESS_TOKEN>" }`
+  - `POST /dj-rest-auth/facebook/`
+    - Body: `{ "access_token": "<FACEBOOK_ACCESS_TOKEN>" }`
+  - `POST /dj-rest-auth/apple/`
+    - Body: `{ "id_token": "<APPLE_ID_TOKEN>" }`
+- Respuesta (200 OK):
+```json
+{ "access": "<ACCESS_TOKEN>", "refresh": "<REFRESH_TOKEN>" }
+````
+
+- Comportamiento:
+  - Usuarios nuevos reciben `UserProfile` con `user_type: "inquilino"`.
+  - Autenticación basada en JWT (SimpleJWT) con el mismo formato que login normal.
+
+## Rastreo de Ubicación de Usuario
+
+- **Modelo**: `UserLocationPoint(user, location(PointField EPSG:4326), created_at)`
+- **Endpoints**:
+  - `POST /api/location_points/submit/`
+    - Autenticación: Requerida (JWT)
+    - Body (JSON): `{ "latitude": -17.7834, "longitude": -63.1821 }`
+    - Respuesta (201): punto creado con `id`, `latitude`, `longitude`, `created_at`.
+  - `GET /api/location_points/`
+    - Autenticación: Requerida (JWT)
+    - Query opcional: `from=YYYY-MM-DDTHH:MM:SS`, `to=YYYY-MM-DDTHH:MM:SS`
+    - Devuelve puntos del usuario autenticado en el rango.
+  - `GET /api/location_points/route/?period=day|week|month|year&date=YYYY-MM-DD`
+    - Autenticación: Requerida (JWT)
+    - Construye la ruta ordenada por tiempo dentro del período indicado
+    - Respuesta:
+      ```json
+      {
+        "period": "day",
+        "from": "2025-12-09T00:00:00Z",
+        "to": "2025-12-10T00:00:00Z",
+        "count": 12,
+        "points": [ { "id": 1, "latitude": -17.78, "longitude": -63.18, "created_at": "..." } ],
+        "geojson": { "type": "LineString", "coordinates": [[-63.18,-17.78], ...] }
+      }
+      ```
+- **Notas**:
+  - El backend obtiene el usuario por el token y registra el punto con la hora actual.
+  - `period` admite `day`, `week`, `month`, `year`. `date` ancla el periodo; si se omite, se usa “hoy”.
+  - Los datos pueden ser muchos por usuario; se indexa por `(user, created_at)` para consultas eficientes.
+
+### Envío de verificación automática
+
+- **Endpoint**: `POST /api/profiles/submit_verification/`
+- **Autenticación**: Requerida (JWT)
+- **Content-Type**: `multipart/form-data`
+- **Campos**:
+  - `id_front` (archivo): Foto frontal del documento de identidad (CI/Pasaporte)
+  - `id_back` (archivo): Foto trasera del documento de identidad
+  - `selfie` (archivo): Foto frontal del usuario
+  - `document_number` (string): Número de documento (CI/Pasaporte)
+- **Comportamiento actual**: Al recibir estos datos, el sistema marca el perfil como verificado (`is_verified: true`) automáticamente. En futuras versiones se agregará validación documental real.
+- **Ejemplo (curl)**:
+
+```bash
+curl -X POST http://localhost:8000/api/profiles/submit_verification/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: multipart/form-data" \
+  -F "id_front=@/ruta/a/ci_frontal.jpg" \
+  -F "id_back=@/ruta/a/ci_trasera.jpg" \
+  -F "selfie=@/ruta/a/selfie.jpg" \
+  -F "document_number=CI-1234567"
+```
+
+- **Respuesta (200 OK)**: Devuelve el `UserProfile` actualizado con `is_verified: true`.
+
+## 3. Endpoints de Propiedades (`/api/properties/`)
+
+Gestiona las propiedades inmobiliarias del sistema.
+
+### `GET /api/properties/`
+
+- **Descripción**: Obtiene una lista paginada de propiedades con opciones de filtrado, búsqueda y ordenamiento.
+- **Autenticación**: Opcional (lectura pública). Si el usuario está autenticado, se habilitan filtros basados en su `SearchProfile` como `match_score`.
+- **Parámetros de consulta**:
+  - `type`: Filtra por tipo de propiedad (`casa`, `departamento`, `habitacion`, `anticretico`)
+  - `is_active`: Filtra por estado de la propiedad (`true`/`false`)
+  - `owner`: Filtra por ID del propietario
+  - `search`: Búsqueda en dirección y descripción
+  - `ordering`: Ordena por `price` o `created_at` (prefija con `-` para orden descendente)
+  - `page`: Número de página
+  - `page_size`: Elementos por página
+  - `match_score`: Umbral de score de matching (0–100). Si el usuario autenticado tiene `SearchProfile`, se devuelven solo propiedades con score >= `match_score` respecto a su perfil.
+  - `order_by_match`: Si está en `true`, ordena por mejor compatibilidad respecto al `SearchProfile` del usuario
+  - `include_own`: Cuando se usa `match_score` y/o `order_by_match`, por defecto se excluyen las propiedades del propio usuario; establece `include_own=true` para incluirlas en los resultados
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 50,
+      "next": "http://localhost:8000/api/properties/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "owner": 1,
+          "agent": null,
+          "type": "casa",
+          "address": "Calle Falsa 123, La Paz",
+          "latitude": "-16.500000",
+          "longitude": "-68.150000",
+          "price": "1500.00",
+          "guarantee": "1500.00",
+          "description": "Casa amplia en zona residencial con jardín",
+          "size": 120.5,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "amenities": [1, 2, 3],
+          "availability_date": "2025-11-01",
+          "is_active": true,
+          "created_at": "2025-10-22T10:00:00Z",
+          "updated_at": "2025-10-22T10:00:00Z",
+          "accepted_payment_methods": [1, 2],
+          "allows_roommates": false,
+          "max_occupancy": 3,
+          "min_price_per_person": "500.00",
+          "is_furnished": false,
+          "tenant_requirements": { "no_smoking": true },
+          "tags": ["céntrico", "luminoso"],
+          "semantic_embedding": null
+        }
+      ]
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Parámetros de consulta inválidos",
+      "data": null
+    }
+    ```
+  - **401 Unauthorized**:
+    ```json
+    {
+      "success": false,
+      "message": "Token de autenticación requerido",
+      "data": null
+    }
+    ```
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para acceder a este recurso",
+      "data": null
+    }
+    ```
+  - **500 Internal Server Error**:
+    ```json
+    {
+      "success": false,
+      "message": "Error interno del servidor",
+      "data": null
+    }
+    ```
+
+### `POST /api/properties/`
+
+- **Descripción**: Crea una nueva propiedad usando coordenadas geográficas (PointField).
+- **Autenticación**: Requerida.
+- **Nota importante**: El sistema utiliza un `PointField` para almacenar la ubicación. Debes proporcionar `latitude` y `longitude` como campos separados, que se convertirán automáticamente en un punto geográfico.
+- **Nota de salida**: `latitude` y `longitude` son write-only durante la creación y no aparecen en la respuesta. La respuesta incluye el `id` de la nueva propiedad para usarlo en pasos posteriores (por ejemplo, subir fotos).
+- **Request Body**:
+  ```json
+  {
+    "type": "casa",
+    "address": "Calle Falsa 123, La Paz",
+    "latitude": "-16.5000000000",
+    "longitude": "-68.1500000000",
+    "price": "1500.00",
+    "guarantee": "1500.00",
+    "description": "Casa amplia en zona residencial con jardín",
+    "size": 120.5,
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "amenities": [1, 2, 3],
+    "availability_date": "2025-11-01",
+    "accepted_payment_methods": [1, 2],
+    "zone_id": 1,
+    "allows_roommates": false,
+    "max_occupancy": 3,
+    "min_price_per_person": "500.00",
+    "is_furnished": false,
+    "tenant_requirements": { "no_smoking": true },
+    "tags": ["céntrico", "luminoso"],
+    "semantic_embedding": null
+  }
+  ```
+- **Campos obligatorios**:
+  - `type`: Tipo de propiedad (`casa`, `departamento`, `habitacion`, `anticretico`)
+  - `address`: Dirección de la propiedad
+  - `latitude`: Latitud (formato decimal, hasta 10 decimales de precisión)
+  - `longitude`: Longitud (formato decimal, hasta 10 decimales de precisión)
+  - `price`: Precio de alquiler
+- **Campos opcionales**:
+  - `owner`: Se asigna automáticamente al usuario autenticado si no se especifica
+  - `agent`: ID del agente (si aplica)
+  - `guarantee`: Monto de garantía
+  - `description`: Descripción de la propiedad
+  - `size`: Tamaño en metros cuadrados
+  - `bedrooms`: Número de dormitorios
+  - `bathrooms`: Número de baños
+  - `amenities`: Array de IDs de amenidades
+  - `availability_date`: Fecha de disponibilidad
+  - `accepted_payment_methods`: Array de IDs de métodos de pago aceptados
+  - `photos_urls`: Array de URLs de imágenes en Cloudinary (Recomendado)
+  - `zone_id`: ID de la zona (se asigna automáticamente si no se especifica)
+  - `allows_roommates`: Si la propiedad permite roomies
+  - `max_occupancy`: Ocupantes máximos recomendados
+  - `min_price_per_person`: Precio mínimo por persona si hay roomies
+  - `is_furnished`: Si está amueblada
+  - `tenant_requirements`: Requisitos del inquilino (JSON)
+  - `tags`: Etiquetas libres (JSON array)
+  - `semantic_embedding`: Embedding semántico (opcional para IA)
+- **Formato de coordenadas**:
+  - **Latitud**: Debe estar entre -90 y 90 grados
+  - **Longitud**: Debe estar entre -180 y 180 grados
+  - **Precisión**: Hasta 9 dígitos totales con 6 decimales (ej: `-16.500000`), acorde al `PropertyCreateSerializer`
+  - **Ejemplo para La Paz, Bolivia**: `latitude: "-16.500000", longitude: "-68.150000"`
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedad creada exitosamente",
+    "data": {
+      "id": 1,
+      "owner": 1,
+      "agent": null,
+      "type": "casa",
+      "address": "Calle Falsa 123, La Paz",
+      "price": "1500.00",
+      "guarantee": "1500.00",
+      "description": "Casa amplia en zona residencial con jardín",
+      "size": 120.5,
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "amenities": [1, 2, 3],
+      "availability_date": "2025-11-01",
+      "is_active": true,
+      "accepted_payment_methods": [1, 2],
+      "zone_id": 1,
+      "allows_roommates": false,
+      "max_occupancy": 3,
+      "min_price_per_person": "500.00",
+      "is_furnished": false,
+      "tenant_requirements": { "no_smoking": true },
+      "tags": ["céntrico", "luminoso"],
+      "semantic_embedding": null
+    }
+  }
+  ```
+- **Ejemplo (curl)**:
+  ```bash
+  curl -X POST http://localhost:8000/api/properties/ \
+    -H "Authorization: Bearer TU_TOKEN_JWT" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "type": "casa",
+      "address": "Calle Falsa 123, La Paz",
+      "latitude": "-16.500000",
+      "longitude": "-68.150000",
+      "price": "1500.00",
+      "amenities": [1,2],
+      "accepted_payment_methods": [1],
+      "zone_id": 1,
+      "allows_roommates": false
+    }'
+  ```
+- **Errores comunes**:
+
+  - **400 Bad Request** - Coordenadas con demasiados dígitos:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "latitude": ["Ensure that there are no more than 9 digits in total."],
+        "longitude": ["Ensure that there are no more than 9 digits in total."]
+      }
+    }
+    ```
+  - **400 Bad Request** - Coordenadas fuera de rango:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "non_field_errors": ["La latitud debe estar entre -90 y 90."]
+      }
+    }
+    ```
+  - **400 Bad Request** - Falta de coordenadas:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "non_field_errors": [
+          "Debe proporcionar coordenadas (latitude/longitude) o zone_id."
+        ]
+      }
+    }
+    ```
+  - **401 Unauthorized**:
+    ```json
+    {
+      "success": false,
+      "message": "Token de autenticación requerido",
+      "data": null
+    }
+    ```
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para crear propiedades",
+      "data": null
+    }
+    ```
+  - **500 Internal Server Error**:
+    ```json
+    {
+      "success": false,
+      "message": "Error interno del servidor",
+      "data": null
+    }
+    ```
+
+- **Siguiente paso recomendado**:
+  - Usa el `id` retornado para subir fotos de la propiedad:
+    ```bash
+    curl -X POST http://localhost:8000/api/photos/ \
+      -H "Authorization: Bearer TU_TOKEN_JWT" \
+      -H "Content-Type: multipart/form-data" \
+      -F "property=<ID_DEVUELTO_EN_CREACION>" \
+      -F "image=@/ruta/a/foto.jpg" \
+      -F "caption=Fachada principal"
+    ```
+
+-### `GET /api/properties/{id}/`
+
+- **Descripción**: Obtiene los detalles de una propiedad específica.
+- **Autenticación**: Opcional (lectura pública).
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedad obtenida exitosamente",
+    "data": {
+      "id": 1,
+      "type": "casa",
+      "address": "Calle Falsa 123, La Paz",
+      "description": "Casa amplia en zona residencial con jardín y piscina",
+      "price": "1500.00",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "size": 150.5,
+      "latitude": "-16.500000",
+      "longitude": "-68.150000",
+      "owner": 1,
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T10:00:00Z",
+      "accepted_payment_methods": [1, 2],
+      "zone_id": 1,
+      "zone_name": "Zona Sur"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Propiedad no encontrada",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/properties/{id}/`
+
+- **Descripción**: Actualiza una propiedad existente.
+- **Autenticación**: Requerida (solo propietario o agente asignado).
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "price": "1800.00",
+    "description": "Casa amplia en zona residencial con jardín y piscina",
+    "amenities": [1, 2, 3, 4]
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedad actualizada exitosamente",
+    "data": {
+      "id": 1,
+      "title": "Casa en Zona Sur",
+      "description": "Casa amplia en zona residencial con jardín y piscina",
+      "price": "1800.00",
+      "property_type": "casa",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "area": 150.5,
+      "latitude": "16.5000000000",
+      "longitude": "68.1500000000",
+      "owner": 1,
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T12:00:00Z",
+      "accepted_payment_methods": [1, 2],
+      "zone_id": 1,
+      "zone_name": "Zona Sur"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "price": ["Este campo es requerido."]
+      }
+    }
+    ```
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para actualizar esta propiedad",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Propiedad no encontrada",
+      "data": null
+    }
+    ```
+
+### `DELETE /api/properties/{id}/`
+
+- **Descripción**: Elimina una propiedad.
+- **Autenticación**: Requerida (solo propietario o administrador).
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedad eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para eliminar esta propiedad",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Propiedad no encontrada",
+      "data": null
+    }
+    ```
+
+**Tipos de propiedad disponibles:**
+
+- `casa`: Casa independiente
+- `departamento`: Departamento o apartamento
+- `habitacion`: Habitación individual
+- `anticretico`: Propiedad en anticrético (modalidad boliviana)
+
+### Gestión de Unidades (Sub-propiedades)
+
+Permite gestionar unidades dentro de una propiedad mayor (ej: Departamentos dentro de un Edificio).
+
+#### **¿Qué son las unidades?**
+
+Las unidades son propiedades individuales que pertenecen a un edificio o desarrollo mayor. Por ejemplo:
+
+- Departamentos dentro de un edificio
+- Oficinas en un centro comercial
+- Locales en un strip mall
+- Habitaciones en una casa de habitación
+
+#### **Flujo de trabajo típico:**
+
+**1. Crear el edificio/propiedad padre:**
+
+```bash
+curl -X POST http://localhost:8000/api/properties/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "departamento",
+    "address": "Av. Principal 123, Edificio Torres del Sur",
+    "latitude": -16.500000,
+    "longitude": -68.150000,
+    "price": 0,
+    "description": "Edificio de 10 pisos con 40 departamentos",
+    "bedrooms": 0,
+    "bathrooms": 0
+  }'
+```
+
+**Response:**
 
 ```json
 {
-  "username": "juanperez",
-  "email": "juan@example.com",
-  "password": "securePass123",
-  "first_name": "Juan",
-  "last_name": "Perez"
+  "success": true,
+  "message": "Propiedad creada exitosamente",
+  "data": {
+    "id": 1,
+    "type": "departamento",
+    "address": "Av. Principal 123, Edificio Torres del Sur",
+    "price": "0.00",
+    "units_count": 0,
+    "parent_property_info": null
+  }
 }
 ```
 
-### Perfiles
+**2. Crear unidades dentro del edificio:**
 
-El perfil se crea automáticamente al registrar el usuario.
-| Método | Endpoint | Descripción |
-|---|---|---|
-| `GET` | `/api/profiles/me/` | Ver mi perfil extendido |
-| `PATCH` | `/api/profiles/update_me/` | Actualizar mi perfil |
+```bash
+curl -X POST http://localhost:8000/api/properties/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "departamento",
+    "address": "Av. Principal 123, Torre A",
+    "parent_property": 1,
+    "unit_number": "2B",
+    "price": "1500.00",
+    "description": "Departamento de 2 habitaciones con vista al mar",
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "size": 85.5
+  }'
+```
 
-**Actualización de Perfil (Ejemplo):**
+**Response:**
 
 ```json
 {
-  "bio": "Estudiante de arquitectura, busco lugar tranquilo.",
-  "phone_number": "+59170000000",
-  "birth_date": "1995-05-20",
-  "gender": "male"
+  "success": true,
+  "message": "Propiedad creada exitosamente",
+  "data": {
+    "id": 2,
+    "type": "departamento",
+    "address": "Av. Principal 123, Torre A",
+    "unit_number": "2B",
+    "price": "1500.00",
+    "parent_property_info": {
+      "id": 1,
+      "address": "Av. Principal 123, Edificio Torres del Sur",
+      "type": "departamento"
+    }
+  }
 }
 ```
 
----
+**3. Listar todas las unidades de un edificio:**
 
-## 3. Propiedades y Unidades
+```bash
+curl -X GET "http://localhost:8000/api/properties/1/units/" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
 
-### Propiedades (CRUD)
-
-| Método   | Endpoint                | Descripción                              |
-| -------- | ----------------------- | ---------------------------------------- |
-| `GET`    | `/api/properties/`      | Listar propiedades (Filtros disponibles) |
-| `POST`   | `/api/properties/`      | Crear propiedad                          |
-| `GET`    | `/api/properties/{id}/` | Ver detalle (incluye unidades)           |
-| `PATCH`  | `/api/properties/{id}/` | Editar propiedad                         |
-| `DELETE` | `/api/properties/{id}/` | Eliminar propiedad                       |
-
-**Crear Propiedad (Payload Completo):**
+**Response:**
 
 ```json
 {
-  "type": "departamento", // casa, departamento, habitacion, anticretico
-  "address": "Av. Banzer 4to Anillo",
-  "latitude": -17.7834, // Requerido si no es Unidad
-  "longitude": -63.1821, // Requerido si no es Unidad
-  "price": 450.0,
-  "guarantee": 450.0, // Opcional
-  "description": "Hermoso depto...",
-  "bedrooms": 2,
-  "bathrooms": 1,
-  "size": 80.5, // m2
-  "amenities": ["WiFi", "Piscina", "Garaje"], // Puede ser lista de IDs o Nombres
-  "photos_urls": [
-    "https://res.cloudinary.com/...",
-    "https://res.cloudinary.com/..."
+  "count": 3,
+  "results": [
+    {
+      "id": 2,
+      "type": "departamento",
+      "unit_number": "2B",
+      "address": "Av. Principal 123, Torre A",
+      "price": "1500.00",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "is_available": true,
+      "main_photo": "https://res.cloudinary.com/.../depto2b.jpg"
+    },
+    {
+      "id": 3,
+      "type": "departamento",
+      "unit_number": "3A",
+      "address": "Av. Principal 123, Torre A",
+      "price": "1800.00",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "is_available": false,
+      "main_photo": "https://res.cloudinary.com/.../depto3a.jpg"
+    }
   ],
-  "pets_allowed": true,
-  "allows_roommates": true
+  "parent_property": {
+    "id": 1,
+    "address": "Av. Principal 123, Edificio Torres del Sur",
+    "type": "departamento"
+  }
 }
 ```
 
-### Unidades (Sub-propiedades)
+#### **Endpoints específicos de unidades:**
 
-Para crear un departamento dentro de un edificio ya registrado.
+**Listar unidades de un edificio:**
 
-1.  **Crear:** Usar `POST /api/properties/` enviando `parent_property_id`.
-2.  **Ubicación:** No enviar `latitude`/`longitude`, se hereda del padre.
-3.  **Listar:** Al hacer GET al padre, las unidades vienen en el campo `units`.
+- `GET /api/properties/{parent_id}/units/`
+- **Autenticación**: Opcional (lectura pública)
+- **Parámetros**: Ninguno
+- **Descripción**: Lista todas las unidades activas de un edificio/propiedad padre
 
-**Crear Unidad (Ejemplo):**
+**Obtener tipos de unidades disponibles:**
+
+- `GET /api/properties/unit-types/`
+- **Autenticación**: No requerida
+- **Descripción**: Lista los tipos de propiedades recomendados para unidades
+
+**Response:**
 
 ```json
 {
-  "type": "departamento",
-  "address": "Av. Banzer (Misma del padre)",
-  "price": 500.0,
-  "parent_property_id": 15, // ID del Edificio
-  "unit_number": "2B",
-  "bedrooms": 2
+  "unit_types": [
+    { "value": "departamento", "label": "Departamento" },
+    { "value": "habitacion", "label": "Habitación" },
+    { "value": "oficina", "label": "Oficina" },
+    { "value": "local", "label": "Local Comercial" },
+    { "value": "bodega", "label": "Bodega" }
+  ]
 }
 ```
 
-### Fotos y Amenidades
+#### **Reglas de negocio importantes:**
 
-| Método   | Endpoint            | Descripción                             |
-| -------- | ------------------- | --------------------------------------- |
-| `GET`    | `/api/amenities/`   | Listar todas las amenidades disponibles |
-| `POST`   | `/api/photos/`      | Subir foto asociada a una propiedad     |
-| `DELETE` | `/api/photos/{id}/` | Eliminar una foto específica            |
+1. **Herencia de ubicación**: Si una unidad no tiene coordenadas especificadas, hereda automáticamente la ubicación del edificio padre
 
----
+2. **Mismo propietario**: Las unidades deben tener el mismo propietario que el edificio padre
 
-## 4. Matching y Roommates
+3. **Validaciones**:
 
-### Perfil de Búsqueda (SearchProfile)
+   - Una propiedad no puede ser padre de sí misma
+   - Si se especifica `parent_property`, no es obligatorio enviar coordenadas
+   - El `unit_number` debe ser único dentro del mismo edificio
 
-Define qué busca el usuario (zona, precio, compañeros).
-| Método | Endpoint | Descripción |
-|---|---|---|
-| `GET` | `/api/search_profiles/me/` | Obtener mi perfil de búsqueda |
-| `POST` | `/api/search_profiles/` | Crear/Actualizar perfil de búsqueda |
+4. **Campos específicos en las respuestas**:
+   - `units_count`: Número de unidades de una propiedad (solo en propiedades padre)
+   - `parent_property_info`: Información del edificio padre (solo en unidades)
+   - `unit_number`: Identificador de la unidad
 
-**Payload SearchProfile:**
+#### **Filtrado y búsqueda:**
+
+Puedes filtrar unidades usando los parámetros estándar de propiedades:
+
+```bash
+# Buscar departamentos disponibles en un edificio específico
+curl -X GET "http://localhost:8000/api/properties/?parent_property=1&type=departamento&is_available=true" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+
+# Buscar unidades por número
+curl -X GET "http://localhost:8000/api/properties/?parent_property=1&search=2B" \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+#### **Casos de uso comunes:**
+
+1. **Edificio de departamentos**: Crear 1 edificio + N departamentos
+2. **Centro comercial**: Crear 1 centro + N locales comerciales
+3. **Casa de habitación**: Crear 1 casa + N habitaciones individuales
+4. **Condominio**: Crear 1 condominio + N casas/cabañas
+
+## 4. Endpoints de Fotos (`/api/photos/`)
+
+Gestiona las fotos de las propiedades.
+
+Además, las respuestas de propiedades incluyen el campo `main_photo` con la URL de la primera foto asociada (si existe), para facilitar su uso en tarjetas y listados.
+
+### `GET /api/photos/`
+
+- **Descripción**: Obtiene una lista paginada de todas las fotos de propiedades.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `property`: Filtra por ID de propiedad
+  - `page`: Número de página
+  - `page_size`: Elementos por página
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Fotos obtenidas exitosamente",
+    "data": {
+      "count": 25,
+      "next": "http://localhost:8000/api/photos/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "property": 1,
+          "image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto1.jpg",
+          "caption": "Fachada de la propiedad",
+          "created_at": "2025-10-22T10:00:00Z"
+        },
+        {
+          "id": 2,
+          "property": 1,
+          "image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto2.jpg",
+          "caption": "Sala de estar",
+          "created_at": "2025-10-22T11:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/photos/`
+
+- **Descripción**: Sube una nueva foto para una propiedad.
+- **Autenticación**: Requerida.
+- **Content-Type**: `multipart/form-data`
+- **Request Body**:
+  - `property` (obligatorio): ID de la propiedad
+  - `image` (obligatorio): Archivo de imagen (JPG, PNG, etc.)
+  - `caption` (opcional): Descripción de la foto
+- **Ejemplo (curl)**:
+  ```bash
+  curl -X POST http://localhost:8000/api/photos/ \
+    -H "Authorization: Bearer TU_TOKEN_JWT" \
+    -H "Content-Type: multipart/form-data" \
+    -F "property=1" \
+    -F "image=@/ruta/a/foto.jpg" \
+    -F "caption=Fachada principal"
+  ```
+  - `property` debe ser el ID real de una propiedad existente (no usar `0`).
+  - Usa `-F` para enviar `multipart/form-data`; enviar JSON con `image` no funcionará.
+  - Asegúrate de tener permisos sobre la propiedad (propietario o agente asignado).
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Foto subida exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto1.jpg",
+      "caption": "Fachada de la propiedad",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "property": ["Este campo es requerido."],
+        "image": ["No se ha enviado ningún archivo."]
+      }
+    }
+    ```
+  - **400 Bad Request** - Propiedad inválida o inexistente:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "property": ["Invalid pk \"0\" - object does not exist."]
+      }
+    }
+    ```
+  - **401 Unauthorized**:
+    ```json
+    {
+      "success": false,
+      "message": "Token de autenticación requerido",
+      "data": null
+    }
+    ```
+  - **415 Unsupported Media Type** (si no se usa `multipart/form-data`):
+    ```json
+    {
+      "success": false,
+      "message": "Error de solicitud",
+      "data": {
+        "detail": "Unsupported media type \"application/json\" in request."
+      }
+    }
+    ```
+
+### `GET /api/photos/{id}/`
+
+- **Descripción**: Obtiene los detalles de una foto específica.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Foto obtenida exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto1.jpg",
+      "caption": "Fachada de la propiedad",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Foto no encontrada",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/photos/{id}/`
+
+- **Descripción**: Actualiza una foto (solo caption, no se puede cambiar la imagen).
+- **Autenticación**: Requerida (solo propietario o agente de la propiedad).
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "caption": "Nueva descripción de la foto"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Foto actualizada exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "image_url": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto1.jpg",
+      "caption": "Nueva descripción de la foto",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para actualizar esta foto",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Foto no encontrada",
+      "data": null
+    }
+    ```
+
+### `DELETE /api/photos/{id}/`
+
+- **Descripción**: Elimina una foto.
+- **Autenticación**: Requerida (solo propietario o agente de la propiedad).
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Foto eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para eliminar esta foto",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Foto no encontrada",
+      "data": null
+    }
+    ```
+
+**Nota**: Las imágenes se almacenan en Cloudinary.
+
+## 4.1. Campo `main_photo` en Propiedades
+
+- **Descripción**: Campo adicional en las respuestas de propiedades que contiene la URL absoluta de la primera foto asociada a la propiedad, o `null` si no tiene fotos.
+- **Dónde aparece**: En las respuestas de:
+  - `GET /api/properties/` (lista)
+  - `GET /api/properties/{id}/` (detalle)
+  - `GET /api/properties/map/` (propiedades para mapa)
+- **Ejemplo (lista de propiedades)**:
+  ```json
+  {
+    "success": true,
+    "message": "Propiedades obtenidas exitosamente",
+    "data": {
+      "count": 1,
+      "results": [
+        {
+          "id": 1,
+          "type": "casa",
+          "address": "Calle Test 123",
+          "price": 1500.0,
+          "bedrooms": 3,
+          "bathrooms": 2,
+          "zone_name": "Zona Centro",
+          "is_active": true,
+          "main_photo": "https://res.cloudinary.com/dpdpgl5kg/image/upload/v1/habitto/properties/foto1.jpg"
+        }
+      ]
+    }
+  }
+  ```
+  - Si la propiedad no tiene fotos, `main_photo` será `null`.
+
+## 5. Endpoints de Amenidades (`/api/amenities/`)
+
+Gestiona las amenidades disponibles para las propiedades.
+
+### `GET /api/amenities/`
+
+- **Descripción**: Obtiene una lista paginada de todas las amenidades disponibles.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Amenidades obtenidas exitosamente",
+    "data": {
+      "count": 10,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "name": "Piscina"
+        },
+        {
+          "id": 2,
+          "name": "Gimnasio"
+        },
+        {
+          "id": 3,
+          "name": "Garaje"
+        },
+        {
+          "id": 4,
+          "name": "Jardín"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/amenities/`
+
+- **Descripción**: Crea una nueva amenidad.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "name": "Sauna"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Amenidad creada exitosamente",
+    "data": {
+      "id": 5,
+      "name": "Sauna"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "name": ["Este campo es requerido."]
+      }
+    }
+    ```
+
+### `GET /api/amenities/{id}/`
+
+- **Descripción**: Obtiene los detalles de una amenidad específica.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Amenidad obtenida exitosamente",
+    "data": {
+      "id": 5,
+      "name": "Sauna"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Amenidad no encontrada",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/amenities/{id}/`
+
+- **Descripción**: Actualiza una amenidad existente.
+- **Autenticación**: Requerida.
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "name": "Piscina Climatizada"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Amenidad actualizada exitosamente",
+    "data": {
+      "id": 1,
+      "name": "Piscina Climatizada"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "name": ["Este campo es requerido."]
+      }
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Amenidad no encontrada",
+      "data": null
+    }
+    ```
+
+### `DELETE /api/amenities/{id}/`
+
+- **Descripción**: Elimina una amenidad.
+- **Autenticación**: Requerida.
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Amenidad eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Amenidad no encontrada",
+      "data": null
+    }
+    ```
+
+**Ejemplos de amenidades comunes:**
+
+- Piscina, Gimnasio, Garaje, Jardín, Balcón, Terraza, Amueblado, Internet, Cable, Seguridad 24h
+
+## 6. Endpoints de Garantías (`/api/guarantees/`)
+
+Gestiona las garantías de depósito de las propiedades.
+
+### `GET /api/guarantees/`
+
+- **Descripción**: Obtiene una lista paginada de todas las garantías.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `property`: Filtra por ID de propiedad
+  - `tenant`: Filtra por ID del inquilino
+  - `is_released`: Filtra por estado de liberación (`true`/`false`)
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantías obtenidas exitosamente",
+    "data": {
+      "count": 15,
+      "next": "http://localhost:8000/api/guarantees/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "property": 1,
+          "tenant": 2,
+          "amount": "1500.00",
+          "is_released": false,
+          "release_date": null,
+          "created_at": "2025-10-22T10:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/guarantees/`
+
+- **Descripción**: Crea una nueva garantía.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "property": 1,
+    "tenant": 2,
+    "amount": "1500.00"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantía creada exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1500.00",
+      "is_released": false,
+      "release_date": null,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "property": ["Este campo es requerido."],
+        "tenant": ["Este campo es requerido."],
+        "amount": ["Este campo es requerido."]
+      }
+    }
+    ```
+
+### `GET /api/guarantees/{id}/`
+
+- **Descripción**: Obtiene los detalles de una garantía específica.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantía obtenida exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1500.00",
+      "is_released": false,
+      "release_date": null,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Garantía no encontrada",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/guarantees/{id}/`
+
+- **Descripción**: Actualiza una garantía existente.
+- **Autenticación**: Requerida (solo propietario o inquilino involucrado).
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "amount": "1800.00"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantía actualizada exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1800.00",
+      "is_released": false,
+      "release_date": null,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "amount": ["Ingrese un número válido."]
+      }
+    }
+    ```
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para actualizar esta garantía",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Garantía no encontrada",
+      "data": null
+    }
+    ```
+
+### `POST /api/guarantees/{id}/release/`
+
+- **Descripción**: Acción personalizada que libera la garantía.
+- **Autenticación**: Requerida (solo propietario).
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantía liberada exitosamente",
+    "data": {
+      "status": "guarantee released"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para liberar esta garantía",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Garantía no encontrada",
+      "data": null
+    }
+    ```
+    "bedrooms": 2,
+
+### `DELETE /api/guarantees/{id}/`
+
+- **Descripción**: Elimina una garantía.
+- **Autenticación**: Requerida (solo propietario o admin).
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Garantía eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para eliminar esta garantía",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Garantía no encontrada",
+      "data": null
+    }
+    ```
+
+## 7. Endpoints de Incentivos (`/api/incentives/`)
+
+Gestiona los incentivos económicos para usuarios.
+
+### `GET /api/incentives/`
+
+- **Descripción**: Obtiene una lista paginada de todos los incentivos.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `user`: Filtra por ID del usuario
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivos obtenidos exitosamente",
+    "data": {
+      "count": 8,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "user": 1,
+          "amount": "500.00",
+          "description": "Incentivo por referir nuevo usuario",
+          "created_at": "2025-10-22T10:00:00Z"
+        },
+        {
+          "id": 2,
+          "user": 1,
+          "amount": "200.00",
+          "description": "Bono por primera publicación",
+          "created_at": "2025-10-22T11:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/incentives/`
+
+- **Descripción**: Crea un nuevo incentivo.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "user": 1,
+    "amount": "500.00",
+    "description": "Incentivo por referir nuevo usuario"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivo creado exitosamente",
+    "data": {
+      "id": 1,
+      "user": 1,
+      "amount": "500.00",
+      "description": "Incentivo por referir nuevo usuario",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "user": ["Este campo es requerido."],
+        "amount": ["Este campo es requerido."],
+        "description": ["Este campo es requerido."]
+      }
+    }
+    ```
+
+### `GET /api/incentives/{id}/`
+
+- **Descripción**: Obtiene los detalles de un incentivo específico.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivo obtenido exitosamente",
+    "data": {
+      "id": 1,
+      "user": 1,
+      "amount": "500.00",
+      "description": "Incentivo por referir nuevo usuario",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Incentivo no encontrado",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/incentives/{id}/`
+
+- **Descripción**: Actualiza un incentivo existente.
+- **Autenticación**: Requerida.
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "description": "Incentivo por referir nuevo usuario - Actualizado"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivo actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "user": 1,
+      "amount": "500.00",
+      "description": "Incentivo por referir nuevo usuario - Actualizado",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "description": ["Este campo no puede estar vacío."]
+      }
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Incentivo no encontrado",
+      "data": null
+    }
+    ```
+
+### `GET /api/incentives/active/`
+
+- **Descripción**: Obtiene los incentivos activos del usuario autenticado.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivos activos obtenidos exitosamente",
+    "data": [
+      {
+        "id": 1,
+        "user": 1,
+        "zone": {
+          "id": 1,
+          "name": "Centro"
+        },
+        "amount": "500.00",
+        "description": "Incentivo por alta demanda en Centro",
+        "incentive_type": "high_demand",
+        "is_active": true,
+        "valid_until": "2025-11-22T10:00:00Z",
+        "created_at": "2025-10-22T10:00:00Z"
+      }
+    ]
+  }
+  ```
+
+### `GET /api/incentives/by_zone/?zone_id={zone_id}`
+
+- **Descripción**: Obtiene los incentivos del usuario filtrados por zona específica.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `zone_id` (requerido): ID de la zona
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivos por zona obtenidos exitosamente",
+    "data": [
+      {
+        "id": 1,
+        "user": 1,
+        "zone": {
+          "id": 1,
+          "name": "Centro"
+        },
+        "amount": "500.00",
+        "description": "Incentivo por alta demanda en Centro",
+        "incentive_type": "high_demand",
+        "is_active": true,
+        "valid_until": "2025-11-22T10:00:00Z",
+        "created_at": "2025-10-22T10:00:00Z"
+      }
+    ]
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Parámetro zone_id es requerido",
+      "data": null
+    }
+    ```
+
+### `POST /api/incentives/{id}/use/`
+
+- **Descripción**: Marca un incentivo como usado (lo desactiva).
+- **Autenticación**: Requerida (solo el propietario del incentivo).
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivo usado exitosamente",
+    "data": {
+      "message": "Incentive used successfully",
+      "incentive": {
+        "id": 1,
+        "user": 1,
+        "amount": "500.00",
+        "description": "Incentivo por alta demanda",
+        "is_active": false,
+        "created_at": "2025-10-22T10:00:00Z"
+      }
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para usar este incentivo",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Incentivo no encontrado",
+      "data": null
+    }
+    ```
+
+## 8. Endpoints de Reglas de Incentivos (`/api/incentive-rules/`)
+
+Gestiona las reglas para la generación automática de incentivos (solo administradores).
+
+### `GET /api/incentive-rules/`
+
+- **Descripción**: Lista todas las reglas de incentivos.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reglas de incentivos obtenidas exitosamente",
+    "data": {
+      "count": 3,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "name": "Alta Demanda",
+          "description": "Incentivo cuando la demanda supera significativamente la oferta",
+          "incentive_type": "high_demand",
+          "min_demand_count": 10,
+          "max_offer_demand_ratio": 0.5,
+          "base_amount": "300.00",
+          "percentage_bonus": 0.1,
+          "duration_days": 30,
+          "cooldown_days": 7,
+          "is_active": true,
+          "created_at": "2025-10-22T10:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/incentive-rules/generate_incentives/`
+
+- **Descripción**: Genera incentivos automáticos manualmente (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Request Body (opcional)**:
+  ```json
+  {
+    "zone_id": 1
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Incentivos generados exitosamente",
+    "data": {
+      "message": "Generated 5 incentives for Centro",
+      "incentives_count": 5,
+      "timestamp": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para generar incentivos",
+      "data": null
+    }
+    ```
+
+### `GET /api/incentive-rules/market_analysis/?zone_id={zone_id}`
+
+- **Descripción**: Obtiene análisis de mercado para zonas específicas o todas las zonas.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `zone_id` (opcional): ID de zona específica. Si no se proporciona, analiza todas las zonas.
+- **Response para zona específica (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Análisis de mercado obtenido exitosamente",
+    "data": {
+      "zone": {
+        "id": 1,
+        "name": "Centro",
+        "offer_count": 15,
+        "demand_count": 25
+      },
+      "conditions": {
+        "offer_demand_ratio": 0.6,
+        "activity_score": 8.5,
+        "high_demand": true,
+        "low_supply": false,
+        "low_activity": false,
+        "needs_incentives": true
+      },
+      "timestamp": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Response para todas las zonas (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Análisis de mercado para todas las zonas obtenido exitosamente",
+    "data": {
+      "zones_analysis": [
+        {
+          "zone": {
+            "id": 1,
+            "name": "Centro",
+            "offer_count": 15,
+            "demand_count": 25
+          },
+          "conditions": {
+            "offer_demand_ratio": 0.6,
+            "activity_score": 8.5,
+            "high_demand": true,
+            "low_supply": false,
+            "low_activity": false,
+            "needs_incentives": true
+          }
+        }
+      ],
+      "timestamp": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+
+### `POST /api/incentive-rules/{id}/toggle_active/`
+
+- **Descripción**: Activa o desactiva una regla de incentivo (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Regla activada exitosamente",
+    "data": {
+      "message": "Rule activated successfully",
+      "rule": {
+        "id": 1,
+        "name": "Alta Demanda",
+        "is_active": true,
+        "created_at": "2025-10-22T10:00:00Z"
+      }
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para modificar reglas de incentivos",
+      "data": null
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Regla de incentivo no encontrada",
+      "data": null
+    }
+    ```
+
+## 9. Endpoints de Zonas (`/api/zones/`)
+
+Gestiona las zonas geográficas con funcionalidades GIS y estadísticas de mercado.
+
+### `GET /api/zones/`
+
+- **Descripción**: Lista todas las zonas con información básica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `name`: Filtra por nombre de zona
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Zonas obtenidas exitosamente",
+    "data": {
+      "count": 10,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "name": "Centro",
+          "description": "Zona céntrica de la ciudad",
+          "offer_count": 15,
+          "demand_count": 25,
+          "avg_price": "1200.00",
+          "created_at": "2025-10-22T10:00:00Z",
+          "updated_at": "2025-10-22T12:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/zones/`
+
+- **Descripción**: Crea una nueva zona (solo administradores).
+- **Autenticación**: Requerida (solo administradores).
+- **Request Body**:
+  ```json
+  {
+    "name": "Zona Norte",
+    "description": "Zona residencial al norte de la ciudad",
+    "bounds": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-63.1821, -17.7834],
+          [-63.18, -17.7834],
+          [-63.18, -17.78],
+          [-63.1821, -17.78],
+          [-63.1821, -17.7834]
+        ]
+      ]
+    }
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Zona creada exitosamente",
+    "data": {
+      "id": 11,
+      "name": "Zona Norte",
+      "description": "Zona residencial al norte de la ciudad",
+      "bounds": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-63.1821, -17.7834],
+            [-63.18, -17.7834],
+            [-63.18, -17.78],
+            [-63.1821, -17.78],
+            [-63.1821, -17.7834]
+          ]
+        ]
+      },
+      "offer_count": 0,
+      "demand_count": 0,
+      "avg_price": "0.00",
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "name": ["Este campo es requerido."],
+        "bounds": ["Formato de coordenadas inválido."]
+      }
+    }
+    ```
+  - **403 Forbidden**:
+    ```json
+    {
+      "success": false,
+      "message": "No tienes permisos para crear zonas",
+      "data": null
+    }
+    ```
+
+### `GET /api/zones/{id}/`
+
+- **Descripción**: Obtiene detalles de una zona específica.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Zona obtenida exitosamente",
+    "data": {
+      "id": 1,
+      "name": "Centro",
+      "description": "Zona céntrica de la ciudad",
+      "bounds": {
+        "type": "Polygon",
+        "coordinates": [...]
+      },
+      "offer_count": 15,
+      "demand_count": 25,
+      "avg_price": "1200.00",
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T12:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Zona no encontrada",
+      "data": null
+    }
+    ```
+
+### `GET /api/zones/stats/`
+
+- **Descripción**: Obtiene estadísticas agregadas de todas las zonas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Estadísticas de zonas obtenidas exitosamente",
+    "data": {
+      "total_zones": 10,
+      "total_properties": 150,
+      "total_demand": 300,
+      "avg_price_all_zones": "1150.00",
+      "zones_with_high_demand": 3,
+      "zones_with_low_supply": 2,
+      "last_updated": "2025-10-22T12:00:00Z"
+    }
+  }
+  ```
+
+### `GET /api/zones/{id}/stats/`
+
+- **Descripción**: Obtiene estadísticas detalladas de una zona específica.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Estadísticas de zona obtenidas exitosamente",
+    "data": {
+      "zone": {
+        "id": 1,
+        "name": "Centro"
+      },
+      "property_count": 15,
+      "offer_count": 15,
+      "demand_count": 25,
+      "supply_demand_ratio": 0.6,
+      "avg_price": "1200.00",
+      "price_range": {
+        "min": "800.00",
+        "max": "2000.00"
+      },
+      "recent_activity": {
+        "searches_last_30_days": 45,
+        "new_properties_last_30_days": 3,
+        "favorites_count": 12
+      },
+      "market_conditions": {
+        "high_demand": true,
+        "low_supply": false,
+        "activity_score": 8.5
+      },
+      "last_updated": "2025-10-22T12:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Zona no encontrada",
+      "data": null
+    }
+    ```
+
+### `GET /api/zones/heatmap/`
+
+- **Descripción**: Obtiene datos para generar un mapa de calor de actividad por zonas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Datos de mapa de calor obtenidos exitosamente",
+    "data": {
+      "heatmap_data": [
+        {
+          "zone_id": 1,
+          "name": "Centro",
+          "center_lat": -17.7834,
+          "center_lng": -63.1821,
+          "activity_score": 8.5,
+          "demand_intensity": 0.85,
+          "supply_intensity": 0.45,
+          "price_level": "high"
+        }
+      ],
+      "legend": {
+        "activity_score": "Puntuación de actividad (0-10)",
+        "demand_intensity": "Intensidad de demanda (0-1)",
+        "supply_intensity": "Intensidad de oferta (0-1)",
+        "price_level": "Nivel de precios (low/medium/high)"
+      }
+    }
+  }
+  ```
+  |---|---|---|
+
+### `GET /api/zones/geojson/`
+
+- **Descripción**: Obtiene todas las zonas en formato GeoJSON para mapas.
+- **Autenticación**: No requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Datos GeoJSON obtenidos exitosamente",
+    "data": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [-63.1821, -17.7834],
+                [-63.18, -17.7834],
+                [-63.18, -17.78],
+                [-63.1821, -17.78],
+                [-63.1821, -17.7834]
+              ]
+            ]
+          },
+          "properties": {
+            "id": 1,
+            "name": "Centro",
+            "offer_count": 15,
+            "demand_count": 25,
+            "avg_price": "1200.00",
+            "activity_score": 8.5
+          }
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/zones/search_log/`
+
+- **Descripción**: Registra una búsqueda realizada en una zona específica.
+- **Autenticación**: No requerida.
+- **Request Body**:
+  ```json
+  {
+    "zone": 1,
+    "search_query": "departamento 2 dormitorios",
+    "user_ip": "192.168.1.1"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Búsqueda registrada exitosamente",
+    "data": {
+      "id": 1,
+      "zone": 1,
+      "search_query": "departamento 2 dormitorios",
+      "user_ip": "192.168.1.1",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "zone": ["Este campo es requerido."],
+        "search_query": ["Este campo es requerido."]
+      }
+    }
+    ```
+
+### `GET /api/zones/{id}/nearby_zones/?distance_km={distance}`
+
+- **Descripción**: Obtiene zonas cercanas a una zona específica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `distance_km` (opcional): Distancia en kilómetros (por defecto: 5)
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Zonas cercanas obtenidas exitosamente",
+    "data": {
+      "zone": {
+        "id": 1,
+        "name": "Centro"
+      },
+      "nearby_zones": [
+        {
+          "id": 2,
+          "name": "Zona Norte",
+          "distance_km": 2.5,
+          "offer_count": 8,
+          "demand_count": 12,
+          "avg_price": "950.00"
+        }
+      ],
+      "search_radius_km": 5
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Zona no encontrada",
+      "data": null
+    }
+    ```
+
+### `GET /api/zones/find_by_location/?lat={latitude}&lng={longitude}`
+
+- **Descripción**: Encuentra la zona que contiene una ubicación específica.
+- **Autenticación**: No requerida.
+- **Parámetros de consulta**:
+  - `lat` (requerido): Latitud
+  - `lng` (requerido): Longitud
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Zona encontrada exitosamente",
+    "data": {
+      "zone": {
+        "id": 1,
+        "name": "Centro",
+        "description": "Zona céntrica de la ciudad",
+        "offer_count": 15,
+        "demand_count": 25,
+        "avg_price": "1200.00"
+      },
+      "coordinates": {
+        "lat": -17.7834,
+        "lng": -63.1821
+      }
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Parámetros de ubicación requeridos",
+      "data": {
+        "lat": ["Este parámetro es requerido."],
+        "lng": ["Este parámetro es requerido."]
+      }
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "No se encontró ninguna zona para esta ubicación",
+      "data": null
+    }
+    ```
+
+## 10. Endpoints de Pagos (`/api/payments/`)
+
+Gestiona los pagos de alquileres y rentas.
+
+### `GET /api/payments/`
+
+- **Descripción**: Obtiene una lista paginada de todos los pagos.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `status`: Filtra por estado (`pendiente`, `pagado`, `retrasado`)
+  - `property`: Filtra por ID de propiedad
+  - `tenant`: Filtra por ID del inquilino
+  - `due_date`: Filtra por fecha de vencimiento
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pagos obtenidos exitosamente",
+    "data": {
+      "count": 30,
+      "next": "http://localhost:8000/api/payments/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "property": 1,
+          "tenant": 2,
+          "amount": "1500.00",
+          "status": "pagado",
+          "due_date": "2025-10-07",
+          "paid_date": "2025-10-07",
+          "fine": "0.00",
+          "method": 1,
+          "created_at": "2025-10-22T10:00:00Z",
+          "updated_at": "2025-10-22T10:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/payments/`
+
+- **Descripción**: Registra un nuevo pago.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "property": 1,
+    "tenant": 2,
+    "amount": "1500.00",
+    "due_date": "2025-11-07",
+    "method": 1
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pago registrado exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1500.00",
+      "status": "pendiente",
+      "due_date": "2025-11-07",
+      "paid_date": null,
+      "fine": "0.00",
+      "method": 1,
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "property": ["Este campo es requerido."],
+        "amount": ["Debe ser un número válido."]
+      }
+    }
+    ```
+
+### `GET /api/payments/{id}/`
+
+- **Descripción**: Obtiene los detalles de un pago específico.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pago obtenido exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1500.00",
+      "status": "pagado",
+      "due_date": "2025-10-07",
+      "paid_date": "2025-10-07",
+      "fine": "0.00",
+      "method": 1,
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Pago no encontrado",
+      "data": null
+    }
+    ```
+
+### `PUT/PATCH /api/payments/{id}/`
+
+- **Descripción**: Actualiza un pago existente (ej: marcar como pagado).
+- **Autenticación**: Requerida.
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "status": "pagado",
+    "paid_date": "2025-10-22"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pago actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "tenant": 2,
+      "amount": "1500.00",
+      "status": "pagado",
+      "due_date": "2025-11-07",
+      "paid_date": "2025-10-22",
+      "fine": "0.00",
+      "method": 1,
+      "created_at": "2025-10-22T10:00:00Z",
+      "updated_at": "2025-10-22T12:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "status": ["Estado inválido."]
+      }
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Pago no encontrado",
+      "data": null
+    }
+    ```
+
+### `DELETE /api/payments/{id}/`
+
+- **Descripción**: Elimina un pago.
+- **Autenticación**: Requerida.
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Pago eliminado exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Pago no encontrado",
+      "data": null
+    }
+    ```
+
+**Estados de pago disponibles:**
+
+- `pendiente`: Pago aún no realizado
+- `pagado`: Pago completado
+- `retrasado`: Pago vencido sin completar
+
+## 11. Endpoints de Métodos de Pago (`/api/payment-methods/`)
+
+Gestiona los métodos de pago disponibles en el sistema.
+
+### `GET /api/payment-methods/`
+
+- **Descripción**: Obtiene una lista paginada de todos los métodos de pago.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `user`: Filtra por ID del usuario (métodos personalizados)
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Métodos de pago obtenidos exitosamente",
+    "data": {
+      "count": 8,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "name": "Efectivo",
+          "user": null
+        },
+        {
+          "id": 2,
+          "name": "Transferencia Bancaria",
+          "user": null
+        },
+        {
+          "id": 3,
+          "name": "Tarjeta de Crédito Visa",
+          "user": 1
+        }
+      ]
+    }
+  }
+  ```
+
+### `POST /api/payment-methods/`
+
+- **Descripción**: Crea un nuevo método de pago.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "name": "PayPal",
+    "user": null
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Método de pago creado exitosamente",
+    "data": {
+      "id": 4,
+      "name": "PayPal",
+      "user": null
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "name": ["Este campo es requerido."]
+      }
+    }
+    ```
+
+### `GET /api/payment-methods/{id}/`
+
+- **Descripción**: Obtiene los detalles de un método de pago específico.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Método de pago obtenido exitosamente",
+    "data": {
+      "id": 4,
+      "name": "PayPal",
+      "user": null
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    `json
+{
+  "success": false,
+  "message": "Método de pago no encontrado",
+  "data": null
+}
+`
+    | `GET` | `/api/payment-methods/` | Métodos de pago guardados |
+
+### `PUT/PATCH /api/payment-methods/{id}/`
+
+- **Descripción**: Actualiza un método de pago existente.
+- **Autenticación**: Requerida.
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "name": "PayPal Empresarial"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Método de pago actualizado exitosamente",
+    "data": {
+      "id": 4,
+      "name": "PayPal Empresarial",
+      "user": null
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**:
+    ```json
+    {
+      "success": false,
+      "message": "Datos inválidos",
+      "data": {
+        "name": ["Este campo es requerido."]
+      }
+    }
+    ```
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Método de pago no encontrado",
+      "data": null
+    }
+    ```
+
+### `DELETE /api/payment-methods/{id}/`
+
+- **Descripción**: Elimina un método de pago.
+- **Autenticación**: Requerida.
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Método de pago eliminado exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **404 Not Found**:
+    ```json
+    {
+      "success": false,
+      "message": "Método de pago no encontrado",
+      "data": null
+    }
+    ```
+
+**Nota**: Los métodos de pago pueden ser globales (`user: null`) o específicos de un usuario.
+
+## 10. Endpoints de Reseñas (`/api/reviews/`)
+
+Gestiona las reseñas y calificaciones de propiedades.
+
+### `GET /api/reviews/`
+
+- **Descripción**: Obtiene una lista paginada de todas las reseñas.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `property`: Filtra por ID de propiedad
+  - `user`: Filtra por ID del usuario que escribió la reseña
+  - `rating`: Filtra por calificación específica
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reseñas obtenidas exitosamente",
+    "data": {
+      "count": 45,
+      "next": "http://localhost:8000/api/reviews/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "property": 1,
+          "user": 2,
+          "rating": 5,
+          "comment": "Excelente propiedad, muy bien ubicada y en perfecto estado",
+          "created_at": "2025-10-22T10:00:00Z"
+        },
+        {
+          "id": 2,
+          "property": 1,
+          "user": 3,
+          "rating": 4,
+          "comment": "Buena propiedad, solo le falta un poco más de iluminación",
+          "created_at": "2025-10-22T11:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a las reseñas
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `POST /api/reviews/`
+
+- **Descripción**: Crea una nueva reseña.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "property": 1,
+    "user": 2,
+    "rating": 5,
+    "comment": "Excelente propiedad, muy bien ubicada y en perfecto estado"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reseña creada exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "user": 2,
+      "rating": 5,
+      "comment": "Excelente propiedad, muy bien ubicada y en perfecto estado",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para crear reseñas
+  - **404 Not Found**: Propiedad no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `GET /api/reviews/{id}/`
+
+- **Descripción**: Obtiene los detalles de una reseña específica.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reseña obtenida exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "user": 2,
+      "rating": 5,
+      "comment": "Excelente propiedad, muy bien ubicada y en perfecto estado",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a esta reseña
+  - **404 Not Found**: Reseña no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `PUT/PATCH /api/reviews/{id}/`
+
+- **Descripción**: Actualiza una reseña existente.
+- **Autenticación**: Requerida (solo el autor de la reseña).
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "rating": 4,
+    "comment": "Buena propiedad, actualizo mi comentario después de vivir aquí"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reseña actualizada exitosamente",
+    "data": {
+      "id": 1,
+      "property": 1,
+      "user": 2,
+      "rating": 4,
+      "comment": "Buena propiedad, actualizo mi comentario después de vivir aquí",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para actualizar esta reseña
+  - **404 Not Found**: Reseña no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `DELETE /api/reviews/{id}/`
+
+- **Descripción**: Elimina una reseña.
+- **Autenticación**: Requerida (solo el autor o admin).
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Reseña eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para eliminar esta reseña
+  - **404 Not Found**: Reseña no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+**Escala de calificación**: 1-5 estrellas (1 = Muy malo, 5 = Excelente)
+
+## 11. Endpoints de Notificaciones (`/api/notifications/`)
+
+Gestiona las notificaciones del sistema para los usuarios.
+
+### `GET /api/notifications/`
+
+- **Descripción**: Devuelve SOLO las notificaciones del usuario autenticado, ordenadas por `created_at` descendente.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `is_read`: Filtra por estado de lectura (`true`/`false`)
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificaciones obtenidas exitosamente",
+    "data": {
+      "count": 12,
+      "next": null,
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "user": 7,
+          "message": "Has recibido un nuevo mensaje de Juan sobre la propiedad en Calle Falsa 123",
+          "is_read": false,
+          "created_at": "2025-10-22T10:00:00Z"
+        },
+        {
+          "id": 2,
+          "user": 7,
+          "message": "Tu pago de alquiler vence en 3 días",
+          "is_read": true,
+          "created_at": "2025-10-22T09:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a las notificaciones
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `POST /api/notifications/`
+
+- **Descripción**: Crea una nueva notificación.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "user": 1,
+    "message": "Tu pago de alquiler vence mañana"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificación creada exitosamente",
+    "data": {
+      "id": 3,
+      "user": 1,
+      "message": "Tu pago de alquiler vence mañana",
+      "is_read": false,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para crear notificaciones
+  - **404 Not Found**: Usuario no encontrado
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `GET /api/notifications/{id}/`
+
+- **Descripción**: Obtiene los detalles de una notificación específica.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificación obtenida exitosamente",
+    "data": {
+      "id": 3,
+      "user": 1,
+      "message": "Tu pago de alquiler vence mañana",
+      "is_read": false,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a esta notificación
+  - **404 Not Found**: Notificación no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `PUT/PATCH /api/notifications/{id}/`
+
+- **Descripción**: Actualiza una notificación existente.
+- **Autenticación**: Requerida.
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "is_read": true
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificación actualizada exitosamente",
+    "data": {
+      "id": 3,
+      "user": 1,
+      "message": "Tu pago de alquiler vence mañana",
+      "is_read": true,
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para actualizar esta notificación
+  - **404 Not Found**: Notificación no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `POST /api/notifications/{id}/mark_as_read/`
+
+- **Descripción**: Acción personalizada que marca la notificación como leída.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificación marcada como leída exitosamente",
+    "data": {
+      "status": "notification marked as read"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para marcar esta notificación
+  - **404 Not Found**: Notificación no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `DELETE /api/notifications/{id}/`
+
+- **Descripción**: Elimina una notificación.
+- **Autenticación**: Requerida.
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificación eliminada exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para eliminar esta notificación
+  - **404 Not Found**: Notificación no encontrada
+  - **500 Internal Server Error**: Error interno del servidor
+
+## 12. Endpoints de Mensajería (`/api/messages/`)
+
+Gestiona los mensajes entre usuarios del sistema.
+
+### `GET /api/messages/`
+
+- **Descripción**: Obtiene una lista paginada de mensajes.
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `sender`: Filtra por ID del remitente
+  - `receiver`: Filtra por ID del destinatario
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Mensajes obtenidos exitosamente",
+    "data": {
+      "count": 25,
+      "next": "http://localhost:8000/api/messages/?page=2",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "sender": 1,
+          "receiver": 2,
+          "content": "Hola, estoy interesado en la propiedad que publicaste en Calle Falsa 123",
+          "created_at": "2025-10-22T10:00:00Z"
+        },
+        {
+          "id": 2,
+          "sender": 2,
+          "receiver": 1,
+          "content": "¡Hola! Sí, la propiedad sigue disponible. ¿Te gustaría programar una visita?",
+          "created_at": "2025-10-22T10:05:00Z"
+        }
+      ]
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a los mensajes
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `POST /api/messages/`
+
+- **Descripción**: Envía un nuevo mensaje.
+- **Autenticación**: Requerida.
+- **Request Body**:
+  ```json
+  {
+    "sender": 1,
+    "receiver": 2,
+    "content": "Hola, estoy interesado en la propiedad que publicaste"
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje enviado exitosamente",
+    "data": {
+      "id": 1,
+      "sender": 1,
+      "receiver": 2,
+      "content": "Hola, estoy interesado en la propiedad que publicaste",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para enviar mensajes
+  - **404 Not Found**: Usuario destinatario no encontrado
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `GET /api/messages/{id}/`
+
+- **Descripción**: Obtiene los detalles de un mensaje específico.
+- **Autenticación**: Requerida (solo remitente o destinatario).
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje obtenido exitosamente",
+    "data": {
+      "id": 1,
+      "sender": 1,
+      "receiver": 2,
+      "content": "Hola, estoy interesado en la propiedad que publicaste",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para acceder a este mensaje
+  - **404 Not Found**: Mensaje no encontrado
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `PUT/PATCH /api/messages/{id}/`
+
+- **Descripción**: Actualiza un mensaje existente.
+- **Autenticación**: Requerida (solo el remitente).
+- **Request Body (PATCH)**:
+  ```json
+  {
+    "content": "Hola, estoy muy interesado en la propiedad que publicaste"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje actualizado exitosamente",
+    "data": {
+      "id": 1,
+      "sender": 1,
+      "receiver": 2,
+      "content": "Hola, estoy muy interesado en la propiedad que publicaste",
+      "created_at": "2025-10-22T10:00:00Z"
+    }
+  }
+  ```
+- **Errores comunes**:
+  - **400 Bad Request**: Datos de entrada inválidos
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para actualizar este mensaje
+  - **404 Not Found**: Mensaje no encontrado
+  - **500 Internal Server Error**: Error interno del servidor
+
+### `DELETE /api/messages/{id}/`
+
+- **Descripción**: Elimina un mensaje.
+- **Autenticación**: Requerida (solo el remitente o admin).
+- **Response (204 No Content)**:
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje eliminado exitosamente",
+    "data": null
+  }
+  ```
+- **Errores comunes**:
+  - **401 Unauthorized**: Token de autenticación inválido o faltante
+  - **403 Forbidden**: Sin permisos para eliminar este mensaje
+  - **404 Not Found**: Mensaje no encontrado
+  - **500 Internal Server Error**: Error interno del servidor
+
+**Consejos para obtener conversaciones:**
+
+- Para obtener mensajes entre dos usuarios específicos, usa: `/api/messages/?sender=1&receiver=2` y `/api/messages/?sender=2&receiver=1`
+- Ordena por `created_at` para mostrar cronológicamente
+
+## 7. Endpoints de Matching (`/api/search_profiles/`, `/api/roommate_requests/`, `/api/matches/`, `/api/match_feedback/`, `/api/recommendations/`)
+
+Sistema de matching inteligente para inquilinos, propietarios y agentes.
+
+### `POST /api/search_profiles/`
+
+- **Descripción**: Crea/actualiza el `SearchProfile` del usuario autenticado con preferencias de búsqueda.
+- **Autenticación**: Requerida.
+- **Request Body (JSON)**:
+  - `latitude`/`longitude` (opcional): Coordenadas base del perfil, se convierten a `Point`
+  - `budget_min`, `budget_max` (opcional): Presupuesto
+  - `desired_types` (opcional): Array de tipos deseados
+  - `bedrooms_min`, `bedrooms_max` (opcional)
+  - `amenities` (opcional): IDs de amenidades
+  - `roommate_preference` (opcional): `no` | `looking` | `open`
+  - `roommate_preferences`, `vibes` (opcional): JSON/array libre
+  - `preferred_zones` (opcional): Array de IDs de zonas preferidas
+  - Campos adicionales para mejorar el matching:
+    - `age` (opcional): Edad
+    - `children_count` (opcional): Número de hijos
+    - `family_size` (opcional): Tamaño del grupo familiar
+    - `smoker` (opcional): Si fuma
+    - `gender` (opcional): `male` | `female` | `other`
+    - `occupation` (opcional): Ocupación (texto)
+    - `has_vehicle` (opcional): Si tiene vehículo
+    - `commute_distance_km` (opcional): Distancia de traslado preferida
+    - `education_level` (opcional): Nivel educativo (texto)
+    - `pets_count` (opcional): Número de mascotas
+    - `languages` (opcional): Array de idiomas
+    - `lifestyle` (opcional): JSON libre con estilo de vida
+    - `schedule` (opcional): JSON libre con horarios
+- **Response (200/201)**: Perfil creado/actualizado.
+
+### `GET /api/search_profiles/my/`
+
+- **Descripción**: Obtiene el `SearchProfile` del usuario autenticado.
+- **Autenticación**: Requerida.
+
+### `POST /api/roommate_requests/`
+
+- **Descripción**: Crea una solicitud de roommate asociada al `SearchProfile`.
+- **Autenticación**: Requerida.
+- **Request Body**: `desired_move_in_date`, `max_roommates`, `gender_preference`, `smoker_ok`, `budget_per_person`.
+
+### `GET /api/roommate_requests/my/`
+
+- **Descripción**: Lista las solicitudes de roommate creadas por el usuario autenticado.
+- **Autenticación**: Requerida.
+
+### `GET /api/search_profiles/{id}/matches/?type=property|roommate|agent`
+
+- **Descripción**: Lista matches paginados asociados al perfil de búsqueda indicado, ordenados por score.
+- **Autenticación**: Requerida.
+- **Query params**:
+  - `type`: `property` (por defecto) | `roommate` | `agent`
+  - `status` (opcional): `pending` | `accepted` | `rejected` para filtrar por estado
+- **Response (200 OK)**: Respuesta paginada estándar de DRF (`count`, `next`, `previous`, `results`).
+- **Acciones relacionadas**:
+  - `POST /api/matches/{id}/accept/`: Acepta un match y crea notificación/mensaje.
+  - `POST /api/matches/{id}/reject/`: Rechaza un match y almacena feedback opcional.
+
+### Aprobar Match (Inquilino)
+
+- **Endpoint**: `POST /api/matches/{id}/accept/`
+- **Autenticación**: Requerida (JWT)
+- **Body**: vacío (no requiere payload)
+- **Ejemplo (curl)**:
+
+```bash
+curl -X POST http://localhost:8000/api/matches/123/accept/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+- **Respuesta (200 OK)**:
 
 ```json
 {
-  "budget_min": 200,
-  "budget_max": 500,
-  "latitude": -17.78, // Centro de búsqueda
-  "longitude": -63.18,
-  "radius": 5, // km
-  "roommate_preference": "looking", // none, open, looking
-  "vibes": ["Estudioso", "Fiesta", "Fitness"],
-  "amenities": ["WiFi"]
+  "success": true,
+  "message": "Match aceptado exitosamente",
+  "data": {
+    "status": "accepted",
+    "match": {
+      "id": 123,
+      "match_type": "property",
+      "subject_id": 45,
+      "target_user": 7,
+      "score": 85.0,
+      "status": "accepted",
+      "metadata": {
+        "details": {
+          /* opcional */
+        }
+      },
+      "created_at": "2025-11-05T12:00:00Z",
+      "updated_at": "2025-11-29T14:20:00Z"
+    }
+  }
 }
 ```
 
-### Matches y Feedback
+- **Efectos**:
+  - Marca el `Match` como `accepted`.
+  - Crea una `Notification` para el inquilino.
+  - Si el match es de tipo `property`, crea un `Message` al propietario indicando interés.
 
-El sistema genera matches automáticamente. El usuario da feedback (Like/Dislike).
-| Método | Endpoint | Descripción |
-|---|---|---|
-| `GET` | `/api/matches/` | Ver mis matches pendientes |
-| `POST` | `/api/match_feedback/` | Dar Like/Dislike/Superlike |
+### Aprobar Match (Propietario/Agente)
 
-**Dar Feedback (Swipe):**
+- **Endpoint**: `POST /api/matches/{id}/owner_accept/`
+- **Autenticación**: Requerida (JWT; solo propietario o agente de la propiedad puede aprobar)
+- **Body**: vacío (no requiere payload)
+- **Ejemplo (curl)**:
 
-```json
-POST /api/match_feedback/
-{
-  "match_id": 1024,
-  "feedback_type": "like" // like, dislike, superlike
-}
+```bash
+curl -X POST http://localhost:8000/api/matches/123/owner_accept/ \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
 ```
 
----
-
-## 5. Comunicación
-
-### Mensajería
-
-| Método | Endpoint              | Descripción               |
-| ------ | --------------------- | ------------------------- |
-| `GET`  | `/api/messages/`      | Listar mis conversaciones |
-| `POST` | `/api/messages/`      | Enviar mensaje            |
-| `GET`  | `/api/messages/{id}/` | Ver hilo de conversación  |
-
-**Enviar Mensaje:**
-
-```json
-{
-  "receiver": 45, // ID del usuario destino
-  "content": "Hola, sigue disponible?",
-  "property": 12 // Opcional, si es sobre una propiedad
-}
-```
-
-### Notificaciones
-
-| Método  | Endpoint                   | Descripción                         |
-| ------- | -------------------------- | ----------------------------------- |
-| `GET`   | `/api/notifications/`      | Listar mis notificaciones           |
-| `PATCH` | `/api/notifications/{id}/` | Marcar como leída (`is_read: true`) |
-
----
-
-## 6. Finanzas
-
-### Pagos
-
-| Método | Endpoint         | Descripción        |
-| ------ | ---------------- | ------------------ |
-| `GET`  | `/api/payments/` | Historial de pagos |
-| `POST` | `/api/payments/` | Registrar un pago  |
-
-### Métodos de Pago
-
-| Método | Endpoint                | Descripción               |
-| ------ | ----------------------- | ------------------------- |
-| `GET`  | `/api/payment-methods/` | Métodos de pago guardados |
-
-### Incentivos
-
-| Método | Endpoint           | Descripción                         |
-| ------ | ------------------ | ----------------------------------- |
-| `GET`  | `/api/incentives/` | Ver incentivos disponibles en zonas |
-
----
-
-## 7. Sistema y Utilidades
-
-### Subida de Imágenes
-
-| Método | Endpoint             | Descripción               |
-| ------ | -------------------- | ------------------------- |
-| `POST` | `/api/upload/image/` | Subir imagen a Cloudinary |
-
-**Headers:** `Content-Type: multipart/form-data`
-**Body:** `file` (Binary), `folder` (Texto, opcional)
-**Respuesta:**
+- **Respuesta (200 OK)**:
 
 ```json
 {
-  "url": "https://res.cloudinary.com/.../image.jpg",
-  "filename": "image.jpg"
+  "success": true,
+  "message": "Match aceptado por propietario/agente",
+  "data": {
+    "status": "accepted",
+    "match": {
+      "id": 123,
+      "match_type": "property",
+      "subject_id": 45,
+      "target_user": 7,
+      "score": 85.0,
+      "status": "accepted",
+      "metadata": {
+        /* opcional */
+      },
+      "created_at": "2025-11-05T12:00:00Z",
+      "updated_at": "2025-11-29T14:20:00Z"
+    }
+  }
 }
 ```
 
-### Reportes
+- **Efectos**:
+  - Marca el `Match` como `accepted`.
+  - Envía `Notification` al inquilino y al propietario.
+  - Emite notificación WebSocket de `match_accepted`.
+  - Si la propiedad permite roomies y el inquilino busca roomie, convierte la propiedad en “roomie listing” y notifica.
 
-| Método | Endpoint        | Descripción                  |
-| ------ | --------------- | ---------------------------- |
-| `POST` | `/api/reports/` | Reportar usuario o propiedad |
+### Errores comunes (aprobar match)
+
+- **401 Unauthorized**: falta o token inválido.
+- **403 Forbidden**: el match no pertenece al usuario (inquilino) o el usuario no es propietario/agente de la propiedad en `owner_accept`.
+- **404 Not Found**: match o propiedad no existen.
+
+### `GET /api/matches/my/?type=property|roommate|agent&status=pending|accepted|rejected`
+
+- **Descripción**: Lista los matches del usuario autenticado directamente por token (sin necesidad de `search_profile_id`).
+- **Autenticación**: Requerida.
+- **Parámetros de consulta**:
+  - `type` (opcional): `property` (por defecto), `roommate`, `agent`
+  - `status` (opcional): `pending`, `accepted`, `rejected`
+- **Response (200 OK)**: Respuesta paginada estándar si aplica (`count`, `next`, `previous`, `results`).
+
+### `POST /api/properties/{id}/like/`
+
+- **Descripción**: Un inquilino indica interés (“me gusta”) sobre una propiedad; crea/actualiza el `Match` correspondiente (`match_type=property`, `subject_id=<id>`, `target_user=<tenant>`), registra `MatchFeedback` con `feedback_type=like`, envía `Message` y `Notification` al propietario, y emite notificación WebSocket.
+- **Autenticación**: Requerida (inquilino).
+- **Response (200 OK)**:
+
+```json
+{ "status": "pending", "match_id": 123, "score": 82.0 }
+```
+
+### `POST /api/match_feedback/`
+
+- **Descripción**: Envía feedback sobre un match (`like`, `dislike`, `neutral`) con razón opcional.
+- **Autenticación**: Requerida.
+- **Request Body (JSON)**:
+  - `match`: ID del match
+  - `user`: ID del usuario (se valida que sea el autenticado)
+  - `feedback_type`: `like` | `dislike` | `neutral`
+  - `reason` (opcional): Texto con la razón del feedback
+
+### `GET /api/recommendations/?type=mixed|property|roommate|agent`
+
+- **Descripción**: Obtiene recomendaciones híbridas para el `SearchProfile` del usuario. Genera matches on-demand antes de listar.
+- **Autenticación**: Requerida.
+- **Notas**: `type=mixed` incluye resultados de propiedades, roomies y agentes; se devuelve un arreglo con elementos `{type, match}`.
+
+- **Ejemplo (type=property)**
+
+  ```http
+  GET /api/recommendations/?type=property
+  Authorization: Bearer <token>
+  ```
+
+  ```json
+  {
+    "results": [
+      {
+        "type": "property",
+        "match": {
+          "id": 123,
+          "match_type": "property",
+          "subject_id": 45, // ID de la Property
+          "target_user": 7, // ID del usuario actual
+          "score": 85.2,
+          "status": "pending",
+          "metadata": {
+            "details": {
+              /* explicación del score */
+            }
+          },
+          "created_at": "2025-11-05T12:00:00Z",
+          "updated_at": "2025-11-05T12:00:00Z"
+        }
+      }
+    ]
+  }
+  ```
+
+- **Ejemplo (type=roommate)**
+  ```http
+  GET /api/recommendations/?type=roommate
+  Authorization: Bearer <token>
+  ```
+  ```json
+  {
+    "results": [
+      {
+        "type": "roommate",
+        "match": {
+          "id": 456,
+          "match_type": "roommate",
+          "subject_id": 12, // ID del SearchProfile del otro usuario
+          "target_user": 7,
+          "score": 80.0,
+          "status": "pending",
+          "metadata": {
+            "details": {
+              /* explicación del score */
+            }
+          },
+          "created_at": "2025-11-05T12:00:00Z",
+          "updated_at": "2025-11-05T12:00:00Z"
+        }
+      }
+    ]
+  }
+  ```
+
+### Flujo de "Like" y almacenamiento
+
+- Para registrar interés sin aceptar todavía, puedes usar `POST /api/properties/{id}/like/` (recomendado desde la vista de propiedad) o `POST /api/matches/{id}/like/` si ya existe el match.
+- Al hacer "like":
+  - Se guarda `MatchFeedback` con `feedback_type=like`.
+  - Si el match es de tipo `property`, se crea un `Message` automático al propietario y una `Notification` para el propietario.
+  - Se emiten eventos WebSocket en `ws/property-notifications/{owner_id}/`:
+    - `property_like` con datos de la propiedad y del usuario interesado.
+    - `pending_requests_count` (enviado como `general_notification`) con `data.count` y la lista de solicitudes recientes.
+  - Si la compatibilidad es muy alta (`score ≥ 95`) y cumple preferencias del propietario (`owner_prefs_score ≥ 90`), el sistema acepta automáticamente el match.
+- Para aceptar explícitamente un match, usa `POST /api/matches/{id}/accept/`.
+- Al aceptar:
+  - Se actualiza el `status` del `Match` a `accepted`.
+  - Se envía una `Notification` al usuario confirmando la aceptación.
+- Historial: usa `GET /api/search_profiles/{id}/matches/?status=accepted` para ver matches aceptados.
+- Errores comunes:
+  - `401 Unauthorized` si la solicitud no incluye token JWT (todas las rutas de matching requieren autenticación).
+  - `403 Forbidden` si el match no pertenece al usuario autenticado (`target_user`).
+  - `404 Not Found` si el recurso no existe.
+
+#### Listar mis matches
+
+- `GET /api/matches/my/?type=property|roommate|agent&status=pending|accepted|rejected` devuelve los matches del usuario autenticado, paginados.
+
+#### Solicitudes pendientes para propietarios/agentes
+
+- `GET /api/matches/pending_requests/` devuelve las solicitudes de match pendientes para las propiedades del propietario o agente autenticado.
+
+  - Cada elemento incluye:
+
+    - `match`: datos básicos del match (incluye `created_at`)
+    - `property`: datos básicos de la propiedad
+    - `interested_user`: `{ id, username, profile_picture }`
+    - `created_ago`: texto relativo (por ej. `"hace 3 minutos"`)
+
+  - Ejemplo:
+
+  ```json
+  {
+    "success": true,
+    "message": "Solicitudes de match pendientes obtenidas exitosamente",
+    "data": [
+      {
+        "match": {
+          "id": 4,
+          "subject_id": 3,
+          "status": "pending",
+          "score": 86.9,
+          "created_at": "2025-11-30T19:12:20Z"
+        },
+        "property": {
+          "id": 3,
+          "address": "Av. Test 123",
+          "type": "departamento",
+          "price": 700.0
+        },
+        "interested_user": {
+          "id": 6,
+          "username": "tenant_test",
+          "profile_picture": "https://.../media/profile_pictures/user_6_....jpg"
+        },
+        "created_ago": "hace 3 minutos"
+      }
+    ]
+  }
+  ```
+
+  - Observación: `interested_user.profile_picture` devuelve la foto de perfil actual del usuario (URL absoluta). Si la foto principal está vacía, se usa la última marcada como `is_current` en su historial.
+
+### Cómo se eligen las propiedades mostradas
+
+- El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).
+- Solo se almacenan matches con `score >= 70`.
+- Para listar propiedades directamente: `GET /api/properties/?match_score=70` filtra según el `SearchProfile` del usuario autenticado.
+- Para una experiencia tipo swipe y priorizar probabilidades altas, usa `GET /api/search_profiles/{id}/matches/?type=property`.
+- El matching para roomies considera el solapamiento de `preferred_zones` entre perfiles.
+
+### Notas de Matching
+
+- Al crear una `Property`, el sistema genera matches automáticos con perfiles existentes si el score ≥ 70.
+- El listado de propiedades soporta `match_score` para filtrar y `order_by_match=true` para ordenar por mejor compatibilidad según el `SearchProfile` del usuario autenticado.
+- Favoritos: `POST /api/profiles/add_favorite/` y `POST /api/profiles/remove_favorite/`; las propiedades favoritas reciben un pequeño boost de `+3` en el score.
+- Propiedades vistas/interactuadas: `GET /api/properties/seen/` devuelve IDs con los que el usuario ya interactuó.
+
+### Control de Interacciones del Usuario
+
+- `POST /api/properties/{id}/view/` — registra una vista y aumenta contador personal.
+- `POST /api/properties/{id}/back/` — registra acción de “volver atrás” sobre una propiedad.
+- `GET /api/properties/interaction_stats/?date=YYYY-MM-DD` — devuelve estadísticas diarias del usuario:
+  - `counts`: `{ views, back, dislikes }`
+  - `by_property`: arreglo con `{ property_id, views, back, dislikes }`
+  - `date`: fecha consultada (por defecto, hoy)
+- Notas:
+  - `dislikes` se contabiliza desde `MatchFeedback` con `feedback_type=dislike` (acción `reject`).
+  - `views` se contabiliza desde `PropertyViewEvent`.
+  - `back` se contabiliza desde `PropertyInteractionEvent` con `event_type=back`.
+- `Zone` expone métricas nuevas en `zone_stats`: `match_ratio` y `roomie_demand`.
+
+## 8. Endpoints de Zonas (`/api/zones/`) – Métricas de Matching
+
+### `GET /api/zones/{id}/stats/`
+
+- **Descripción**: Incluye métricas adicionales:
+  - `match_ratio`: proporción de matches aceptados / matches totales para propiedades de la zona.
+  - `roomie_demand`: cantidad de solicitudes de roommate activas con preferencia por la zona.
+
+## 14. Chat en Tiempo Real (WebSocket)
+
+- Protocolo: WebSocket con Django Channels + Redis.
+- Ruta: `ws://<host>/ws/chat/<room_id>/`.
+  - `room_id` recomendado: `<min(sender_id)>-<max(receiver_id)>` (por ejemplo, usuarios 5 y 7 → `5-7`).
+  - El servidor valida que el `room_id` coincida con los IDs enviados en el payload.
+  - Normalización de sala: si te conectas a `ws/chat/2_3`, el servidor normaliza a `2-3`.
+  - Rutas aceptadas: con o sin slash inicial en el path (`/ws/chat/...` o `ws/chat/...`) y con o sin barra final (`/...` o sin `/`). Se recomienda usar `ws://<host>/ws/chat/<room_id>/` con barra inicial y barra final.
+
+### Ejemplos de cliente (JavaScript)
+
+- Conexión a inbox del usuario autenticado:
+
+```js
+const wsBase = location.origin.replace("http", "ws");
+const userId = CURRENT_USER_ID; // entero
+const inboxUrl = `${wsBase}/ws/chat/inbox/${userId}/`;
+const inboxSocket = new WebSocket(inboxUrl);
+
+inboxSocket.onopen = () => {
+  // Conectado: listo para recibir eventos `new_inbox_alert`
+};
+
+inboxSocket.onmessage = (evt) => {
+  const msg = JSON.parse(evt.data);
+  // msg tiene: message_id, sender, receiver, content, created_at,
+  // y datos de la contraparte: counterpart_full_name, counterpart_profile_picture
+  // Actualizar/crear conversación y reordenar por actividad
+};
+
+inboxSocket.onclose = () => {
+  // Implementar reconexión exponencial
+};
+```
+
+- Conexión a sala de chat entre dos usuarios y envío de mensaje:
+
+```js
+const wsBase = location.origin.replace("http", "ws");
+const senderId = CURRENT_USER_ID;
+const receiverId = OTHER_USER_ID;
+const roomId = `${Math.min(senderId, receiverId)}-${Math.max(
+  senderId,
+  receiverId
+)}`;
+const chatUrl = `${wsBase}/ws/chat/${roomId}/`;
+const chatSocket = new WebSocket(chatUrl);
+
+chatSocket.onopen = () => {
+  chatSocket.send(
+    JSON.stringify({
+      sender: senderId,
+      receiver: receiverId,
+      content: "Hola! ¿Te interesa esta propiedad?",
+    })
+  );
+};
+
+chatSocket.onmessage = (evt) => {
+  const data = JSON.parse(evt.data);
+  if (data.error) {
+    // Manejo de errores: room_id mismatch, IDs inválidos, etc.
+    return;
+  }
+  // data contiene el mensaje serializado con id, room_id, sender, receiver, content, created_at, is_read
+};
+```
+
+### Canal de Inbox (Notificaciones de conversaciones)
+
+- Rutas:
+  - `ws://<host>/ws/chat/inbox/<user_id>/`
+  - `ws://<host>/ws/notifications/<user_id>/`
+  - Rutas aceptadas: con o sin slash inicial y con o sin barra final. Se recomienda `ws://<host>/ws/chat/inbox/<user_id>/` con barra inicial y barra final.
+- Autenticación: si el usuario está autenticado y el `user_id` no coincide, el servidor cierra la conexión.
+- Flujo:
+  - Al almacenar un mensaje, el backend emite:
+    - En la sala específica: `ws/chat/<room_id>`
+    - En el inbox del receptor: `ws/chat/inbox/<receiver_id>`
+    - Opcionalmente en el inbox del remitente: `ws/chat/inbox/<sender_id>`
+- Payload del evento de inbox:
+
+```json
+{
+  "message_id": 123,
+  "sender": 7,
+  "receiver": 5,
+  "content": "¿Te gustaría visitarla?",
+  "created_at": "2025-11-14T13:00:00Z",
+  "counterpart_full_name": "Juan Pérez",
+  "counterpart_profile_picture": "https://.../media/...jpg"
+}
+```
+
+- Uso en cliente:
+  - La pantalla principal se suscribe solo al inbox del usuario actual.
+  - Cada evento recibido: crea/actualiza la conversación y reordena por actividad reciente.
+- Handler en cliente/servidor:
+  - El campo `type` del evento es `new_inbox_alert` y el `InboxConsumer` expone el manejador `new_inbox_alert`.
+  - Este evento se dispara solo cuando se crea una nueva conversación (primer mensaje entre dos usuarios).
+
+### Guía de implementación de cliente (Inbox)
+
+- Conexión:
+  - URL: `ws://<host>/ws/chat/inbox/<user_id>/`
+  - Mantén una única conexión para la pantalla principal del usuario autenticado.
+- Manejo de eventos `new_inbox_alert`:
+  - Actualiza o crea la conversación identificando la contraparte: si `receiver == current_user_id`, la contraparte es `sender`; si no, es `receiver`.
+  - Usa `counterpart_full_name` y `counterpart_profile_picture` para mostrar nombre y avatar.
+  - Reordena la lista por `created_at` descendente.
+  - No requiere consultas HTTP adicionales para descubrir nuevas conversaciones.
+- Recomendaciones de reconexión:
+  - Implementa reconexión exponencial en el cliente (p.ej., 1s, 2s, 5s, 10s) si la conexión se cierra.
+  - Valida que `user_id` en la URL coincida con el usuario autenticado; si no, el servidor cerrará la conexión.
+
+### Flujo end-to-end
+
+1. Usuario A envía mensaje a Usuario B.
+2. Backend guarda el mensaje y difunde en la sala `ws/chat/<room_id>` evento `chat.message`.
+3. Backend verifica si es la primera interacción entre A y B.
+4. Si es nueva conversación, envía `new_inbox_alert` a `ws/chat/inbox/<B>` y opcionalmente a `ws/chat/inbox/<A>`.
+5. La pantalla principal de B (y A, si aplica) crea/actualiza la conversación y la lista se reordena por actividad.
+
+### Seguridad y buenas prácticas
+
+- Autenticación: el servidor valida la identidad cuando está disponible; usa JWT/cookie segura en producción.
+- Entrega ordenada: los eventos se emiten después de persistir en base de datos.
+- Rate-limiting: se recomienda implementar límites por usuario/canal en el servidor y el cliente para prevenir abuso.
+
+### Envío de mensajes
+
+- Payload JSON:
+
+```json
+{
+  "sender": <user_id>,
+  "receiver": <user_id>,
+  "content": "Texto del mensaje"
+}
+```
+
+- El backend guarda el mensaje en PostgreSQL y lo difunde a todos los clientes de la sala.
+- Errores comunes:
+  - `{"error":"room_id mismatch","expected_room_id":"5-7","provided_room_id":"prop-123"}`
+  - `{"error":"IDs inválidos: sender y receiver deben ser enteros"}`
+- Normalización de sala: si te conectas a `ws/chat/2_3`, el servidor normaliza a `2-3`.
+
+### Recepción
+
+- Evento recibido por el cliente:
+
+```json
+{
+  "id": <message_id>,
+  "room_id": "<room_id>",
+  "roomId": "<room_id>",
+  "sender": <user_id>,
+  "receiver": <user_id>,
+  "content": "Texto",
+  "created_at": "2025-11-14T12:34:56Z",
+  "createdAt": "2025-11-14T12:34:56Z",
+  "is_read": false
+}
+```
+
+### Notas
+
+- En desarrollo, si no hay Redis, se usa una capa de canales en memoria.
+- El historial de mensajes sigue sirviéndose vía las APIs HTTP de `Message`.
+
+## 15. Conversaciones y Mensajes (REST)
+
+### `GET /api/messages/conversations/`
+
+- Autenticación: requerida (JWT)
+- Descripción: lista las conversaciones del usuario autenticado. Cada ítem contiene el otro usuario y el último mensaje.
+- Paginación: `page`, `page_size` (por defecto `50`).
+- Parámetros de optimización:
+  - `include_messages`: `true|false` (por defecto `false`). Si es `true`, incluye historial de mensajes.
+  - `messages_page`: entero (por defecto `1`) — paginación del historial incluido.
+  - `messages_page_size`: entero (por defecto `50`) — tamaño de página del historial.
+- Ejemplo de respuesta:
+
+```json
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "counterpart": {
+        "id": 7,
+        "username": "propietario",
+        "full_name": "Juan Pérez",
+        "profile_picture": "https://.../media/...jpg"
+      },
+      "last_message": {
+        "id": 123,
+        "content": "¿Te gustaría visitarla?",
+        "created_at": "2025-11-14T13:00:00Z",
+        "sender": 7,
+        "receiver": 5
+      },
+      "messages": [
+        {
+          "id": 101,
+          "sender": 5,
+          "receiver": 7,
+          "content": "Hola",
+          "created_at": "2025-11-14T12:00:00Z",
+          "is_read": true
+        },
+        {
+          "id": 115,
+          "sender": 7,
+          "receiver": 5,
+          "content": "¿Te interesa?",
+          "created_at": "2025-11-14T12:30:00Z",
+          "is_read": true
+        },
+        {
+          "id": 123,
+          "sender": 7,
+          "receiver": 5,
+          "content": "¿Te gustaría visitarla?",
+          "created_at": "2025-11-14T13:00:00Z",
+          "is_read": false
+        }
+      ],
+      "messages_pagination": {
+        "page": 1,
+        "page_size": 50,
+        "total": 123,
+        "has_next": true,
+        "has_previous": false
+      },
+      "unread_count": 3
+    }
+  ]
+}
+```
+
+### `POST /api/messages/clear_conversation/`
+
+- Autenticación: requerida (JWT)
+- Body o query: `{ "other_user_id": <id> }`
+- Semántica: marca la conversación como borrada solo para el usuario autenticado.
+  - Mensajes donde el usuario es remitente → `deleted_for_sender = true`
+  - Mensajes donde el usuario es receptor → `deleted_for_receiver = true`
+- Los endpoints `conversations` y `thread` excluyen estos mensajes para el usuario autenticado.
+- La otra persona no pierde su historial.
+- Respuesta: `{ "status": "ok", "updated_sender": <count>, "updated_receiver": <count> }`
+
+- Filtro opcional: `?counterpart=<user_id>` para obtener sólo la conversación con ese usuario.
+
+### `GET /api/messages/thread/?other_user_id=<id>&page=1&page_size=50`
+
+- Autenticación: requerida (JWT)
+- Descripción: devuelve los mensajes entre el usuario autenticado y `other_user_id`.
+- Orden: más recientes primero.
+- Respuesta: paginada estándar con mensajes serializados.
+
+Notas de actualización en tiempo real:
+
+- El endpoint `conversations` devuelve un snapshot del estado en base de datos.
+- Para actualizaciones en tiempo real, suscríbete al WebSocket `ws/chat/<room_id>/` (Channels + Redis).
+- Al recibir un nuevo mensaje por WebSocket, actualiza el contador `unread_count` y agrega el mensaje a `messages`.
+
+### Marcar mensajes como leídos
+
+- `POST /api/messages/{id}/mark_read/`
+  - Autenticación: requerida
+  - Restringido: sólo el receptor del mensaje puede marcarlo
+  - Response (200 OK):
+  ```json
+  {
+    "success": true,
+    "message": "Mensaje marcado como leído exitosamente",
+    "data": { "status": "ok", "message_id": <id>, "is_read": true }
+  }
+  ```
+- `POST /api/messages/mark_thread_read/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Marca como leídos todos los mensajes no leídos enviados por `<id>` al usuario autenticado
+  - Response (200 OK):
+  ```json
+  {
+    "success": true,
+    "message": "Conversación marcada como leída exitosamente",
+    "data": { "status": "ok", "updated": <count> }
+  }
+  ```
+
+### `GET /api/profiles/by_user/<user_id>/`
+
+- Autenticación: requerida (JWT)
+- Descripción: devuelve el perfil asociado a un `user_id` específico (evita ambigüedad `user` vs `user_id`).
+- Ejemplo de respuesta:
+
+```json
+{
+  "profile_id": 12,
+  "user": {
+    "id": 7,
+    "username": "juan",
+    "full_name": "Juan Pérez",
+    "email": "juan@example.com"
+  },
+  "profile_picture": "https://.../media/profile_pictures/user_7_....jpg",
+  "user_type": "inquilino",
+  "is_verified": false
+}
+```
+
+### `GET /api/notifications/my/`
+
+- **Descripción**: Agregado que identifica al usuario autenticado y devuelve:
+  - `notifications`: lista de sus notificaciones.
+  - `messages`: últimos mensajes recibidos y conteo de no leídos.
+  - `likes`: likes realizados por otros usuarios en sus propiedades.
+- **Autenticación**: Requerida.
+- **Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Notificaciones del usuario obtenidas exitosamente",
+    "data": {
+      "notifications": [
+        {
+          "id": 10,
+          "message": "Interés en tu propiedad",
+          "is_read": false,
+          "created_at": "2025-11-26T10:00:00Z"
+        }
+      ],
+      "messages": {
+        "count": 3,
+        "unread_count": 2,
+        "latest": [
+          {
+            "id": 101,
+            "sender": 5,
+            "receiver": 7,
+            "content": "Hola",
+            "created_at": "2025-11-26T09:59:00Z",
+            "is_read": false
+          }
+        ]
+      },
+      "likes": {
+        "count": 1,
+        "results": [
+          {
+            "property_id": 45,
+            "property_title": "departamento en Calle Falsa 123",
+            "liker": { "id": 5, "username": "juan" },
+            "score": 82.5,
+            "created_at": "2025-11-26T09:58:00Z"
+          }
+        ]
+      }
+    }
+  }
+  ```
+  **Nota sobre listados por compatibilidad**
+- Cuando el usuario autenticado solicita listados basados en compatibilidad (`match_score` y/o `order_by_match=true`), el sistema excluye por defecto las propiedades cuyo `owner` coincide con el usuario actual.
+- Para incluir estas propiedades propias en el mismo listado, añade `include_own=true` en la consulta.
+
+## 16. Endpoints de Reportes (`/api/reports/`, `/api/report-categories/`)
+
+Sistema para reportar perfiles de usuarios (propietarios, agentes, inquilinos) y propiedades (casas, departamentos, terrenos, otros).
+
+### `GET /api/report-categories/`
+
+- Descripción: Lista categorías activas de reportes.
+- Autenticación: Requerida.
+- Response (200 OK): arreglo con `{ id, name, scope, is_active }`.
+
+### `POST /api/reports/`
+
+- Descripción: Crea un reporte.
+- Autenticación: Requerida.
+- Body (JSON):
+
+```json
+{
+  "target_type": "property", // "user" o "property"
+  "target_property": 123, // requerido si target_type = "property"
+  "target_user": 45, // requerido si target_type = "user"
+  "category": 1, // opcional
+  "title": "Dirección incorrecta",
+  "description": "La dirección no coincide con la realidad.",
+  "severity": "medium" // opcional
+}
+```
+
+- Response (201 Created): reporte creado. Se envía una notificación al usuario confirmando recepción.
+- Validaciones:
+  - `title` obligatorio, `description` ≥ 10 caracteres.
+  - Uno y solo uno de `target_user` / `target_property` según `target_type`.
+  - Límite anti-abuso: máx. 10 reportes por hora por usuario.
+
+### `GET /api/reports/`
+
+- Descripción: Lista de reportes.
+- Autenticación: Requerida.
+- Permisos:
+  - Usuario normal: ve solo sus propios reportes.
+  - Admin (`is_staff`): ve todos los reportes.
+
+### `GET /api/reports/my/`
+
+- Descripción: Lista paginada de reportes enviados por el usuario autenticado.
+- Autenticación: Requerida.
+
+### `POST /api/reports/{id}/add_attachment/`
+
+- Descripción: Agrega un adjunto (archivo) al reporte.
+- Autenticación: Requerida.
+- Content-Type: `multipart/form-data`
+- Campos: `file` (requerido).
+
+### `POST /api/reports/{id}/update_status/`
+
+- Descripción: Actualiza el estado de un reporte (solo admin/staff).
+- Autenticación: Requerida.
+- Body:
+
+```json
+{ "status": "in_review", "admin_notes": "Se está revisando" }
+```
+
+- Estados permitidos: `submitted`, `in_review`, `resolved`, `rejected`.
+- Efectos: Se notifica al reportante el cambio de estado.
+
+### Consideraciones de seguridad
+
+- Validación estricta de entradas (tipos, obligatoriedad, longitud mínima).
+- Límite básico anti-abuso: máximo 10 reportes por hora.
+- Reportes y adjuntos asociados solo al reportante y personal autorizado.
+
+### Bloqueo de usuarios
+
+- `POST /api/profiles/block/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Efecto: el usuario autenticado bloquea a `<id>`. Se evita en ambos sentidos: no se podrán ver perfiles, propiedades del bloqueado, ni enviar/recibir mensajes.
+  - Respuesta: `{ "status": "blocked", "other_user_id": <id> }`
+- `POST /api/profiles/unblock/`
+  - Body o query: `{ "other_user_id": <id> }`
+  - Respuesta: `{ "status": "unblocked", "other_user_id": <id> }`
+- `GET /api/profiles/blocked/`
+  - Lista de usuarios bloqueados por el usuario autenticado.
+  - Respuesta: `{ "count": <n>, "results": [{ "id": <id>, "username": "..." }] }`
+
+### Efectos del bloqueo
+
+- Mensajería (`/api/messages/`):
+  - Enviar mensaje a un usuario bloqueado o que te bloqueó retorna `403`.
+  - Conversaciones y hilos excluyen usuarios bloqueados.
+- Propiedades (`/api/properties/`):
+  - Listados excluyen propiedades cuyo `owner` está bloqueado o te bloqueó.
+  - `POST /api/properties/{id}/like/` retorna `403` si el propietario está bloqueado.
+- Perfiles (`/api/profiles/by_user/<id>/`):
+  - Retorna `403` si existe bloqueo en cualquiera de los dos sentidos.
+- Matching/Recomendaciones:
+  - Matches y recomendaciones excluyen usuarios bloqueados y propiedades de dueños bloqueados.
+
+### Eliminación diferida de cuenta
+
+- **Endpoint**: `POST /api/profiles/request_delete_account/`
+- **Autenticación**: Requerida (JWT)
+- **Descripción**: Agenda la eliminación definitiva de la cuenta en 30 días. El usuario recibirá una notificación; si vuelve a iniciar sesión antes de la fecha, se cancela la eliminación automáticamente.
+- **Response (200 OK)**:
+
+```json
+{
+  "success": true,
+  "message": "Eliminación programada",
+  "data": {
+    "status": "deletion_scheduled",
+    "scheduled_for": "2025-12-31T10:00:00Z"
+  }
+}
+```
+
+- **Cancelar eliminación**
+
+  - **Endpoint**: `POST /api/profiles/cancel_delete_account/`
+  - **Autenticación**: Requerida (JWT)
+  - **Descripción**: Cancela manualmente la eliminación programada. Nota: iniciar sesión mediante `POST /api/login/` también cancela la eliminación pendiente de manera automática.
+  - **Response (200 OK)**:
+
+  ```json
+  {
+    "success": true,
+    "message": "Eliminación cancelada",
+    "data": { "status": "deletion_cancelled" }
+  }
+  ```
+
+- **Login que cancela eliminación**
+
+  - **Endpoint**: `POST /api/login/`
+  - **Body**:
+    ```json
+    { "username": "usuario", "password": "secreto" }
+    ```
+  - **Efecto adicional**: si el perfil del usuario tiene `deletion_pending=true`, se restablece automáticamente (se borran los campos de eliminación).
+
+- **Eliminación definitiva**
+  - Proceso: tarea/command de backend ejecuta la eliminación definitiva cuando `deletion_scheduled_for <= now`.
+  - Command manual (ops): `python manage.py purge_soft_deleted_users`
+  - Efecto: se elimina el `User` y por cascada sus datos asociados.
+
+## 17. Endpoints de Pagos BNB (`/api/bnb/`)
+
+Integración con BNB Pago QR Simple.
+
+### `POST /api/bnb/generate-qr`
+
+- **Descripción**: Genera un código QR para pago.
+- **Autenticación**: No requerida (o según configuración de vista).
+- **Body JSON**:
+  ```json
+  {
+    "amount": 50.0,
+    "description": "Pedido #123",
+    "single_use": true,
+    "expiration_minutes": 30,
+    "additional_data": "order_id:123"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "qr_id": "...",
+    "qr_base64": "..."
+  }
+  ```
+- **Errores**:
+  - `400 Bad Request`: Faltan datos (`amount`, `description`).
+  - `502 Bad Gateway`: Error al comunicar con BNB.
+
+### `POST /api/bnb/notify`
+
+- **Descripción**: Webhook para notificaciones de pago desde BNB.
+- **Body JSON**: Estructura definida por BNB (QRId, Gloss, etc.).
+- **Response**:
+  ```json
+  { "success": true, "message": "OK" }
+  ```
+
+| Método | Endpoint                  | Descripción                  |
+| ------ | ------------------------- | ---------------------------- |
+| `POST` | `/api/reports/`           | Reportar usuario o propiedad |
+| `GET`  | `/api/report-categories/` | Listar categorías de reporte |
 
 **Payload Reporte:**
 
@@ -298,7 +4126,7 @@ POST /api/match_feedback/
 Para visualización de mapas de calor y zonas hexagonales.
 Ver documentación detallada en: [zones.md](./zones.md)
 
-| Método | Endpoint               | Descripción                         |
-| ------ | ---------------------- | ----------------------------------- |
-| `GET`  | `/api/map/zones/`      | GeoJSON de zonas hexagonales        |
-| `GET`  | `/api/properties/map/` | GeoJSON de propiedades individuales |
+| Método | Endpoint               | Descripción                              |
+| ------ | ---------------------- | ---------------------------------------- |
+| `GET`  | `/api/map/zones/`      | GeoJSON de zonas hexagonales (Protegido) |
+| `GET`  | `/api/properties/map/` | GeoJSON de propiedades individuales      |
