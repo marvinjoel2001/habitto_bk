@@ -10,12 +10,25 @@ from .models import UserProfile, ProfilePictureHistory
 from .models import Block
 from .models import UserLocationPoint
 from .serializers import UserSerializer, UserCreateSerializer, UserProfileSerializer, ProfilePictureHistorySerializer, UserLocationPointSerializer
-from bk_habitto.services.cloudinary_service import CloudinaryService
+from bk_habitto.services.media_service import MediaService
+from bk_habitto.mixins import MessageConfigMixin
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('id')
-    serializer_class = UserSerializer
-    parser_classes = [MultiPartParser, FormParser, JSONParser]
+class UserViewSet(MessageConfigMixin, viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    success_messages = {
+        'list': 'Usuarios obtenidos exitosamente',
+        'retrieve': 'Usuario obtenido exitosamente',
+        'create': 'Usuario creado exitosamente',
+        'update': 'Usuario actualizado exitosamente',
+        'partial_update': 'Usuario actualizado exitosamente',
+        'destroy': 'Usuario eliminado exitosamente',
+        'me': 'Información del usuario actual obtenida exitosamente',
+        'update_me': 'Información del usuario actualizada exitosamente',
+        'upload_profile_picture': 'Foto de perfil actualizada exitosamente',
+        'upload_video_presentation': 'Video de presentación actualizado exitosamente',
+    }
 
     def get_serializer_class(self):
         if self.action == 'create':

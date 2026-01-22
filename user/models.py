@@ -48,6 +48,7 @@ class UserProfile(models.Model):
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='inquilino')
     phone = models.CharField(max_length=20, blank=True, null=True)
     profile_picture_url = models.URLField(max_length=500, blank=True, null=True)
+    video_presentation_url = models.URLField(max_length=500, blank=True, null=True, help_text="URL del video de presentación (corto)")
     is_verified = models.BooleanField(default=False)
     # Campos de verificación automática
     id_card_front_url = models.URLField(max_length=500, blank=True, null=True)

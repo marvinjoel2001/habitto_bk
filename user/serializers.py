@@ -77,6 +77,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(write_only=True, required=False)
     picture_history = ProfilePictureHistorySerializer(many=True, read_only=True)
     profile_picture = serializers.ImageField(write_only=True, required=False)
+    video_presentation = serializers.FileField(write_only=True, required=False)
     id_card_front = serializers.ImageField(write_only=True, required=False)
     id_card_back = serializers.ImageField(write_only=True, required=False)
     selfie = serializers.ImageField(write_only=True, required=False)
@@ -86,6 +87,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'user_id', 'user_type', 'phone',
             'profile_picture', 'profile_picture_url',
+            'video_presentation', 'video_presentation_url',
             'is_verified',
             'id_card_front', 'id_card_front_url',
             'id_card_back', 'id_card_back_url',
@@ -98,7 +100,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         # Manejar historial si cambia la foto
         new_picture = validated_data.pop('profile_picture', None)
+        new_video = validated_data.pop('video_presentation', None)
         new_picture_url = validated_data.get('profile_picture_url')
+        new_video_url = validated_data.get('video_presentation_url')
 
         # Manejar otras imágenes (verificación) - subida a Cloudinary
         for field in ['id_card_front', 'id_card_back', 'selfie']:
@@ -117,6 +121,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 if uploaded_url:
                     new_picture_url = uploaded_url
                     validated_data['profile_picture_url'] = new_picture_url
+            except Exception:
+                pass
+
+        # Si hay nuevo video de presentación (archivo), subirlo
+        if new_video:
+            try:
+                # Importar MediaService para usar upload_video
+                from bk_habitto.services.media_service import MediaService
+                uploaded_video_url = MediaService.upload_video(new_video, folder="habitto/profiles/videos")
+                if uploaded_video_url:
+                    validated_data['video_presentation_url'] = uploaded_video_url
             except Exception:
                 pass
 

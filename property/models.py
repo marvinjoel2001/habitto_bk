@@ -55,6 +55,7 @@ class Property(models.Model):
     roomie_profile = models.ForeignKey('matching.SearchProfile', on_delete=models.SET_NULL, null=True, blank=True, related_name='roomie_properties', help_text="Perfil del inquilino que busca roomie")
     tenant_requirements = models.JSONField(default=dict, blank=True)
     photos_urls = models.JSONField(default=list, blank=True, help_text="Lista de URLs de imágenes en Cloudinary")
+    videos_urls = models.JSONField(default=list, blank=True, help_text="Lista de URLs de videos")
     tags = models.JSONField(default=list, blank=True)
     semantic_embedding = models.TextField(null=True, blank=True)
 
