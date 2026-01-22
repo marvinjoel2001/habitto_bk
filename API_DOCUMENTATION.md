@@ -3650,6 +3650,7 @@ curl -X POST http://localhost:8000/api/matches/123/owner_accept/ \
   - El servidor valida que el `room_id` coincida con los IDs enviados en el payload.
   - Normalización de sala: si te conectas a `ws/chat/2_3`, el servidor normaliza a `2-3`.
   - Rutas aceptadas: con o sin slash inicial en el path (`/ws/chat/...` o `ws/chat/...`) y con o sin barra final (`/...` o sin `/`). Se recomienda usar `ws://<host>/ws/chat/<room_id>/` con barra inicial y barra final.
+- Documentación completa de sockets: [WEBSOCKET_SOCKETS.md](file:///Users/forceonetechnologies/Documents/Project%20Mar/habitto_bk/WEBSOCKET_SOCKETS.md)
 
 #### Ejemplos de cliente (JavaScript)
 

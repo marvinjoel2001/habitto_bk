@@ -4,27 +4,25 @@
 
 El sistema de notificaciones en tiempo real de Habitto utiliza WebSockets para proporcionar actualizaciones instantáneas sobre eventos importantes del sistema de matching. Las notificaciones se envían a través de canales dedicados para propietarios y inquilinos.
 
+Para ver el listado completo de sockets de la app, consulta: [WEBSOCKET_SOCKETS.md](file:///Users/forceonetechnologies/Documents/Project%20Mar/habitto_bk/WEBSOCKET_SOCKETS.md)
+
 ## 🔗 Endpoints de WebSocket
 
 ### 1. Notificaciones de Propiedades
-**URL:** `ws://localhost:8000/ws/property-notifications/{user_id}/`
+**URL:** `ws://<host>/ws/property-notifications/{user_id}/`
 
-**Autenticación:** Requiere token JWT en query params o headers
+**Autenticación:** Depende del middleware de Channels configurado (sesión/JWT). El `user_id` debe coincidir con el usuario autenticado.
 
 **Parámetros de URL:**
 - `user_id`: ID del usuario (debe coincidir con el usuario autenticado)
 
-**Parámetros de Conexión:**
-- `token`: JWT token (opcional en query string)
-- `Authorization: Bearer {token}`: Header de autorización (opcional)
-
 **Ejemplo de Conexión:**
 ```javascript
-const socket = new WebSocket(`ws://localhost:8000/ws/property-notifications/${userId}/?token=${jwtToken}`);
+const socket = new WebSocket(`ws://<host>/ws/property-notifications/${userId}/`);
 ```
 
 ### 2. Notificaciones de Inquilinos
-**URL:** `ws://localhost:8000/ws/tenant-notifications/{user_id}/`
+**URL:** `ws://<host>/ws/tenant-notifications/{user_id}/`
 
 **Autenticación:** Igual que el endpoint de propiedades
 
@@ -52,9 +50,7 @@ const socket = new WebSocket(`ws://localhost:8000/ws/property-notifications/${us
     "username": "juan_perez",
     "email": "juan@example.com",
     "first_name": "Juan",
-    "last_name": "Perez",
-    "phone": "+1234567890",
-    "user_type": "inquilino"
+    "last_name": "Perez"
   },
   "timestamp": "2024-01-15T10:30:00.000Z",
   "notification_id": "550e8400-e29b-41d4-a716-446655440000"
@@ -71,12 +67,6 @@ const socket = new WebSocket(`ws://localhost:8000/ws/property-notifications/${us
   "owner_contact": {
     "email": "owner@example.com",
     "phone": "+1234567890"
-  },
-  "tenant_user": {
-    "id": 456,
-    "username": "juan_perez",
-    "full_name": "Juan Pérez",
-    "profile_picture": "https://.../media/profile_pictures/user_456_....jpg"
   },
   "match_status": "accepted",
   "next_steps": [
@@ -204,7 +194,7 @@ class HabittoWebSocketClient {
     }
 
     connect() {
-        const url = `ws://localhost:8000/ws/property-notifications/${this.userId}/?token=${this.token}`;
+        const url = `ws://<host>/ws/property-notifications/${this.userId}/`;
         this.socket = new WebSocket(url);
 
         this.socket.onopen = (event) => {
@@ -262,7 +252,7 @@ class HabittoWebSocketClient {
     showMatchAcceptedNotification(data) {
         const notification = {
             title: '¡Match Aceptado!',
-            body: `Match con ${data.tenant_user?.full_name || 'inquilino'}`,
+            body: `Match aceptado para ${data.property_title}`,
             data: data
         };
 
@@ -322,15 +312,15 @@ client.connect();
 ```javascript
 import { useEffect, useState } from 'react';
 
-const useHabittoWebSocket = (userId, token) => {
+const useHabittoWebSocket = (userId) => {
     const [socket, setSocket] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        if (!userId || !token) return;
+        if (!userId) return;
 
-        const ws = new WebSocket(`ws://localhost:8000/ws/property-notifications/${userId}/?token=${token}`);
+        const ws = new WebSocket(`ws://<host>/ws/property-notifications/${userId}/`);
 
         ws.onopen = () => {
             setIsConnected(true);
@@ -355,7 +345,7 @@ const useHabittoWebSocket = (userId, token) => {
         return () => {
             ws.close();
         };
-    }, [userId, token]);
+    }, [userId]);
 
     const markAsRead = (notificationId) => {
         if (socket && socket.readyState === WebSocket.OPEN) {
