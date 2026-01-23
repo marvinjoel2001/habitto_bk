@@ -129,8 +129,20 @@ class Property(models.Model):
 
         # Buscar zona que contenga este punto
         try:
+            if self.location.srid is None:
+                self.location.srid = 4326
+
             zone = Zone.objects.filter(bounds__contains=self.location).first()
-            return zone
+            if zone:
+                return zone
+
+            from django.utils import timezone
+            import uuid
+
+            bounds = self.location.buffer(0.01)
+            name = f"Zona Auto {self.location.y:.6f},{self.location.x:.6f}-{uuid.uuid4().hex[:8]}"
+            description = f"Zona generada automáticamente el {timezone.now().strftime('%Y-%m-%d')}"
+            return Zone.objects.create(name=name, bounds=bounds, description=description)
         except Exception:
             # Si hay error en la consulta GIS, retornar None
             return None

@@ -69,6 +69,37 @@ class PropertyAPITestCase(APITestCase):
         self.assertEqual(new_property.latitude, -17.7834)
         self.assertEqual(new_property.longitude, -63.1821)
         
+    def test_create_property_auto_zone(self):
+        from zone.models import Zone
+        self.client.force_authenticate(user=self.owner)
+        url = reverse('property-list')
+        initial_zone_count = Zone.objects.count()
+
+        data = {
+            'type': 'departamento',
+            'address': 'Avenida Sin Zona 100',
+            'latitude': -16.5001,
+            'longitude': -64.2001,
+            'price': '2100.00',
+            'description': 'Departamento nuevo',
+            'bedrooms': 2,
+            'bathrooms': 1
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        new_property = Property.objects.get(address='Avenida Sin Zona 100')
+        self.assertIsNotNone(new_property.zone)
+        self.assertEqual(Zone.objects.count(), initial_zone_count + 1)
+
+        data['address'] = 'Avenida Sin Zona 101'
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        second_property = Property.objects.get(address='Avenida Sin Zona 101')
+        self.assertEqual(second_property.zone_id, new_property.zone_id)
+        self.assertEqual(Zone.objects.count(), initial_zone_count + 1)
+
     def test_create_property_with_zone_id(self):
         """Test crear propiedad con zone_id"""
         from zone.models import Zone

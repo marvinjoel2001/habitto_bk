@@ -337,7 +337,7 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
 
         # Crear Point desde coordenadas si están disponibles
         if latitude is not None and longitude is not None:
-            validated_data['location'] = Point(float(longitude), float(latitude))
+            validated_data['location'] = Point(float(longitude), float(latitude), srid=4326)
 
         # Si se proporciona zone_id, asignarlo
         if zone_id:
