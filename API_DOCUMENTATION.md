@@ -3291,9 +3291,17 @@ Gestiona los mensajes entre usuarios del sistema.
 
 Sistema de matching inteligente para inquilinos, propietarios y agentes.
 
+#### Flujo de creación del SearchProfile (modo chat IA)
+
+1. El frontend conversa con el usuario y construye un JSON completo del perfil.
+2. La IA entrega un JSON estructurado al frontend (con campos opcionales).
+3. El frontend envía ese JSON a `POST /api/search_profiles/`.
+4. El backend asigna el `user` del token, convierte `latitude/longitude` a `Point` y guarda el perfil.
+5. A partir de este perfil, los endpoints de recomendaciones y matches usan sus preferencias.
+
 ### `POST /api/search_profiles/`
 
-- **Descripción**: Crea/actualiza el `SearchProfile` del usuario autenticado con preferencias de búsqueda.
+- **Descripción**: Crea el `SearchProfile` del usuario autenticado con preferencias de búsqueda.
 - **Autenticación**: Requerida.
 - **Request Body (JSON)**:
   - `latitude`/`longitude` (opcional): Coordenadas base del perfil, se convierten a `Point`
@@ -3318,7 +3326,152 @@ Sistema de matching inteligente para inquilinos, propietarios y agentes.
     - `languages` (opcional): Array de idiomas
     - `lifestyle` (opcional): JSON libre con estilo de vida
     - `schedule` (opcional): JSON libre con horarios
-- **Response (200/201)**: Perfil creado/actualizado.
+  - Campos nuevos para precisión geográfica (opcionales):
+    - `work_location`: Objeto con datos laborales
+      - `address` (opcional): Dirección del trabajo
+      - `latitude`, `longitude` (opcional, deben venir juntas): Coordenadas del trabajo
+      - `radius_km` (opcional): Radio máximo aceptable desde el trabajo
+    - `children_school`: Lista de colegios/escuelas de los hijos
+      - Cada ítem: `{ name, address, priority, latitude, longitude }`
+    - `university`: Lista de universidades
+      - Cada ítem: `{ name, address, frequency, latitude, longitude }`
+    - `recurring_places`: Lista de puntos de interés recurrentes
+      - Cada ítem: `{ type, name, address, frequency, latitude, longitude }`
+- **Request Example**:
+  ```json
+  {
+    "latitude": -17.7834,
+    "longitude": -63.1821,
+    "budget_min": "400.00",
+    "budget_max": "800.00",
+    "desired_types": ["departamento"],
+    "bedrooms_min": 1,
+    "bedrooms_max": 2,
+    "amenities": [1, 2],
+    "roommate_preference": "no",
+    "preferred_zones": [3, 5],
+    "work_location": {
+      "address": "Av. Trabajo 123",
+      "latitude": -17.7800,
+      "longitude": -63.1800,
+      "radius_km": 5
+    },
+    "children_school": [
+      {
+        "name": "Colegio Central",
+        "address": "Calle Escuela 55",
+        "priority": "alta",
+        "latitude": -17.7810,
+        "longitude": -63.1810
+      }
+    ],
+    "university": [
+      {
+        "name": "Universidad Mayor",
+        "address": "Av. Universidad 200",
+        "frequency": "diaria",
+        "latitude": -17.7820,
+        "longitude": -63.1820
+      }
+    ],
+    "recurring_places": [
+      {
+        "type": "gimnasio",
+        "name": "Gym Norte",
+        "address": "Calle Fitness 10",
+        "frequency": "semanal",
+        "latitude": -17.7830,
+        "longitude": -63.1830
+      }
+    ],
+    "age": 29,
+    "children_count": 1,
+    "family_size": 3,
+    "smoker": false,
+    "gender": "female",
+    "occupation": "Ingeniera",
+    "has_vehicle": true,
+    "commute_distance_km": 6,
+    "education_level": "universitario",
+    "pets_count": 1,
+    "languages": ["es", "en"],
+    "lifestyle": {"sleep_time": "23:00", "wake_time": "07:00"},
+    "schedule": {"workdays": ["mon", "tue", "wed", "thu", "fri"]}
+  }
+  ```
+- **Response (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Perfil de búsqueda creado exitosamente",
+    "data": {
+      "id": 12,
+      "user": 7,
+      "user_id": 7,
+      "location": "POINT (-63.1821 -17.7834)",
+      "budget_min": "400.00",
+      "budget_max": "800.00",
+      "desired_types": ["departamento"],
+      "bedrooms_min": 1,
+      "bedrooms_max": 2,
+      "amenities": [1, 2],
+      "roommate_preference": "no",
+      "roommate_preferences": {},
+      "vibes": [],
+      "preferred_zones": [3, 5],
+      "work_location": {
+        "address": "Av. Trabajo 123",
+        "latitude": -17.7800,
+        "longitude": -63.1800,
+        "radius_km": 5
+      },
+      "children_school": [
+        {
+          "name": "Colegio Central",
+          "address": "Calle Escuela 55",
+          "priority": "alta",
+          "latitude": -17.7810,
+          "longitude": -63.1810
+        }
+      ],
+      "university": [
+        {
+          "name": "Universidad Mayor",
+          "address": "Av. Universidad 200",
+          "frequency": "diaria",
+          "latitude": -17.7820,
+          "longitude": -63.1820
+        }
+      ],
+      "recurring_places": [
+        {
+          "type": "gimnasio",
+          "name": "Gym Norte",
+          "address": "Calle Fitness 10",
+          "frequency": "semanal",
+          "latitude": -17.7830,
+          "longitude": -63.1830
+        }
+      ],
+      "age": 29,
+      "children_count": 1,
+      "family_size": 3,
+      "smoker": false,
+      "gender": "female",
+      "occupation": "Ingeniera",
+      "has_vehicle": true,
+      "commute_distance_km": 6,
+      "education_level": "universitario",
+      "pets_count": 1,
+      "languages": ["es", "en"],
+      "lifestyle": {"sleep_time": "23:00", "wake_time": "07:00"},
+      "schedule": {"workdays": ["mon", "tue", "wed", "thu", "fri"]},
+      "semantic_embedding": null,
+      "created_at": "2026-01-23T12:00:00Z",
+      "updated_at": "2026-01-23T12:00:00Z"
+    }
+  }
+  ```
 
 ### `GET /api/search_profiles/my/`
 
@@ -3608,6 +3761,7 @@ curl -X POST http://localhost:8000/api/matches/123/owner_accept/ \
 #### Cómo se eligen las propiedades mostradas
 
 - El sistema genera matches con `score` calculado por reglas: ubicación, precio vs presupuesto, amenities, preferencias de roomie, reputación y frescura, y un factor familiar (p.ej., hijos vs dormitorios).
+- Si el `SearchProfile` incluye `work_location`, `children_school`, `university` o `recurring_places`, se agrega un factor de proximidad a esos puntos.
 - Solo se almacenan matches con `score >= 70`.
 - Para listar propiedades directamente: `GET /api/properties/?match_score=70` filtra según el `SearchProfile` del usuario autenticado.
 - Para una experiencia tipo swipe y priorizar probabilidades altas, usa `GET /api/search_profiles/{id}/matches/?type=property`.

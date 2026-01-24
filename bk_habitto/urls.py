@@ -53,6 +53,7 @@ def api_root(request):
         'recommendations': '/api/recommendations/',
         'reports': '/api/reports/',
         'report_categories': '/api/report-categories/',
+        'contact': '/api/contact/',
         }
     })
 
@@ -78,6 +79,7 @@ urlpatterns = [
     path('api/', include('matching.urls')),
     path('api/', include('report.urls')),
     path('api/', include('payments.urls')),
+    path('api/', include('habittoapp.urls')),
     # dj-rest-auth core & registration
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),

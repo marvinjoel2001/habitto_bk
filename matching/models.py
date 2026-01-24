@@ -34,6 +34,10 @@ class SearchProfile(models.Model):
     lifestyle = models.JSONField(default=dict)
     schedule = models.JSONField(default=dict)
     stable_job = models.BooleanField(default=False)
+    work_location = models.JSONField(default=dict)
+    children_school = models.JSONField(default=list)
+    university = models.JSONField(default=list)
+    recurring_places = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

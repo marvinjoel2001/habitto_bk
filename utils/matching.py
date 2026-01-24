@@ -13,11 +13,17 @@ THRESHOLD = getattr(settings, 'MATCH_MIN_SCORE', 70)
 
 
 def calculate_property_match_score(search_profile: SearchProfile, property_obj: Property) -> Tuple[float, Dict]:
+    def _distance_km(point_a, point_b):
+        try:
+            return point_a.distance(point_b) * 100
+        except Exception:
+            return None
+
     # 1. Location Score: Distancia GIS
     if search_profile.location and property_obj.location:
         try:
             # Aproximado en kilómetros usando distancia geodésica simple
-            distance_km = search_profile.location.distance(property_obj.location) * 100
+            distance_km = _distance_km(search_profile.location, property_obj.location)
         except Exception:
             distance_km = 0
         location_score = max(0, 100 - (distance_km * 10))
@@ -75,7 +81,60 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
     except Exception:
         family_score = 80
 
-    # 7. Preferencias del propietario sobre el inquilino
+    # 7. Anclajes de ubicación relevantes
+    anchor_score = location_score
+    if property_obj.location:
+        anchors = []
+        work_location = getattr(search_profile, 'work_location', None) or {}
+        if isinstance(work_location, dict):
+            wlat = work_location.get('latitude')
+            wlng = work_location.get('longitude')
+            if wlat is not None and wlng is not None:
+                anchors.append((Point(float(wlng), float(wlat), srid=4326), work_location.get('radius_km')))
+
+        for item in (getattr(search_profile, 'children_school', None) or []):
+            if isinstance(item, dict):
+                ilat = item.get('latitude')
+                ilng = item.get('longitude')
+                if ilat is not None and ilng is not None:
+                    anchors.append((Point(float(ilng), float(ilat), srid=4326), None))
+
+        for item in (getattr(search_profile, 'university', None) or []):
+            if isinstance(item, dict):
+                ilat = item.get('latitude')
+                ilng = item.get('longitude')
+                if ilat is not None and ilng is not None:
+                    anchors.append((Point(float(ilng), float(ilat), srid=4326), None))
+
+        for item in (getattr(search_profile, 'recurring_places', None) or []):
+            if isinstance(item, dict):
+                ilat = item.get('latitude')
+                ilng = item.get('longitude')
+                if ilat is not None and ilng is not None:
+                    anchors.append((Point(float(ilng), float(ilat), srid=4326), None))
+
+        if anchors:
+            scores = []
+            for point, radius in anchors:
+                dist = _distance_km(point, property_obj.location)
+                if dist is None:
+                    continue
+                if radius is not None:
+                    try:
+                        radius_val = float(radius)
+                    except Exception:
+                        radius_val = None
+                    if radius_val is not None:
+                        if dist <= radius_val:
+                            scores.append(100)
+                        else:
+                            scores.append(max(0, 100 - (dist - radius_val) * 15))
+                        continue
+                scores.append(max(0, 100 - dist * 12))
+            if scores:
+                anchor_score = max(scores)
+
+    # 8. Preferencias del propietario sobre el inquilino
     try:
         owner_prefs_score = 100
         # Género
@@ -103,7 +162,7 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
     except Exception:
         owner_prefs_score = 80
 
-    # 8. Boost por favorito (estrella)
+    # 9. Boost por favorito (estrella)
     try:
         engagement_boost = 0
         up = getattr(search_profile.user, 'profile', None)
@@ -113,7 +172,7 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         engagement_boost = 0
 
     weights = {
-        'location': 0.26,
+        'location': 0.22,
         'price': 0.24,
         'amenities': 0.13,
         'roommate': 0.10,
@@ -121,6 +180,7 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         'freshness': 0.05,
         'family': 0.05,
         'owner_prefs': 0.09,
+        'anchors': 0.04,
     }
     total_score = sum([
         location_score * weights['location'],
@@ -131,6 +191,7 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         freshness_score * weights['freshness'],
         family_score * weights['family'],
         owner_prefs_score * weights['owner_prefs'],
+        anchor_score * weights['anchors'],
     ])
     total_score = min(100.0, total_score + engagement_boost)
     details = {
@@ -142,6 +203,7 @@ def calculate_property_match_score(search_profile: SearchProfile, property_obj: 
         'freshness_score': round(freshness_score, 2),
         'family_score': round(family_score, 2),
         'owner_prefs_score': round(owner_prefs_score, 2),
+        'anchor_score': round(anchor_score, 2),
         'engagement_boost': round(engagement_boost, 2),
     }
     return round(total_score, 2), {'details': details}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nuevo contacto</title>
+  </head>
+  <body style="margin:0;background:#f4f6fb;font-family:Arial,Helvetica,sans-serif;color:#1f2a37;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f4f6fb;padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="640" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 12px 30px rgba(15,23,42,0.08);">
+            <tr>
+              <td style="padding:24px 32px;background:#111827;color:#ffffff;">
+                <table role="presentation" width="100%">
+                  <tr>
+                    <td align="left">
+                      {% if logo_url %}
+                      <img src="{{ logo_url }}" alt="Habitto" width="140" style="display:block;border:0;" />
+                      {% else %}
+                      <div style="font-size:20px;font-weight:700;letter-spacing:0.5px;">Habitto</div>
+                      {% endif %}
+                    </td>
+                    <td align="right" style="font-size:12px;color:#cbd5f5;">
+                      {{ sent_at|date:"Y-m-d H:i" }}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 32px;">
+                <h1 style="margin:0 0 12px;font-size:22px;color:#111827;">Nuevo mensaje desde el formulario</h1>
+                <p style="margin:0 0 18px;font-size:14px;color:#6b7280;">
+                  Recibiste una nueva solicitud de contacto desde la web.
+                </p>
+                <table role="presentation" width="100%" style="background:#f9fafb;border-radius:12px;padding:16px;">
+                  <tr>
+                    <td style="font-size:13px;color:#6b7280;width:140px;">Nombre completo</td>
+                    <td style="font-size:14px;color:#111827;font-weight:600;">{{ full_name }}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#6b7280;padding-top:8px;">Correo</td>
+                    <td style="font-size:14px;color:#111827;font-weight:600;padding-top:8px;">{{ email }}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:13px;color:#6b7280;padding-top:8px;">Asunto</td>
+                    <td style="font-size:14px;color:#111827;font-weight:600;padding-top:8px;">{{ subject }}</td>
+                  </tr>
+                </table>
+                <div style="margin-top:20px;">
+                  <div style="font-size:13px;color:#6b7280;margin-bottom:6px;">Mensaje</div>
+                  <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;font-size:14px;line-height:1.6;color:#111827;white-space:pre-wrap;">{{ message }}</div>
+                </div>
+              </td>
+            </tr>
+            {% if content_image_url %}
+            <tr>
+              <td align="center" style="padding:0 32px 28px;">
+                <img src="{{ content_image_url }}" alt="Contenido" width="520" style="display:block;border-radius:14px;max-width:100%;" />
+              </td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td style="padding:20px 32px;background:#f9fafb;color:#6b7280;font-size:12px;text-align:center;">
+                Este correo fue enviado automáticamente desde el formulario de contacto.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

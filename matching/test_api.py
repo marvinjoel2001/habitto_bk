@@ -25,12 +25,50 @@ class MatchingAPITestCase(APITestCase):
             'longitude': -63.1821,
             'budget_min': '400.00',
             'budget_max': '800.00',
-            'desired_types': ['departamento']
+            'desired_types': ['departamento'],
+            'work_location': {
+                'address': 'Av. Trabajo 123',
+                'latitude': -17.7800,
+                'longitude': -63.1800,
+                'radius_km': 5
+            },
+            'children_school': [
+                {
+                    'name': 'Colegio Central',
+                    'address': 'Calle Escuela 55',
+                    'priority': 'alta',
+                    'latitude': -17.7810,
+                    'longitude': -63.1810
+                }
+            ],
+            'university': [
+                {
+                    'name': 'Universidad Mayor',
+                    'address': 'Av. Universidad 200',
+                    'frequency': 'diaria',
+                    'latitude': -17.7820,
+                    'longitude': -63.1820
+                }
+            ],
+            'recurring_places': [
+                {
+                    'type': 'gimnasio',
+                    'name': 'Gym Norte',
+                    'address': 'Calle Fitness 10',
+                    'frequency': 'semanal',
+                    'latitude': -17.7830,
+                    'longitude': -63.1830
+                }
+            ]
         }
         response = self.client.post(url, data, format='json')
         self.assertIn(response.status_code, [status.HTTP_201_CREATED, status.HTTP_200_OK])
         sp = SearchProfile.objects.get(user=self.user)
         self.assertIsNotNone(sp.location)
+        self.assertEqual(sp.work_location.get('address'), 'Av. Trabajo 123')
+        self.assertEqual(sp.children_school[0].get('name'), 'Colegio Central')
+        self.assertEqual(sp.university[0].get('name'), 'Universidad Mayor')
+        self.assertEqual(sp.recurring_places[0].get('type'), 'gimnasio')
 
     def test_property_creation_triggers_match(self):
         # Crear SearchProfile primero (cercano y con presupuesto)

@@ -53,6 +53,14 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         lng = data.get('longitude')
         if (lat is not None and lng is None) or (lng is not None and lat is None):
             raise serializers.ValidationError('Debe proporcionar latitude y longitude juntas.')
+        work_location = data.get('work_location')
+        if work_location is not None:
+            if not isinstance(work_location, dict):
+                raise serializers.ValidationError('work_location debe ser un objeto.')
+            work_lat = work_location.get('latitude')
+            work_lng = work_location.get('longitude')
+            if (work_lat is not None and work_lng is None) or (work_lng is not None and work_lat is None):
+                raise serializers.ValidationError('work_location debe incluir latitude y longitude juntas.')
         return data
 
     def create(self, validated_data):
@@ -60,7 +68,7 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         lat = validated_data.pop('latitude', None)
         lng = validated_data.pop('longitude', None)
         if lat is not None and lng is not None:
-            validated_data['location'] = Point(float(lng), float(lat))
+            validated_data['location'] = Point(float(lng), float(lat), srid=4326)
         instance = super().create(validated_data)
         if amenities_data is not None:
             instance.amenities.set(amenities_data)
@@ -71,7 +79,7 @@ class SearchProfileSerializer(serializers.ModelSerializer):
         lat = validated_data.pop('latitude', None)
         lng = validated_data.pop('longitude', None)
         if lat is not None and lng is not None:
-            instance.location = Point(float(lng), float(lat))
+            instance.location = Point(float(lng), float(lat), srid=4326)
         instance = super().update(instance, validated_data)
         if amenities_data is not None:
             instance.amenities.set(amenities_data)
